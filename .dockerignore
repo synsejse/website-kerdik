@@ -1,0 +1,35 @@
+# Merged root-level .dockerignore
+# These patterns are relative to the build context (repository root).
+# Prefixed paths ensure rules apply only to their respective subprojects.
+
+# --- Backend ---
+backend/target
+
+# --- Frontend ---
+# build output
+frontend/dist/
+
+# generated types
+frontend/.astro/
+
+# dependencies
+frontend/node_modules/
+
+# logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# environment variables
+frontend/.env
+frontend/.env.production
+
+# macOS-specific files
+frontend/.DS_Store
+
+# JetBrains setting folder
+frontend/.idea/
+
+# VSCode setting folder
+frontend/.vscode/

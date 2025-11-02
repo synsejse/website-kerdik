@@ -1,0 +1,36 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="404 – Stránka sa nenašla">
+    <section class="wrap">
+        <h1>404 — Stránka sa nenašla</h1>
+        <p class="lead">
+            Je nám ľúto, ale hľadaná stránka neexistuje alebo bola presunutá.
+        </p>
+    </section>
+</Layout>
+
+<style>
+    .wrap {
+        text-align: center;
+        padding: 3rem 1rem;
+    }
+
+    h1 {
+        margin: 0 0 0.5rem;
+        font-size: 2.25rem;
+        line-height: 1.2;
+    }
+
+    .lead {
+        margin: 0 0 1.25rem;
+        color: #4b5563;
+    }
+
+    @media (min-width: 720px) {
+        .nav ul {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+</style>
