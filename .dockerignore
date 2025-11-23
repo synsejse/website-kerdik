@@ -33,3 +33,6 @@ frontend/.idea/
 
 # VSCode setting folder
 frontend/.vscode/
+
+# --- Root-level ---
+.env

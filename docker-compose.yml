@@ -3,11 +3,13 @@ services:
     image: mariadb:12
     container_name: website_mariadb
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: messages
-      MYSQL_USER: appuser
-      MYSQL_PASSWORD: apppassword
+      MARIADB_DATABASE: ${DB_DATABASE}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     volumes:
       - mariadb_data:/var/lib/mysql
     ports:
@@ -24,11 +26,13 @@ services:
     image: phpmyadmin:latest
     container_name: website_phpmyadmin
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      PMA_USER: root
-      PMA_PASSWORD: rootpassword
+      PMA_USER: ${DB_USER}
+      PMA_PASSWORD: ${DB_PASSWORD}
       UPLOAD_LIMIT: 300M
     ports:
       - "8081:80"
@@ -44,8 +48,10 @@ services:
       dockerfile: Dockerfile
     container_name: website_app
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: mysql://appuser:apppassword@db:3306/messages
+      DATABASE_URL: "mysql://${DB_USER}:${DB_PASSWORD}@db:3306/${DB_DATABASE}"
       ROCKET_ADDRESS: 0.0.0.0
       ROCKET_PORT: 8080
     ports:

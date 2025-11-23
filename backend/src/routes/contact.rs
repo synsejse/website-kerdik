@@ -23,6 +23,8 @@ pub async fn submit_message(
         return Redirect::to("/");
     }
 
+    // TODO: Add input validation here
+
     // Insert message into database
     let result = db
         .transaction(|mut conn| {
