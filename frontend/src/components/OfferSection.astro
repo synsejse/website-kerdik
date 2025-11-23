@@ -106,11 +106,13 @@
     .offer-container {
         max-width: var(--container, 1100px);
         margin: 0 auto;
-        padding: 1.75rem 1rem 2rem; /* match IntroSection .intro-container */
+        /* Increased vertical padding for more top/bottom space to match IntroSection */
+        padding: 2.4rem 1rem 2.8rem;
     }
 
     .offer-title {
-        margin: 0 0 0.75rem;
+        /* More space between the section title and the content under it */
+        margin: 0 0 1.5rem;
         font-size: clamp(1.4rem, 3.2vw, 2rem); /* align with IntroSection .intro-title */
         line-height: 1.2;
         letter-spacing: 0.02em;
@@ -135,7 +137,7 @@
 
     .offer-grid {
         display: grid;
-        gap: 1rem;
+        gap: 1.1rem;
     }
 
     .offer-card {
@@ -162,9 +164,9 @@
     }
 
     .offer-content {
-        padding: 0.85rem 1rem 1rem;
+        padding: 1rem 1rem 1.1rem;
         display: grid;
-        gap: 0.5rem;
+        gap: 0.6rem;
     }
 
     .offer-heading {
@@ -212,9 +214,20 @@
         .offer-media img {
             height: 180px;
         }
+        /* Slightly more space under the title on larger screens */
+        .offer-title {
+            margin-bottom: 1.75rem;
+        }
         .offer-title::after {
             width: 46%;
             height: 0.24em;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .offer-container {
+            /* Slightly increased spacing on small screens too */
+            padding: 1.6rem 1rem 1.85rem;
         }
     }
 </style>

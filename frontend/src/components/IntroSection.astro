@@ -67,13 +67,14 @@ const {
     .intro-container {
         max-width: var(--container, 1100px);
         margin: 0 auto;
-        padding: 1.75rem 1rem 2rem;
+        /* Increased vertical padding for more top/bottom space */
+        padding: 2.4rem 1rem 2.8rem;
     }
 
     .intro-grid {
         display: grid;
         /* Single column by default (implicit), no need for grid-template-columns: 1fr */
-        gap: 1.25rem;
+        gap: 1.5rem;
         align-items: center;
     }
 
@@ -83,7 +84,8 @@ const {
     }
 
     .intro-title {
-        margin: 0;
+        /* Add spacing below the title to separate from content */
+        margin: 0 0 0.65rem 0;
         font-size: clamp(1.4rem, 3.2vw, 2rem);
         line-height: 1.2;
         letter-spacing: 0.02em;
@@ -107,7 +109,8 @@ const {
     }
 
     .intro-lead {
-        margin: 0.25rem 0 0.5rem;
+        /* Increase spacing around lead paragraph for better readability */
+        margin: 0.65rem 0 1rem;
         color: #374151;
         font-size: 1rem;
         line-height: 1.6;
@@ -115,7 +118,7 @@ const {
 
     .cards {
         display: grid;
-        gap: 0.75rem;
+        gap: 1rem;
     }
 
     .card {
@@ -153,7 +156,7 @@ const {
     @media (min-width: 900px) {
         .intro-grid {
             grid-template-columns: 1.1fr 0.9fr;
-            gap: 2rem;
+            gap: 2.2rem;
         }
 
         .cards {
@@ -172,7 +175,8 @@ const {
 
     @media (max-width: 480px) {
         .intro-container {
-            padding: 1.25rem 1rem 1.5rem;
+            /* Slightly increased spacing on small screens too */
+            padding: 1.6rem 1rem 1.85rem;
         }
     }
 </style>
