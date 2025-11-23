@@ -87,6 +87,23 @@ const {
         font-size: clamp(1.4rem, 3.2vw, 2rem);
         line-height: 1.2;
         letter-spacing: 0.02em;
+        /* underline anchor */
+        position: relative;
+        display: inline-block;
+        padding-bottom: 0.15em;
+    }
+
+    /* Fancy partial blue underline */
+    .intro-title::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0.02em;
+        height: 0.22em;
+        width: 58%;
+        background: linear-gradient(90deg, #0f62fe 0%, #67a8ff 100%);
+        border-radius: 999px;
+        box-shadow: 0 2px 6px rgba(15, 98, 254, 0.35);
     }
 
     .intro-lead {
@@ -146,6 +163,10 @@ const {
 
         .intro-image {
             max-height: 420px;
+        }
+        .intro-title::after {
+            width: 46%;
+            height: 0.24em;
         }
     }
 
