@@ -1,10 +1,16 @@
+---
+import Container from "../layout/Container.astro";
+---
+
 <section class="blue-banner" aria-labelledby="blue-banner-title">
-    <div class="blue-banner__container">
-        <h2 id="blue-banner-title" class="blue-banner__title">
-            ŽIADNY PROJEKT NIE JE PRE NÁS DOSŤ VEĽKÝ
-        </h2>
-        <a class="blue-banner__button" href="/contact">KONTAKTOVAŤ &gt;&gt;</a>
-    </div>
+    <Container>
+        <div class="blue-banner__container">
+            <h2 id="blue-banner-title" class="blue-banner__title">
+                ŽIADNY PROJEKT NIE JE PRE NÁS DOSŤ VEĽKÝ
+            </h2>
+            <a class="blue-banner__button" href="/contact">KONTAKTOVAŤ &gt;&gt;</a>
+        </div>
+    </Container>
 </section>
 
 <style>
@@ -14,9 +20,6 @@
     }
 
     .blue-banner__container {
-        max-width: var(--container, 1100px);
-        margin: 0 auto;
-        padding: 2.4rem 1rem 2.4rem;
         display: flex;
         align-items: center;
         justify-content: space-between;

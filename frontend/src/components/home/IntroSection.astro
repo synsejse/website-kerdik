@@ -1,4 +1,5 @@
 ---
+import Container from "../layout/Container.astro";
 export interface Props {
     imageSrc?: string;
     imageAlt?: string;
@@ -13,7 +14,7 @@ const {
 ---
 
 <section class="intro-section" aria-labelledby="intro-title">
-    <div class="intro-container">
+    <Container>
         <div class="intro-grid">
             <div class="intro-left">
                 <h2 id="intro-title" class="intro-title">{title}</h2>
@@ -56,7 +57,7 @@ const {
                 />
             </figure>
         </div>
-    </div>
+    </Container>
 </section>
 
 <style>
@@ -64,16 +65,8 @@ const {
         background: #ffffff;
     }
 
-    .intro-container {
-        max-width: var(--container, 1100px);
-        margin: 0 auto;
-        /* Increased vertical padding for more top/bottom space */
-        padding: 2.4rem 1rem 2.8rem;
-    }
-
     .intro-grid {
         display: grid;
-        /* Single column by default (implicit), no need for grid-template-columns: 1fr */
         gap: 1.5rem;
         align-items: center;
     }
@@ -84,18 +77,15 @@ const {
     }
 
     .intro-title {
-        /* Add spacing below the title to separate from content */
         margin: 0 0 0.65rem 0;
         font-size: clamp(1.4rem, 3.2vw, 2rem);
         line-height: 1.2;
         letter-spacing: 0.02em;
-        /* underline anchor */
         position: relative;
         display: inline-block;
         padding-bottom: 0.15em;
     }
 
-    /* Fancy partial blue underline */
     .intro-title::after {
         content: "";
         position: absolute;
@@ -109,7 +99,6 @@ const {
     }
 
     .intro-lead {
-        /* Increase spacing around lead paragraph for better readability */
         margin: 0.65rem 0 1rem;
         color: #374151;
         font-size: 1rem;
@@ -147,7 +136,6 @@ const {
     .intro-image {
         width: 100%;
         height: auto;
-        /* display: block; not needed for img */
         border-radius: 12px;
         box-shadow: 0 4px 16px rgba(17, 24, 39, 0.08);
         object-fit: cover;
@@ -174,10 +162,5 @@ const {
         }
     }
 
-    @media (max-width: 480px) {
-        .intro-container {
-            /* Slightly increased spacing on small screens too */
-            padding: 1.6rem 1rem 1.85rem;
-        }
-    }
+
 </style>

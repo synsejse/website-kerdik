@@ -1,9 +1,9 @@
 ---
-
+import Container from "../layout/Container.astro";
 ---
 
 <section class="contact-map" aria-labelledby="contact-map-title">
-    <div class="map-container">
+    <Container>
         <h2 id="contact-map-title">Mapa</h2>
         <div class="map-wrapper">
             <iframe
@@ -13,7 +13,7 @@
                     loading="lazy"
                     referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
-    </div>
+    </Container>
 </section>
 
 <style>
@@ -30,20 +30,9 @@
     }
 
     .contact-map {
-        /* Move vertical spacing to the section that owns the smoke background
-           so the spacing area is also smoke-colored */
-        padding: 2rem 0; /* vertical spacing now on background element */
-        background: #f5f5f5; /* match cards background (smoke) */
+        background: #f5f5f5;
     }
 
-    /* Constrain map width to match cards container */
-    .map-container {
-        max-width: var(--container, 1100px);
-        margin: 0 auto; /* keep horizontal centering; no vertical margin */
-        padding: 0 1rem; /* horizontal padding to align with cards container */
-    }
-
-    /* Title styling matches ContactForm underline look */
     #contact-map-title {
         margin: 0 0 1rem 0;
         font-size: 1.5rem;
@@ -68,7 +57,7 @@
         width: 100%;
         aspect-ratio: 16 / 9;
         max-height: 70vh;
-        background: #f5f5f5; /* keep same smoke color while iframe loads */
+        background: #f5f5f5;
     }
 
     .map-wrapper iframe {

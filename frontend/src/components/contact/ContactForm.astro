@@ -1,9 +1,9 @@
 ---
-
+import Container from "../layout/Container.astro";
 ---
 
 <section class="contact-form" aria-labelledby="contact-form-title">
-    <div class="form-container">
+    <Container>
         <h2 id="contact-form-title">Napíšte nám</h2>
         <form action="/contact/message" method="post" novalidate>
             <!-- Anti-bot field (hidden from users) -->
@@ -40,7 +40,7 @@
                 <button type="submit" class="btn-primary">Odoslať správu</button>
             </div>
         </form>
-    </div>
+    </Container>
 </section>
 
 <style>
@@ -60,23 +60,14 @@
         background: #ffffff;
     }
 
-    /* Mirror container sizing from ContactCards */
-    .form-container {
-        max-width: var(--container, 1100px);
-        margin: 2rem auto;
-        padding: 2rem 1rem;
-    }
-
     #contact-form-title {
         margin: 0 0 1rem 0;
         font-size: 1.5rem;
-        /* Copy underline style from OfferSection title */
         position: relative;
         display: inline-block;
         padding-bottom: 0.15em;
     }
 
-    /* Fancy partial blue underline (mirrors OfferSection .offer-title::after) */
     #contact-form-title::after {
         content: "";
         position: absolute;
@@ -135,9 +126,8 @@
         color: #111827;
     }
 
-    /* Prevent horizontal resizing to keep layout intact */
     textarea {
-        resize: vertical; /* disable X-axis resize, allow Y-axis only */
+        resize: vertical;
         max-width: 100%;
     }
 
