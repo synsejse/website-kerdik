@@ -49,6 +49,7 @@ COPY --from=frontend-builder /app/frontend/dist /app/static
 
 ENV ROCKET_ADDRESS=0.0.0.0
 ENV ROCKET_PORT=8080
+ENV STATIC_DIR=/app/static
 
 EXPOSE 8080
 

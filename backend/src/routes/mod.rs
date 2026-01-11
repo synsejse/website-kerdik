@@ -1,5 +1,6 @@
 // Routes module - organizes all HTTP route handlers
 
+pub mod admin;
 pub mod contact;
 
 use rocket::fs::NamedFile;

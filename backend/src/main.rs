@@ -3,6 +3,7 @@
 #[macro_use]
 extern crate rocket;
 
+mod config;
 mod db;
 mod models;
 mod routes;
@@ -12,30 +13,53 @@ use rocket::fairing::AdHoc;
 use rocket::fs::FileServer;
 use rocket_db_pools::Database;
 
+use config::AppConfig;
 use db::MessagesDB;
-use routes::contact;
+use models::AppState;
+use routes::{admin, contact};
 
 #[rocket::launch]
 fn rocket() -> _ {
-    let database_url =
-        std::env::var("DATABASE_URL").expect("DATABASE_URL environment variable must be set");
+    let app_config = AppConfig::load();
 
-    let figment = rocket::config::Config::figment().merge((
-        "databases.messages_db",
-        rocket_db_pools::Config {
-            url: database_url,
-            min_connections: None,
-            max_connections: 1024,
-            connect_timeout: 3,
-            idle_timeout: None,
-            extensions: None,
-        },
-    ));
+    if app_config.admin_password_hash.is_empty() {
+        eprintln!("WARNING: ADMIN_PASSWORD_HASH is not set. Admin login will be disabled.");
+    }
+
+    let figment = rocket::config::Config::figment()
+        .merge(("port", app_config.rocket_port))
+        .merge(("address", app_config.rocket_address.clone()))
+        .merge((
+            "databases.messages_db",
+            rocket_db_pools::Config {
+                url: app_config.database_url.clone(),
+                min_connections: None,
+                max_connections: 1024,
+                connect_timeout: 3,
+                idle_timeout: None,
+                extensions: None,
+            },
+        ));
+
+    let static_dir = app_config.static_dir.clone();
 
     rocket::custom(figment)
+        .manage(AppState {
+            admin_password_hash: app_config.admin_password_hash,
+        })
         .attach(MessagesDB::init())
         .attach(AdHoc::on_ignite("Database Migrations", db::run_migrations))
         .mount("/", routes![contact::submit_message])
-        .mount("/", FileServer::from("/app/static"))
+        .mount(
+            "/",
+            routes![
+                admin::admin_login,
+                admin::admin_logout,
+                admin::admin_check,
+                admin::get_messages,
+                admin::delete_message
+            ],
+        )
+        .mount("/", FileServer::from(&static_dir))
         .register("/", catchers![routes::not_found])
 }

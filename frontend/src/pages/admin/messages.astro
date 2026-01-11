@@ -1,0 +1,231 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import Trash from "../../components/icons/Trash.astro";
+import Calendar from "../../components/icons/Calendar.astro";
+import Phone from "../../components/icons/Phone.astro";
+import Envelope from "../../components/icons/Envelope.astro";
+---
+
+<AdminLayout title="Admin - Správy">
+    <div class="min-h-screen bg-gray-50 flex flex-col">
+        <!-- Admin Header -->
+        <header class="bg-[#1f2937] text-white shadow-md">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <img src="/images/brand/logo.png" alt="Logo" class="h-10 w-auto bg-white p-1" />
+                    <span class="text-lg font-bold tracking-tight">Administrácia správ</span>
+                </div>
+                <button
+                    id="logout-btn"
+                    class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors"
+                >
+                    Odhlásiť sa
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-grow py-8 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 border-b-4 border-[#0f62fe] pb-2">
+                        Prijaté správy
+                    </h1>
+                    <button
+                        id="refresh-btn"
+                        class="px-6 py-2 bg-[#0f62fe] hover:bg-[#0353e9] text-white font-bold uppercase text-sm tracking-wider transition-colors"
+                    >
+                        Obnoviť
+                    </button>
+                </div>
+
+                <div id="loading" class="text-center py-20" style="display: none;">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-[#0f62fe]"></div>
+                </div>
+
+                <div id="messages-container" class="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
+                    <!-- Messages will be loaded here -->
+                </div>
+
+                <div id="no-messages" class="text-center py-20 bg-white border border-gray-200 text-gray-500 italic hidden">
+                    Momentálne nie sú k dispozícii žiadne správy.
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-white border-t border-gray-200 py-6">
+            <div class="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
+                &copy; {new Date().getFullYear()} SD Stavby - Všetky práva vyhradené.
+            </div>
+        </footer>
+    </div>
+
+    <!-- Hidden icon templates for JavaScript to reference -->
+    <template id="trash-icon-template">
+        <Trash class="h-4 w-4" />
+    </template>
+    <template id="calendar-icon-template">
+        <Calendar class="h-4 w-4" />
+    </template>
+    <template id="phone-icon-template">
+        <Phone class="h-4 w-4" />
+    </template>
+    <template id="envelope-icon-template">
+        <Envelope class="h-4 w-4" />
+    </template>
+
+    <script>
+        import { api, type Message } from "../../lib/api";
+        import { format } from "date-fns";
+        import { sk } from "date-fns/locale";
+
+        // DOM elements
+        const messagesContainer = document.getElementById("messages-container");
+        const logoutBtn = document.getElementById("logout-btn");
+        const refreshBtn = document.getElementById("refresh-btn");
+        const loading = document.getElementById("loading");
+        const noMessages = document.getElementById("no-messages");
+
+        // Get icon HTML from templates
+        const TRASH_ICON =
+            document.getElementById("trash-icon-template")?.innerHTML ?? "";
+        const CALENDAR_ICON =
+            document.getElementById("calendar-icon-template")?.innerHTML ?? "";
+        const PHONE_ICON =
+            document.getElementById("phone-icon-template")?.innerHTML ?? "";
+        const ENVELOPE_ICON =
+            document.getElementById("envelope-icon-template")?.innerHTML ?? "";
+
+        // Auth check
+        async function checkAuth() {
+            try {
+                const isAuthenticated = await api.admin.checkAuth();
+                if (!isAuthenticated) {
+                    window.location.href = "/admin/login";
+                } else {
+                    loadMessages();
+                }
+            } catch (e) {
+                window.location.href = "/admin/login";
+            }
+        }
+
+        // Load messages
+        async function loadMessages() {
+            if (loading) loading.style.display = "block";
+            if (messagesContainer) messagesContainer.innerHTML = "";
+            if (noMessages) noMessages.classList.add("hidden");
+
+            try {
+                const messages = await api.admin.getMessages();
+
+                if (messages.length === 0) {
+                    if (noMessages) noMessages.classList.remove("hidden");
+                } else {
+                    renderMessages(messages);
+                }
+            } catch (error) {
+                console.error("Failed to load messages:", error);
+                alert("Nepodarilo sa načítať správy.");
+            } finally {
+                if (loading) loading.style.display = "none";
+            }
+        }
+
+        function renderMessages(messages: Message[]) {
+            if (!messagesContainer) return;
+
+            messages.forEach(msg => {
+                const date = new Date(msg.created_at);
+                const formattedDate = format(date, "d. MMMM yyyy HH:mm", { locale: sk });
+
+                const card = document.createElement("div");
+                card.className = "bg-white p-6 border border-gray-200 shadow-sm transition-all hover:border-[#0f62fe] break-words";
+                card.innerHTML = `
+                    <div class="flex flex-col md:flex-row justify-between md:items-start gap-4 mb-6">
+                        <div class="space-y-2 min-w-0 flex-1">
+                            <div class="flex items-center gap-3">
+                                <span class="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold uppercase tracking-wider">Správa</span>
+                                <span class="flex items-center gap-1 text-sm text-gray-400 font-medium">
+                                    ${CALENDAR_ICON}
+                                    ${formattedDate}
+                                </span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 break-words">${escapeHtml(msg.subject || "(Bez predmetu)")}</h3>
+                            <div class="flex flex-wrap items-center gap-y-1 text-sm">
+                                <span class="font-bold text-gray-900 mr-2">${escapeHtml(msg.name)}</span>
+                                <span class="text-gray-300 mr-2">|</span>
+                                <a href="mailto:${escapeHtml(msg.email)}" class="text-[#0f62fe] hover:underline transition-colors break-all flex items-center gap-1">
+                                    ${ENVELOPE_ICON}
+                                    ${escapeHtml(msg.email)}
+                                </a>
+                                ${msg.phone ? `
+                                    <span class="text-gray-300 mx-2">|</span>
+                                    <a href="tel:${escapeHtml(msg.phone)}" class="text-[#0f62fe] hover:underline transition-colors flex items-center gap-1">
+                                        ${PHONE_ICON}
+                                        ${escapeHtml(msg.phone)}
+                                    </a>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex items-start shrink-0">
+                            <button 
+                                onclick="window.deleteMessage(${msg.id})"
+                                class="px-4 py-2 border border-red-200 text-red-600 hover:bg-red-600 hover:text-white transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-widest"
+                                title="Vymazať správu"
+                            >
+                                ${TRASH_ICON}
+                                Zmazať
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-6 border-l-4 border-[#0f62fe] text-gray-700 whitespace-pre-wrap break-words leading-relaxed italic">
+                        ${escapeHtml(msg.message)}
+                    </div>
+                `;
+                messagesContainer.appendChild(card);
+            });
+        }
+
+        function escapeHtml(text: string): string {
+            if (!text) return "";
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Global function for delete button
+        (window as any).deleteMessage = async (id: number) => {
+            if (confirm("Naozaj chcete vymazať túto správu?")) {
+                try {
+                    await api.admin.deleteMessage(id);
+                    loadMessages(); // Reload list
+                } catch (error) {
+                    console.error("Failed to delete message:", error);
+                    alert("Nepodarilo sa vymazať správu.");
+                }
+            }
+        };
+
+        // Event listeners
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", async () => {
+                try {
+                    await api.admin.logout();
+                    window.location.href = "/admin/login";
+                } catch (error) {
+                    console.error("Logout failed:", error);
+                }
+            });
+        }
+
+        if (refreshBtn) {
+            refreshBtn.addEventListener("click", loadMessages);
+        }
+
+        // Initial check
+        checkAuth();
+    </script>
+</AdminLayout>
+

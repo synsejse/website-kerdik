@@ -1,0 +1,146 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+---
+
+<AdminLayout title="Admin prihlásenie">
+    <main
+        class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 relative overflow-hidden"
+    >
+        <div class="w-full max-w-[440px] relative z-10">
+            <div
+                class="bg-white shadow-xl p-8 sm:p-10 border border-gray-200"
+            >
+                <div class="text-center mb-8">
+                    <div class="flex justify-center mb-6">
+                        <img src="/images/brand/logo.png" alt="Logo" class="h-16 w-auto" />
+                    </div>
+                    <h1
+                        class="text-2xl font-bold text-gray-900 mb-2"
+                    >
+                        Administrácia
+                    </h1>
+                    <p class="text-sm text-gray-600">
+                        Prihláste sa pre prístup k správam
+                    </p>
+                </div>
+
+                <div
+                    id="error-message"
+                    class="hidden bg-red-50 text-red-700 border border-red-200 py-3 px-4 mb-6 text-center text-sm font-medium"
+                >
+                </div>
+
+                <form id="login-form" class="space-y-5">
+                    <div class="space-y-2">
+                        <label
+                            for="password"
+                            class="block font-semibold text-gray-700 text-sm"
+                            >Heslo</label
+                        >
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Zadajte admin heslo"
+                            required
+                            autofocus
+                            class="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-[#0f62fe] focus:ring-1 focus:ring-[#0f62fe]"
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        id="login-btn"
+                        class="w-full py-3 bg-[#0f62fe] text-white font-bold uppercase tracking-wider transition-colors duration-200 hover:bg-[#0353e9] disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                        <span>Prihlásiť sa</span>
+                    </button>
+                </form>
+
+                <div class="text-center mt-8">
+                    <a
+                        href="/"
+                        class="inline-block text-[#0f62fe] font-medium text-sm hover:underline"
+                    >
+                        ← Späť na web
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div
+            class="mt-8 text-center text-gray-500 text-sm"
+        >
+            <span>&copy; {new Date().getFullYear()} SD Stavby</span>
+        </div>
+    </main>
+
+    <script>
+        import { api } from "../../lib/api";
+
+        const form = document.getElementById("login-form") as HTMLFormElement;
+        const passwordInput = document.getElementById(
+            "password",
+        ) as HTMLInputElement;
+        const loginBtn = document.getElementById(
+            "login-btn",
+        ) as HTMLButtonElement;
+        const errorMessage = document.getElementById(
+            "error-message",
+        ) as HTMLDivElement;
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const password = passwordInput.value;
+
+            try {
+                // Disable form
+                passwordInput.disabled = true;
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<span class="relative z-10">Overujem...</span>';
+                errorMessage.classList.add("hidden");
+
+                await api.admin.login(password);
+                window.location.href = "/admin/messages";
+            } catch (error) {
+                // Show error
+                errorMessage.textContent = "Nesprávne heslo. Skúste to znova.";
+                errorMessage.classList.remove("hidden");
+
+                // Re-enable form
+                passwordInput.disabled = false;
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<span class="relative z-10">Prihlásiť sa</span>';
+                passwordInput.value = "";
+                passwordInput.focus();
+            }
+        });
+    </script>
+</AdminLayout>
+
+<style>
+    @keyframes move {
+        0% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
+        100% { transform: translateY(0) rotate(0deg); }
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+        20%, 40%, 60%, 80% { transform: translateX(4px); }
+    }
+
+    @keyframes float {
+        0% { transform: translate(0, 0) rotate(0deg); }
+        33% { transform: translate(30px, -50px) rotate(10deg); }
+        66% { transform: translate(-20px, 20px) rotate(-5deg); }
+        100% { transform: translate(0, 0) rotate(0deg); }
+    }
+</style>
+

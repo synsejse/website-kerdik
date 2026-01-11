@@ -19,7 +19,8 @@ pub async fn run_migrations(rocket: Rocket<rocket::Build>) -> Rocket<rocket::Bui
     // Run migrations in a blocking task since MigrationHarness requires sync connection
     let result: Result<Vec<String>, String> = rocket::tokio::task::spawn_blocking(move || {
         // Establish a new synchronous connection for migrations
-        let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+        let app_config = crate::config::AppConfig::load();
+        let database_url = app_config.database_url;
 
         let mut sync_conn = diesel::MysqlConnection::establish(&database_url)
             .map_err(|e| format!("Failed to establish connection: {}", e))?;
