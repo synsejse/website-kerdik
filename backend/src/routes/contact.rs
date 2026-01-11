@@ -1,7 +1,7 @@
 // Contact form submission route handler
 
 use rocket::form::Form;
-use rocket::response::Redirect;
+use rocket::http::Status;
 use rocket_db_pools::Connection;
 use rocket_db_pools::diesel::prelude::*;
 
@@ -14,16 +14,23 @@ use crate::schema::messages;
 pub async fn submit_message(
     mut db: Connection<MessagesDB>,
     form: Form<ContactMessageForm>,
-) -> Redirect {
+) ->  Result<Status, Status> {
     let data = form.into_inner();
 
     // Check honeypot field to detect bots
     if data.is_bot() {
         println!("⚠️  Bot detected, ignoring submission");
-        return Redirect::to("/");
+        return Err(Status::BadRequest);
     }
 
-    // TODO: Add input validation here
+    // Basic input validation
+    if data.name.trim().is_empty() || data.message.trim().is_empty() {
+        return Err(Status::BadRequest);
+    }
+
+    if !data.email.contains('@') || data.email.trim().len() < 5 {
+        return Err(Status::BadRequest);
+    }
 
     // Insert message into database
     let result = db
@@ -39,9 +46,11 @@ pub async fn submit_message(
         })
         .await;
 
-    if let Err(e) = result {
-        eprintln!("❌ Failed to save contact message: {}", e);
+    match result {
+        Ok(_) => Ok(Status::Ok),
+        Err(e) => {
+            eprintln!("❌ Failed to save contact message: {}", e);
+            Err(Status::InternalServerError)
+        }
     }
-
-    Redirect::to("/")
 }

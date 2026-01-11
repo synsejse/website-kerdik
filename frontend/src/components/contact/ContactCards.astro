@@ -5,45 +5,45 @@ import LocationIcon from "../icons/LocationDot.astro";
 import Container from "../layout/Container.astro";
 ---
 
-<section class="contact-cards" aria-labelledby="contact-cards-title">
+<section class="bg-gray-50" aria-labelledby="contact-cards-title">
     <Container>
-        <h2 id="contact-cards-title">Kontaktné informácie</h2>
-        <div class="cards-grid">
+        <h2 id="contact-cards-title" class="m-0 mb-8 text-xl lg:text-2xl font-bold leading-tight relative pb-2 inline-block tracking-tight after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-1.5 after:w-[58%] after:bg-gradient-to-r after:from-[#0f62fe] after:to-[#67a8ff] after:rounded-full after:shadow-[0_2px_6px_rgba(15,98,254,0.35)]">Kontaktné informácie</h2>
+        <div class="grid lg:grid-cols-3 gap-4 md:gap-6">
             <!-- Address -->
-            <article class="card">
-                <div class="card-icon" aria-hidden="true">
+            <article class="flex gap-4 items-start bg-white border border-gray-200 rounded-xl p-5 shadow-sm transition-all duration-300 hover:shadow-md hover:border-[#0f62fe]/20">
+                <div class="flex-none grid place-items-center w-11 h-11 rounded-lg bg-gray-100 text-gray-700" aria-hidden="true">
                     <LocationIcon width={28} height={28} fill="currentColor"/>
                 </div>
-                <div class="card-content">
-                    <h3 class="card-title">ŠD - STAVBY</h3>
-                    <p class="card-text">Nám. sv. J. Bosca 120, Žilina-Bánová</p>
+                <div class="flex-1">
+                    <h3 class="m-0 mb-1 text-base font-bold text-gray-900 border-none px-0 py-0 after:content-none shadow-none">ŠD - STAVBY</h3>
+                    <p class="m-0 text-sm text-gray-600 leading-relaxed">Nám. sv. J. Bosca 120, Žilina-Bánová</p>
                 </div>
             </article>
 
             <!-- Phone numbers -->
-            <article class="card">
-                <div class="card-icon" aria-hidden="true">
+            <article class="flex gap-4 items-start bg-white border border-gray-200 rounded-xl p-5 shadow-sm transition-all duration-300 hover:shadow-md hover:border-[#0f62fe]/20">
+                <div class="flex-none grid place-items-center w-11 h-11 rounded-lg bg-gray-100 text-gray-700" aria-hidden="true">
                     <PhoneIcon width={28} height={28} fill="currentColor"/>
                 </div>
-                <div class="card-content">
-                    <h3 class="card-title">Telefón</h3>
-                    <p class="card-text">
-                        Vladimír Špánik: <a href="tel:+421905167228">+421 905 167 228</a><br/>
-                        Miroslav Davidík: <a href="tel:+421903711356">+421 903 711 356</a>
+                <div class="flex-1">
+                    <h3 class="m-0 mb-1 text-base font-bold text-gray-900 border-none px-0 py-0 after:content-none shadow-none">Telefón</h3>
+                    <p class="m-0 text-sm text-gray-600 leading-relaxed">
+                        Vladimír Špánik: <a href="tel:+421905167228" class="text-gray-900 no-underline font-semibold hover:underline">+421 905 167 228</a><br/>
+                        Miroslav Davidík: <a href="tel:+421903711356" class="text-gray-900 no-underline font-semibold hover:underline">+421 903 711 356</a>
                     </p>
                 </div>
             </article>
 
             <!-- Email / Web -->
-            <article class="card">
-                <div class="card-icon" aria-hidden="true">
+            <article class="flex gap-4 items-start bg-white border border-gray-200 rounded-xl p-5 shadow-sm transition-all duration-300 hover:shadow-md hover:border-[#0f62fe]/20">
+                <div class="flex-none grid place-items-center w-11 h-11 rounded-lg bg-gray-100 text-gray-700" aria-hidden="true">
                     <EmailIcon width={28} height={28} fill="currentColor"/>
                 </div>
-                <div class="card-content">
-                    <h3 class="card-title">Email & Web</h3>
-                    <p class="card-text">
-                        Email: <a href="mailto:info@sd-stavby.sk">info@sd-stavby.sk</a><br/>
-                        Web: <a href="https://www.sd-stavby.sk" rel="noopener" target="_blank">www.sd-stavby.sk</a>
+                <div class="flex-1">
+                    <h3 class="m-0 mb-1 text-base font-bold text-gray-900 border-none px-0 py-0 after:content-none shadow-none">Email & Web</h3>
+                    <p class="m-0 text-sm text-gray-600 leading-relaxed overflow-hidden">
+                        Email: <a href="mailto:info@sd-stavby.sk" class="text-gray-900 no-underline font-semibold hover:underline break-all">info@sd-stavby.sk</a><br/>
+                        Web: <a href="https://www.sd-stavby.sk" rel="noopener" target="_blank" class="text-gray-900 no-underline font-semibold hover:underline">www.sd-stavby.sk</a>
                     </p>
                 </div>
             </article>
@@ -51,94 +51,3 @@ import Container from "../layout/Container.astro";
     </Container>
 </section>
 
-<style>
-    .sr-only {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
-    }
-
-    .contact-cards {
-        background: #f5f5f5;
-    }
-
-    #contact-cards-title {
-        margin: 0 0 1rem 0;
-        font-size: 1.5rem;
-        position: relative;
-        display: inline-block;
-        padding-bottom: 0.15em;
-    }
-
-    #contact-cards-title::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        bottom: 0.02em;
-        height: 0.22em;
-        width: 58%;
-        background: linear-gradient(90deg, #0f62fe 0%, #67a8ff 100%);
-        border-radius: 999px;
-        box-shadow: 0 2px 6px rgba(15, 98, 254, 0.35);
-    }
-
-    .cards-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-    }
-
-    @media (max-width: 900px) {
-        .cards-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .card {
-        display: flex;
-        gap: 0.9rem;
-        align-items: flex-start;
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 1.1rem 1rem;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
-    }
-
-    .card-icon {
-        color: #1f2937;
-        flex: 0 0 auto;
-        display: grid;
-        place-items: center;
-        width: 42px;
-        height: 42px;
-        border-radius: 8px;
-        background: #f3f4f6;
-    }
-
-    .card-title {
-        margin: 0 0 0.25rem 0;
-        font-size: 1rem;
-    }
-
-    .card-text {
-        margin: 0;
-        color: #4b5563;
-        font-size: 0.95rem;
-    }
-
-    .card a {
-        color: #1f2937;
-        text-decoration: none;
-    }
-
-    .card a:hover {
-        text-decoration: underline;
-    }
-</style>

@@ -2,158 +2,126 @@
 import Container from "../layout/Container.astro";
 ---
 
-<section class="contact-form" aria-labelledby="contact-form-title">
+<section class="bg-white" aria-labelledby="contact-form-title">
     <Container>
-        <h2 id="contact-form-title">Napíšte nám</h2>
-        <form action="/contact/message" method="post" novalidate>
+        <h2 id="contact-form-title" class="m-0 mb-6 text-xl lg:text-2xl font-bold leading-tight relative pb-2 inline-block tracking-tight after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-1.5 after:w-[58%] after:bg-linear-to-r after:from-primary after:to-[#67a8ff] after:rounded-full after:shadow-[0_2px_6px_rgba(15,98,254,0.35)]">Napíšte nám</h2>
+
+        <div id="form-feedback" class="hidden mb-6 p-4 rounded-xl border text-sm font-bold"></div>
+
+        <form id="contact-form" action="/contact/message" method="post" novalidate class="bg-white border border-gray-200 rounded-xl p-4 md:p-6 lg:p-8 shadow-sm">
             <!-- Anti-bot field (hidden from users) -->
             <div class="sr-only" aria-hidden="true">
                 <label for="company">Company</label>
                 <input id="company" name="company" type="text" tabindex="-1" autocomplete="off"/>
             </div>
 
-            <div class="grid">
-                <div class="field">
-                    <label for="name">Meno a priezvisko</label>
-                    <input id="name" name="name" type="text" required placeholder="Vaše meno"/>
+            <div class="grid sm:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
+                <div class="flex flex-col gap-1.5">
+                    <label for="name" class="text-sm font-semibold text-gray-700">Meno a priezvisko</label>
+                    <input id="name" name="name" type="text" required placeholder="Vaše meno" class="appearance-none border border-gray-200 rounded-lg p-3 text-base outline-none bg-white text-gray-900 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"/>
                 </div>
-                <div class="field">
-                    <label for="email">Email</label>
-                    <input id="email" name="email" type="email" required placeholder="vas@email.sk"/>
+                <div class="flex flex-col gap-1.5">
+                    <label for="email" class="text-sm font-semibold text-gray-700">Email</label>
+                    <input id="email" name="email" type="email" required placeholder="vas@email.sk" class="appearance-none border border-gray-200 rounded-lg p-3 text-base outline-none bg-white text-gray-900 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"/>
                 </div>
-                <div class="field">
-                    <label for="phone">Telefón (nepovinné)</label>
-                    <input id="phone" name="phone" type="tel" placeholder="+421 900 000 000"/>
+                <div class="flex flex-col gap-1.5">
+                    <label for="phone" class="text-sm font-semibold text-gray-700">Telefón (nepovinné)</label>
+                    <input id="phone" name="phone" type="tel" placeholder="+421 900 000 000" class="appearance-none border border-gray-200 rounded-lg p-3 text-base outline-none bg-white text-gray-900 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"/>
                 </div>
-                <div class="field">
-                    <label for="subject">Predmet (nepovinné)</label>
-                    <input id="subject" name="subject" type="text" placeholder="Téma správy"/>
+                <div class="flex flex-col gap-1.5">
+                    <label for="subject" class="text-sm font-semibold text-gray-700">Predmet (nepovinné)</label>
+                    <input id="subject" name="subject" type="text" placeholder="Téma správy" class="appearance-none border border-gray-200 rounded-lg p-3 text-base outline-none bg-white text-gray-900 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"/>
                 </div>
             </div>
 
-            <div class="field">
-                <label for="message">Správa</label>
-                <textarea id="message" name="message" rows="6" required placeholder="Vaša správa..."></textarea>
+            <div class="flex flex-col gap-1.5 mb-6 md:mb-8">
+                <label for="message" class="text-sm font-semibold text-gray-700">Správa</label>
+                <textarea id="message" name="message" rows="6" required placeholder="Vaša správa..." class="appearance-none border border-gray-200 rounded-lg p-3 text-base outline-none bg-white text-gray-900 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 resize-y"></textarea>
             </div>
 
-            <div class="actions">
-                <button type="submit" class="btn-primary">Odoslať správu</button>
+            <div class="flex justify-end">
+                <button type="submit" id="submit-btn" class="w-full sm:w-auto px-8 py-3 bg-primary text-white border-none rounded-lg text-base font-bold cursor-pointer transition-all hover:bg-[#0353e9] hover:shadow-lg active:scale-[0.98]">Odoslať správu</button>
             </div>
         </form>
     </Container>
 </section>
 
-<style>
-    .sr-only {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
-    }
+<script>
+    const form = document.getElementById('contact-form') as HTMLFormElement;
+    const feedback = document.getElementById('form-feedback');
+    const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
 
-    .contact-form {
-        background: #ffffff;
-    }
+    if (form) {
+        // Clear custom validity on input
+        form.addEventListener('input', (e) => {
+            const target = e.target as HTMLInputElement | HTMLTextAreaElement;
+            if (target) target.setCustomValidity('');
+        });
 
-    #contact-form-title {
-        margin: 0 0 1rem 0;
-        font-size: 1.5rem;
-        position: relative;
-        display: inline-block;
-        padding-bottom: 0.15em;
-    }
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!feedback || !submitBtn) return;
 
-    #contact-form-title::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        bottom: 0.02em;
-        height: 0.22em;
-        width: 58%;
-        background: linear-gradient(90deg, #0f62fe 0%, #67a8ff 100%);
-        border-radius: 999px;
-        box-shadow: 0 2px 6px rgba(15, 98, 254, 0.35);
-    }
+            // Basic client-side validation check (optional, but good for UX)
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
 
-    form {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 1rem;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
-    }
+            // Custom email validation
+            const emailInput = form.elements.namedItem('email') as HTMLInputElement;
+            if (emailInput && !emailInput.value.includes('@')) {
+                emailInput.setCustomValidity('Zadajte platnú emailovú adresu.');
+                emailInput.reportValidity();
+                return;
+            }
 
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 1rem;
-    }
+            // Custom message length check
+            const messageInput = form.elements.namedItem('message') as HTMLTextAreaElement;
+            if (messageInput && messageInput.value.trim().length < 10) {
+                messageInput.setCustomValidity('Správa musí mať aspoň 10 znakov.');
+                messageInput.reportValidity();
+                return;
+            }
 
-    @media (max-width: 700px) {
-        .grid {
-            grid-template-columns: 1fr;
-        }
-    }
+            // Disable button
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Odosielam...';
+            submitBtn.style.opacity = '0.7';
 
-    .field {
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-        margin-bottom: 1rem;
-    }
+            feedback.classList.add('hidden');
+            feedback.className = 'hidden mb-6 p-4 rounded-xl border text-sm font-bold';
 
-    label {
-        font-size: 0.95rem;
-        color: #1f2937;
-    }
+            try {
+                const formData = new FormData(form);
 
-    input[type="text"],
-    input[type="email"],
-    input[type="tel"],
-    textarea {
-        appearance: none;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 0.65rem 0.75rem;
-        font-size: 1rem;
-        outline: none;
-        background: #fff;
-        color: #111827;
-    }
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                });
 
-    textarea {
-        resize: vertical;
-        max-width: 100%;
+                if (response.ok) {
+                    // Success
+                    feedback.textContent = 'Ďakujeme, Vaša správa bola úspešne odoslaná. Čoskoro Vás budeme kontaktovať.';
+                    feedback.classList.remove('hidden');
+                    feedback.classList.add('bg-green-50', 'text-green-700', 'border-green-200');
+                    form.reset();
+                } else {
+                    throw new Error('Server returned error');
+                }
+            } catch (error) {
+                // Error
+                console.error(error);
+                feedback.textContent = 'Nepodarilo sa odoslať správu. Skúste to prosím neskôr alebo nás kontaktujte telefonicky.';
+                feedback.classList.remove('hidden');
+                feedback.classList.add('bg-red-50', 'text-red-700', 'border-red-200');
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalBtnText;
+                submitBtn.style.opacity = '1';
+            }
+        });
     }
-
-    input:focus,
-    textarea:focus {
-        border-color: #9ca3af;
-        box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.25);
-    }
-
-    .actions {
-        margin-top: 0.5rem;
-        display: flex;
-        justify-content: flex-end;
-    }
-
-    .btn-primary {
-        background: #1f2937;
-        color: #fff;
-        border: none;
-        padding: 0.75rem 1.1rem;
-        border-radius: 8px;
-        font-size: 1rem;
-        cursor: pointer;
-    }
-
-    .btn-primary:hover {
-        background: #111827;
-    }
-</style>
+</script>

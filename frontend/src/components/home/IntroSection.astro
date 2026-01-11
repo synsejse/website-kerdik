@@ -13,33 +13,33 @@ const {
 } = Astro.props;
 ---
 
-<section class="intro-section" aria-labelledby="intro-title">
+<section class="bg-white" aria-labelledby="intro-title">
     <Container>
-        <div class="intro-grid">
-            <div class="intro-left">
-                <h2 id="intro-title" class="intro-title">{title}</h2>
-                <p class="intro-lead">
+        <div class="grid lg:grid-cols-[1.1fr_0.9fr] gap-6 lg:gap-14 items-center">
+            <div class="grid gap-4">
+                <h2 id="intro-title" class="m-0 mb-3 text-2xl md:text-3xl lg:text-4xl font-bold leading-tight relative pb-2 inline-block tracking-tight after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-1.5 md:after:h-2 after:w-[58%] lg:after:w-[46%] after:bg-linear-to-r after:from-primary after:to-[#67a8ff] after:rounded-full after:shadow-[0_2px_6px_rgba(15,98,254,0.35)]">{title}</h2>
+                <p class="mt-2 mb-4 text-[#374151] text-base leading-relaxed">
                     Spoločnosť ŠD STAVBY s.r.o. sa zameriava na komplexnú
                     revitalizáciu bytových domov a rodinných domov. Samozrejme
                     poskytujeme všetky ostatné služby stavebnej spoločnosti ako
                     výstavbu, zateplenie, rekonštrukcie ap.
                 </p>
 
-                <div class="cards">
-                    <article class="card">
-                        <h3 class="card-title">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <article class="border border-gray-200 rounded-xl bg-white p-4 shadow-sm">
+                        <h3 class="m-0 mb-1.5 text-[1.05rem] font-bold leading-tight">
                             Komplexná revitalizácia budov
                         </h3>
-                        <p class="card-text">
+                        <p class="m-0 text-[#374151] text-sm">
                             Najlepší spôsob ako predĺžiť životnosť pôvodnej
                             stavby a radikálne znížiť výdavky na prevádzku
                             stavby hlavne po energetickej stránke.
                         </p>
                     </article>
 
-                    <article class="card">
-                        <h3 class="card-title">Realizácia stavieb</h3>
-                        <p class="card-text">
+                    <article class="border border-gray-200 rounded-xl bg-white p-4 shadow-sm">
+                        <h3 class="m-0 mb-1.5 text-[1.05rem] font-bold leading-tight">Realizácia stavieb</h3>
+                        <p class="m-0 text-[#374151] text-sm">
                             Na stavebnom trhu pôsobíme už viac ako 15 rokov.
                             Neustále inovujeme a využívame najmodernejšie
                             postupy, technológie a materiály.
@@ -48,119 +48,14 @@ const {
                 </div>
             </div>
 
-            <figure class="intro-right">
+            <figure class="m-0">
                 <img
                         src={imageSrc}
                         alt={imageAlt}
-                        class="intro-image"
+                        class="w-full h-auto lg:max-h-105 rounded-xl shadow-[0_4px_16px_rgba(17,24,39,0.08)] object-cover"
                         loading="lazy"
                 />
             </figure>
         </div>
     </Container>
 </section>
-
-<style>
-    .intro-section {
-        background: #ffffff;
-    }
-
-    .intro-grid {
-        display: grid;
-        gap: 1.5rem;
-        align-items: center;
-    }
-
-    .intro-left {
-        display: grid;
-        gap: 1rem;
-    }
-
-    .intro-title {
-        margin: 0 0 0.65rem 0;
-        font-size: clamp(1.4rem, 3.2vw, 2rem);
-        line-height: 1.2;
-        letter-spacing: 0.02em;
-        position: relative;
-        display: inline-block;
-        padding-bottom: 0.15em;
-    }
-
-    .intro-title::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        bottom: 0.02em;
-        height: 0.22em;
-        width: 58%;
-        background: linear-gradient(90deg, #0f62fe 0%, #67a8ff 100%);
-        border-radius: 999px;
-        box-shadow: 0 2px 6px rgba(15, 98, 254, 0.35);
-    }
-
-    .intro-lead {
-        margin: 0.65rem 0 1rem;
-        color: #374151;
-        font-size: 1rem;
-        line-height: 1.6;
-    }
-
-    .cards {
-        display: grid;
-        gap: 1rem;
-    }
-
-    .card {
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        background: #ffffff;
-        padding: 0.9rem 1rem;
-        box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04);
-    }
-
-    .card-title {
-        margin: 0 0 0.35rem;
-        font-size: 1.05rem;
-        line-height: 1.3;
-    }
-
-    .card-text {
-        margin: 0;
-        color: #374151;
-    }
-
-    .intro-right {
-        margin: 0;
-    }
-
-    .intro-image {
-        width: 100%;
-        height: auto;
-        border-radius: 12px;
-        box-shadow: 0 4px 16px rgba(17, 24, 39, 0.08);
-        object-fit: cover;
-    }
-
-    @media (min-width: 900px) {
-        .intro-grid {
-            grid-template-columns: 1.1fr 0.9fr;
-            gap: 2.2rem;
-        }
-
-        .cards {
-            grid-template-columns: 1fr 1fr;
-            gap: 0.9rem;
-        }
-
-        .intro-image {
-            max-height: 420px;
-        }
-
-        .intro-title::after {
-            width: 46%;
-            height: 0.24em;
-        }
-    }
-
-
-</style>

@@ -37,23 +37,23 @@ const slides: Slide[] = [
 ];
 ---
 
-<section class="hero-carousel">
-    <div class="carousel-container">
-        <div class="slides-wrapper">
+<section class="h-95 md:h-[60vh] lg:h-[70vh] max-h-175 relative overflow-hidden hero-carousel">
+    <div class="relative h-full carousel-container">
+        <div class="relative h-full slides-wrapper">
             {
                 slides.map((slide, index) => (
-                        <div class="slide" data-slide={index}>
+                        <div class:list={["absolute inset-0 transition-opacity duration-800 ease-in-out slide", index === 0 ? "opacity-100 active" : "opacity-0"]} data-slide={index}>
                             <img
                                     src={slide.image}
                                     alt={slide.title}
-                                    class="slide-image"
+                                    class="w-full h-full object-cover block"
                                     loading="lazy"
                             />
-                            <div class="slide-overlay"/>
-                            <div class="slide-content">
-                                <h1 class="slide-title">{slide.title}</h1>
-                                <p class="slide-description">{slide.description}</p>
-                                <a href="/about" class="slide-button">
+                            <div class="absolute inset-0 bg-black/35"/>
+                            <div class="absolute inset-0 flex flex-col justify-center items-center text-white text-center px-16 md:px-32">
+                                <h1 class="m-0 mb-2 font-bold leading-tight text-2xl md:text-4xl lg:text-5xl">{slide.title}</h1>
+                                <p class="m-0 mb-4 max-w-180 text-sm md:text-base lg:text-lg">{slide.description}</p>
+                                <a href="/about" class="inline-block px-5 md:px-6 py-2.5 md:py-3 rounded-lg bg-primary text-white no-underline font-bold transition-all duration-200 shadow-[0_6px_20px_rgba(15,98,254,0.25)] hover:bg-[#0b53d6] hover:-translate-y-0.5">
                                     Dozvedieť sa viac
                                 </a>
                             </div>
@@ -62,20 +62,20 @@ const slides: Slide[] = [
             }
         </div>
 
-        <div class="carousel-controls">
-            <button class="carousel-btn prev" aria-label="Predchádzajúci slide">
+        <div class="absolute inset-0 flex items-center justify-between pointer-events-none px-4 z-20">
+            <button class="carousel-btn pointer-events-auto bg-black/45 text-white border-none w-11 h-11 rounded-full inline-flex items-center justify-center cursor-pointer transition-colors duration-200 hover:bg-black/60 prev" aria-label="Predchádzajúci slide">
                 <ArrowLeftIcon width={20} height={20} fill="currentColor"/>
             </button>
-            <button class="carousel-btn next" aria-label="Nasledujúci slide">
+            <button class="carousel-btn pointer-events-auto bg-black/45 text-white border-none w-11 h-11 rounded-full inline-flex items-center justify-center cursor-pointer transition-colors duration-200 hover:bg-black/60 next" aria-label="Nasledujúci slide">
                 <ArrowRightIcon width={20} height={20} fill="currentColor"/>
             </button>
         </div>
 
-        <div class="carousel-dots">
+        <div class="absolute left-1/2 bottom-4.5 -translate-x-1/2 flex gap-1.5 z-20">
             {
                 slides.map((_, index) => (
                         <button
-                                class="dot"
+                                class="w-2 h-2 rounded-full border-none cursor-pointer dot bg-white/65 aria-current:bg-white transition-colors duration-300"
                                 data-slide={index}
                                 aria-label={`Slide ${index + 1}`}
                                 aria-current={index === 0 ? "true" : "false"}
@@ -84,157 +84,15 @@ const slides: Slide[] = [
             }
         </div>
 
-        <div class="carousel-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+        <div class="absolute left-0 right-0 bottom-0 h-0.75 bg-linear-to-r from-[#67a8ff] to-primary opacity-90 w-0 transition-[width] duration-200 linear carousel-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"
              aria-valuenow="0"></div>
     </div>
 </section>
 
 <style>
-    .hero-carousel {
-        height: clamp(380px, 70vh, 700px);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .carousel-container {
-        position: relative;
-        height: 100%;
-    }
-
-    .slides-wrapper {
-        position: relative;
-        height: 100%;
-    }
-
-    .slide {
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        transition: opacity 0.8s ease-in-out;
-    }
-
-    .slide:first-child {
-        opacity: 1;
-    }
-
+    /* We keep only the classes that need to be toggled by JS but hard to do purely with classes */
     .slide.active {
-        opacity: 1;
-    }
-
-    .slide-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-
-    .slide-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.35);
-    }
-
-    .slide-content {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        color: #ffffff;
-        text-align: center;
-        padding: 1rem 5rem;
-    }
-
-    .slide-title {
-        margin: 0 0 0.5rem 0;
-        font-size: clamp(1.5rem, 4vw, 2.2rem);
-        line-height: 1.2;
-    }
-
-    .slide-description {
-        margin: 0 0 1rem;
-        max-width: 720px;
-    }
-
-    .slide-button {
-        display: inline-block;
-        padding: 0.75rem 1.25rem;
-        border-radius: 8px;
-        background: #0f62fe;
-        color: #fff;
-        text-decoration: none;
-        font-weight: 700;
-        box-shadow: 0 6px 20px rgba(15, 98, 254, 0.25);
-        transition: transform 0.2s ease, background 0.2s ease;
-    }
-
-    .slide-button:hover {
-        background: #0b53d6;
-        transform: translateY(-1px);
-    }
-
-    .carousel-controls {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        pointer-events: none;
-        padding: 0 1rem;
-    }
-
-    .carousel-btn {
-        pointer-events: all;
-        background: rgba(0, 0, 0, 0.45);
-        color: #fff;
-        border: none;
-        width: 44px;
-        height: 44px;
-        border-radius: 999px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: background 0.2s ease;
-    }
-
-    .carousel-btn:hover {
-        background: rgba(0, 0, 0, 0.6);
-    }
-
-    .carousel-dots {
-        position: absolute;
-        left: 50%;
-        bottom: 18px;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 6px;
-    }
-
-    .dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.65);
-        border: none;
-        cursor: pointer;
-    }
-
-    .dot[aria-current="true"] {
-        background: #ffffff;
-    }
-
-    .carousel-progress-bar {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 3px;
-        background: linear-gradient(90deg, #67a8ff 0%, #0f62fe 100%);
-        opacity: 0.9;
-        width: 0;
-        transition: width 0.2s linear;
+        opacity: 1 !important;
     }
 </style>
 
@@ -243,7 +101,7 @@ const slides: Slide[] = [
     (function () {
         if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
-        const ready = (fn) => {
+        const ready = (fn: () => void) => {
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', fn, {once: true});
             } else {
@@ -252,8 +110,7 @@ const slides: Slide[] = [
         };
 
         ready(() => {
-            const root = document.currentScript?.previousElementSibling?.previousElementSibling
-                || document.querySelector('.hero-carousel');
+            const root = document.querySelector('.hero-carousel');
             if (!root) return;
 
             const wrapper = root.querySelector('.slides-wrapper');
@@ -261,29 +118,41 @@ const slides: Slide[] = [
             const btnPrev = root.querySelector('.carousel-btn.prev');
             const btnNext = root.querySelector('.carousel-btn.next');
             const dots = Array.from(root.querySelectorAll('.dot'));
-            const bar = root.querySelector('.carousel-progress-bar');
+            const bar = root.querySelector('.carousel-progress-bar') as HTMLElement | null;
             const container = root.querySelector('.carousel-container') || root;
 
             if (!slides.length) return;
 
             let index = 0;
-            let timer = null;
+            let timer: number | null = null;
             const interval = 5000; // 5s per slide
             const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             let isPaused = false;
 
-            const setActive = (i) => {
+            const setActive = (i: number) => {
                 index = (i + slides.length) % slides.length;
                 slides.forEach((s, si) => {
                     if (si === index) {
-                        s.classList.add('active');
+                        s.classList.add('active', 'opacity-100');
+                        s.classList.remove('opacity-0');
                         s.removeAttribute('aria-hidden');
                     } else {
-                        s.classList.remove('active');
+                        s.classList.remove('active', 'opacity-100');
+                        s.classList.add('opacity-0');
                         s.setAttribute('aria-hidden', 'true');
                     }
                 });
-                dots.forEach((d, di) => d.setAttribute('aria-current', di === index ? 'true' : 'false'));
+                dots.forEach((d, di) => {
+                    const isActive = di === index;
+                    d.setAttribute('aria-current', isActive ? 'true' : 'false');
+                    if (isActive) {
+                        d.classList.add('bg-white');
+                        d.classList.remove('bg-white/65');
+                    } else {
+                        d.classList.remove('bg-white');
+                        d.classList.add('bg-white/65');
+                    }
+                });
                 if (bar) {
                     // Reset progress bar instantly then allow it to grow again
                     bar.style.transition = 'none';
@@ -291,7 +160,7 @@ const slides: Slide[] = [
                     bar.setAttribute('aria-valuenow', '0');
                     // Force reflow to apply the reset width before animating
                     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-                    bar.offsetWidth;
+                    void bar.offsetWidth;
                     bar.style.transition = prefersReduced ? 'none' : `width ${interval}ms linear`;
                     if (!isPaused && !prefersReduced) {
                         requestAnimationFrame(() => {
@@ -315,7 +184,7 @@ const slides: Slide[] = [
             const schedule = () => {
                 if (prefersReduced || isPaused) return;
                 clear();
-                timer = setTimeout(() => {
+                timer = window.setTimeout(() => {
                     next();
                     schedule();
                 }, interval);

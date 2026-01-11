@@ -1,13 +1,12 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import OfferHero from "../components/offer/OfferHero.astro";
+import PageHero from "../components/shared/PageHero.astro";
 import OfferSection from "../components/shared/OfferSection.astro";
 import BlueBanner from "../components/offer/BlueBanner.astro";
 ---
 
 <Layout title="Ponuka">
-    <OfferHero/>
+    <PageHero title="Naša Ponuka" imageSrc="/images/banners/offer-banner.jpg" />
     <OfferSection/>
     <BlueBanner/>
-
 </Layout>

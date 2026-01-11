@@ -2,196 +2,85 @@
 // Navbar component with navigation links
 ---
 
-<nav class="navbar">
-    <div class="navbar-container">
-        <ul id="primary-navigation" class="nav-menu" aria-hidden="true">
-            <li class="nav-item">
-                <a href="/" class="nav-link">Úvod</a>
+<nav class="bg-[#1f2937] shadow-lg min-h-16 relative">
+    <div class="max-w-300 mx-auto px-4 flex justify-between lg:justify-start items-center min-h-16">
+        <ul id="primary-navigation" class="hidden lg:flex list-none m-0 p-0 gap-2 items-center
+            lg:static lg:opacity-100 lg:pointer-events-auto
+            max-lg:absolute max-lg:top-full max-lg:left-0 max-lg:right-0 max-lg:bg-[#1f2937] max-lg:flex-col max-lg:gap-0 max-lg:p-0 max-lg:border-t max-lg:border-white/15 max-lg:opacity-0 max-lg:pointer-events-none max-lg:transition-opacity max-lg:duration-300 max-lg:shadow-lg max-lg:z-50 [&.active]:flex! [&.active]:opacity-100! [&.active]:pointer-events-auto!" aria-hidden="true">
+            <li class="nav-item w-full lg:w-auto max-lg:border-b max-lg:border-white/10">
+                <a href="/" class="block py-4 px-5 text-[#f9fafb] no-underline font-medium text-[0.9375rem] relative transition-all duration-300 hover:text-[#60a5fa] hover:bg-white/5 group">
+                    Úvod
+                    <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.75 bg-[#60a5fa] transition-all duration-300 group-hover:w-[80%]"></span>
+                </a>
             </li>
-            <li class="nav-item">
-                <a href="/about" class="nav-link">O nás</a>
+            <li class="nav-item w-full lg:w-auto max-lg:border-b max-lg:border-white/10">
+                <a href="/about" class="block py-4 px-5 text-[#f9fafb] no-underline font-medium text-[0.9375rem] relative transition-all duration-300 hover:text-[#60a5fa] hover:bg-white/5 group">
+                    O nás
+                    <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.75 bg-[#60a5fa] transition-all duration-300 group-hover:w-[80%]"></span>
+                </a>
             </li>
-            <li class="nav-item">
-                <a href="/offer" class="nav-link">Ponuka</a>
+            <li class="nav-item w-full lg:w-auto max-lg:border-b max-lg:border-white/10">
+                <a href="/offer" class="block py-4 px-5 text-[#f9fafb] no-underline font-medium text-[0.9375rem] relative transition-all duration-300 hover:text-[#60a5fa] hover:bg-white/5 group">
+                    Ponuka
+                    <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.75 bg-[#60a5fa] transition-all duration-300 group-hover:w-[80%]"></span>
+                </a>
             </li>
-            <li class="nav-item">
-                <a href="/references" class="nav-link">Referencie</a>
+            <li class="nav-item w-full lg:w-auto max-lg:border-b max-lg:border-white/10">
+                <a href="/references" class="block py-4 px-5 text-[#f9fafb] no-underline font-medium text-[0.9375rem] relative transition-all duration-300 hover:text-[#60a5fa] hover:bg-white/5 group">
+                    Referencie
+                    <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.75 bg-[#60a5fa] transition-all duration-300 group-hover:w-[80%]"></span>
+                </a>
             </li>
-            <li class="nav-item">
-                <a href="/news" class="nav-link">Aktuálne</a>
+            <li class="nav-item w-full lg:w-auto max-lg:border-b max-lg:border-white/10">
+                <a href="/news" class="block py-4 px-5 text-[#f9fafb] no-underline font-medium text-[0.9375rem] relative transition-all duration-300 hover:text-[#60a5fa] hover:bg-white/5 group">
+                    Aktuálne
+                    <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.75 bg-[#60a5fa] transition-all duration-300 group-hover:w-[80%]"></span>
+                </a>
             </li>
-            <li class="nav-item">
-                <a href="/documents" class="nav-link">Dokumenty</a>
+            <li class="nav-item w-full lg:w-auto max-lg:border-b max-lg:border-white/10">
+                <a href="/documents" class="block py-4 px-5 text-[#f9fafb] no-underline font-medium text-[0.9375rem] relative transition-all duration-300 hover:text-[#60a5fa] hover:bg-white/5 group">
+                    Dokumenty
+                    <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.75 bg-[#60a5fa] transition-all duration-300 group-hover:w-[80%]"></span>
+                </a>
             </li>
-            <li class="nav-item">
-                <a href="/contact" class="nav-link">Kontakt</a>
+            <li class="nav-item w-full lg:w-auto max-lg:border-b max-lg:border-white/10">
+                <a href="/contact" class="block py-4 px-5 text-[#f9fafb] no-underline font-medium text-[0.9375rem] relative transition-all duration-300 hover:text-[#60a5fa] hover:bg-white/5 group">
+                    Kontakt
+                    <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.75 bg-[#60a5fa] transition-all duration-300 group-hover:w-[80%]"></span>
+                </a>
             </li>
         </ul>
 
         <button
-                class="mobile-menu-toggle"
+                class="mobile-menu-toggle lg:hidden flex flex-col bg-none border-none cursor-pointer gap-1 justify-center items-center h-16 px-3 group"
                 type="button"
                 aria-label="Toggle menu"
                 aria-expanded="false"
                 aria-controls="primary-navigation"
                 aria-haspopup="true"
         >
-            <span class="hamburger"></span>
-            <span class="hamburger"></span>
-            <span class="hamburger"></span>
+            <span class="hamburger block w-6 h-0.5 bg-[#f9fafb] transition-all duration-300 group-aria-expanded:rotate-45 group-aria-expanded:translate-y-1.5"></span>
+            <span class="hamburger block w-6 h-0.5 bg-[#f9fafb] transition-all duration-300 group-aria-expanded:opacity-0"></span>
+            <span class="hamburger block w-6 h-0.5 bg-[#f9fafb] transition-all duration-300 group-aria-expanded:-rotate-45 group-aria-expanded:-translate-y-1.5"></span>
         </button>
     </div>
 </nav>
-
-<style>
-    .navbar {
-        background-color: #1f2937;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        min-height: 64px;
-    }
-
-    .navbar-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        min-height: 64px;
-    }
-
-    .nav-menu {
-        display: flex;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        gap: 0.5rem;
-    }
-
-    .nav-link {
-        display: block;
-        padding: 1rem 1.25rem;
-        color: #f9fafb;
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 0.9375rem;
-        position: relative;
-        transition: color 0.3s ease,
-        background-color 0.3s ease;
-    }
-
-    .nav-link:hover {
-        color: #60a5fa;
-        background-color: rgba(255, 255, 255, 0.05);
-    }
-
-    .nav-link::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 0;
-        height: 3px;
-        background-color: #60a5fa;
-        transition: width 0.3s ease;
-    }
-
-    .nav-link:hover::after {
-        width: 80%;
-    }
-
-    .mobile-menu-toggle {
-        display: none;
-        flex-direction: column;
-        background: none;
-        border: none;
-        cursor: pointer;
-        gap: 0.25rem;
-        justify-content: center;
-        align-items: center;
-        height: 64px;
-        padding: 0 0.75rem;
-    }
-
-    .hamburger {
-        display: block;
-        width: 1.5rem;
-        height: 2px;
-        background-color: #f9fafb;
-        transition: transform 0.3s ease,
-        opacity 0.3s ease,
-        background-color 0.3s ease;
-    }
-
-    .mobile-menu-toggle[aria-expanded="true"] .hamburger:nth-child(1) {
-        transform: rotate(45deg) translate(4px, 5px);
-    }
-
-    .mobile-menu-toggle[aria-expanded="true"] .hamburger:nth-child(2) {
-        opacity: 0;
-    }
-
-    .mobile-menu-toggle[aria-expanded="true"] .hamburger:nth-child(3) {
-        transform: rotate(-45deg) translate(4px, -5px);
-    }
-
-    @media (max-width: 1024px) {
-        .nav-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background-color: #1f2937;
-            flex-direction: column;
-            gap: 0;
-            padding: 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
-            will-change: opacity;
-        }
-
-        .nav-menu.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .nav-item {
-            width: 100%;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .nav-link {
-            padding: 1.25rem 1.75rem;
-            line-height: 1.2;
-        }
-
-        .nav-link::after {
-            display: none;
-        }
-
-        .mobile-menu-toggle {
-            display: flex;
-        }
-
-        .navbar-container {
-            position: relative;
-        }
-    }
-</style>
 
 <script>
     const menuToggle = document.querySelector(".mobile-menu-toggle");
     const navMenu = document.getElementById("primary-navigation");
 
-    function setMenu(open) {
+    function setMenu(open: boolean) {
         if (!menuToggle || !navMenu) return;
         menuToggle.setAttribute("aria-expanded", String(open));
-        navMenu.classList.toggle("active", open);
-        navMenu.setAttribute("aria-hidden", String(!open));
+        // Force flex display when active
+        if (open) {
+            navMenu.classList.add("active");
+            navMenu.setAttribute("aria-hidden", "false");
+        } else {
+            navMenu.classList.remove("active");
+            navMenu.setAttribute("aria-hidden", "true");
+        }
     }
 
     function isOpen() {
@@ -204,14 +93,14 @@
     });
 
     // Close menu when clicking a link
-    navMenu?.querySelectorAll(".nav-link").forEach((link) => {
+    navMenu?.querySelectorAll("a").forEach((link) => {
         link.addEventListener("click", () => setMenu(false));
     });
 
     // Close on outside click
     document.addEventListener("click", (e) => {
         if (!menuToggle || !navMenu) return;
-        const target = e.target;
+        const target = e.target as Node;
         if (!navMenu.contains(target) && !menuToggle.contains(target)) {
             setMenu(false);
         }

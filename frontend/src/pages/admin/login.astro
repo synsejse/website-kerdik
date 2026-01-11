@@ -1,79 +1,95 @@
 ---
-import AdminLayout from "../../layouts/AdminLayout.astro";
+import Layout from "../../layouts/Layout.astro";
+import ArrowRight from "../../components/icons/ArrowRight.astro";
+import ArrowLeft from "../../components/icons/ArrowLeft.astro";
 ---
 
-<AdminLayout title="Admin prihlásenie">
+<Layout
+    title="Admin prihlásenie"
+    showHeader={false}
+    showFooter={false}
+    showScrollTop={false}
+>
     <main
-        class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 relative overflow-hidden"
+        class="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 relative overflow-hidden font-sans"
     >
-        <div class="w-full max-w-[440px] relative z-10">
+        <div class="w-full max-w-110 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div
-                class="bg-white shadow-xl p-8 sm:p-10 border border-gray-200"
+                class="bg-white shadow-2xl p-8 sm:p-10 border border-gray-100 rounded-2xl"
             >
                 <div class="text-center mb-8">
                     <div class="flex justify-center mb-6">
-                        <img src="/images/brand/logo.png" alt="Logo" class="h-16 w-auto" />
+                        <img src="/images/brand/logo.png" alt="Logo" class="h-14 w-auto drop-shadow-sm" />
                     </div>
                     <h1
-                        class="text-2xl font-bold text-gray-900 mb-2"
+                        class="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tight"
                     >
                         Administrácia
                     </h1>
-                    <p class="text-sm text-gray-600">
-                        Prihláste sa pre prístup k správam
+                    <p class="text-sm text-gray-500 font-medium lowercase tracking-wide italic">
+                        Prístup k prijatým správam
                     </p>
                 </div>
 
                 <div
                     id="error-message"
-                    class="hidden bg-red-50 text-red-700 border border-red-200 py-3 px-4 mb-6 text-center text-sm font-medium"
+                    class="hidden bg-red-50 text-red-700 border border-red-100 rounded-xl py-3 px-4 mb-6 text-center text-sm font-bold animate-in shake duration-300"
                 >
                 </div>
 
-                <form id="login-form" class="space-y-5">
+                <form id="login-form" class="space-y-6">
                     <div class="space-y-2">
                         <label
                             for="password"
-                            class="block font-semibold text-gray-700 text-sm"
-                            >Heslo</label
+                            class="block font-bold text-gray-700 text-xs uppercase tracking-widest pl-1"
+                            >Admin Heslo</label
                         >
                         <input
                             type="password"
                             id="password"
                             name="password"
-                            placeholder="Zadajte admin heslo"
+                            placeholder="••••••••"
                             required
                             autofocus
-                            class="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-[#0f62fe] focus:ring-1 focus:ring-[#0f62fe]"
+                            class="w-full px-4 py-3.5 border border-gray-200 rounded-xl outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 text-center text-lg tracking-[0.3em]"
                         />
                     </div>
 
                     <button
                         type="submit"
                         id="login-btn"
-                        class="w-full py-3 bg-[#0f62fe] text-white font-bold uppercase tracking-wider transition-colors duration-200 hover:bg-[#0353e9] disabled:opacity-70 disabled:cursor-not-allowed"
+                        class="w-full py-4 bg-primary text-white font-black uppercase tracking-[0.15em] text-sm rounded-xl transition-all duration-300 hover:bg-[#0353e9] hover:shadow-lg hover:shadow-blue-500/25 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed group"
                     >
-                        <span>Prihlásiť sa</span>
+                        <span class="inline-flex items-center gap-2">
+                            Prihlásiť sa
+                            <ArrowRight class="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        </span>
                     </button>
                 </form>
 
-                <div class="text-center mt-8">
+                <div class="text-center mt-8 pt-6 border-t border-gray-50">
                     <a
                         href="/"
-                        class="inline-block text-[#0f62fe] font-medium text-sm hover:underline"
+                        class="inline-flex items-center text-gray-400 font-bold text-xs uppercase tracking-widest hover:text-primary transition-colors gap-2 justify-center"
                     >
-                        ← Späť na web
+                        <ArrowLeft class="h-3 w-3" />
+                        Späť na webovú stránku
                     </a>
                 </div>
             </div>
         </div>
 
         <div
-            class="mt-8 text-center text-gray-500 text-sm"
+            class="mt-8 text-center text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]"
         >
-            <span>&copy; {new Date().getFullYear()} SD Stavby</span>
+            <span>&copy; {new Date().getFullYear()} SD Stavby - Všetky práva vyhradené</span>
         </div>
     </main>
+
+    <!-- Template for the arrow icon to use in dynamic button state -->
+    <template id="arrow-right-icon-template">
+        <ArrowRight class="h-4 w-4 transition-transform group-hover:translate-x-1" />
+    </template>
 
     <script>
         import { api } from "../../lib/api";
@@ -89,6 +105,8 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
             "error-message",
         ) as HTMLDivElement;
 
+        const ARROW_RIGHT_ICON = document.getElementById("arrow-right-icon-template")?.innerHTML ?? "";
+
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
             const password = passwordInput.value;
@@ -97,7 +115,7 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
                 // Disable form
                 passwordInput.disabled = true;
                 loginBtn.disabled = true;
-                loginBtn.innerHTML = '<span class="relative z-10">Overujem...</span>';
+                loginBtn.innerHTML = `<span class="inline-flex items-center gap-2">Overujem...</span>`;
                 errorMessage.classList.add("hidden");
 
                 await api.admin.login(password);
@@ -110,37 +128,10 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
                 // Re-enable form
                 passwordInput.disabled = false;
                 loginBtn.disabled = false;
-                loginBtn.innerHTML = '<span class="relative z-10">Prihlásiť sa</span>';
+                loginBtn.innerHTML = `<span class="inline-flex items-center gap-2">Prihlásiť sa ${ARROW_RIGHT_ICON}</span>`;
                 passwordInput.value = "";
                 passwordInput.focus();
             }
         });
     </script>
-</AdminLayout>
-
-<style>
-    @keyframes move {
-        0% { transform: translateY(0) rotate(0deg); }
-        50% { transform: translateY(-20px) rotate(5deg); }
-        100% { transform: translateY(0) rotate(0deg); }
-    }
-
-    @keyframes slideUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-        20%, 40%, 60%, 80% { transform: translateX(4px); }
-    }
-
-    @keyframes float {
-        0% { transform: translate(0, 0) rotate(0deg); }
-        33% { transform: translate(30px, -50px) rotate(10deg); }
-        66% { transform: translate(-20px, 20px) rotate(-5deg); }
-        100% { transform: translate(0, 0) rotate(0deg); }
-    }
-</style>
-
+</Layout>

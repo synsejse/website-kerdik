@@ -6,43 +6,43 @@ import SquareCheckIcon from "../icons/SquareCheck.astro";
 import CalendarIcon from "../icons/Calendar.astro";
 import Container from "../layout/Container.astro";
 ---
-<section class="stats-section" aria-labelledby="stats-title">
-    <div class="overlay"></div>
-    <Container>
-        <div class="stats-container">
-            <h2 id="stats-title" class="stats-title">VIAC o našej práci</h2>
+<section class="relative bg-[url('/images/banners/stats-banner.jpg')] bg-cover bg-center text-white stats-section" aria-labelledby="stats-title">
+    <div class="absolute inset-0 bg-black/50"></div>
+    <Container className="relative">
+        <div class="relative">
+            <h2 id="stats-title" class="m-0 mb-6 text-2xl md:text-3xl lg:text-4xl font-bold leading-tight relative pb-2 inline-block tracking-tight after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-1.5 md:after:h-2 after:w-[56%] lg:after:w-[40%] after:bg-linear-to-r after:from-[#67a8ff] after:to-primary after:rounded-full after:shadow-[0_2px_6px_rgba(15,98,254,0.35)]">VIAC o našej práci</h2>
 
-            <div class="stats-grid">
-                <article class="stat-item">
-                    <div class="icon" aria-hidden="true">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                <article class="bg-white/5 border border-white/20 rounded-2xl p-4 md:p-6 grid gap-2 shadow-xl backdrop-blur-sm transition-transform duration-300 hover:-translate-y-1">
+                    <div class="text-[#93c5fd]" aria-hidden="true">
                         <StarIcon width={28} height={28} fill="currentColor"/>
                     </div>
-                    <div class="value" data-target="100">0</div>
-                    <div class="label">Kvalita služieb</div>
+                    <div class="text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight tracking-tight value" data-target="100">0</div>
+                    <div class="text-sm md:text-base text-gray-200">Kvalita služieb</div>
                 </article>
 
-                <article class="stat-item">
-                    <div class="icon" aria-hidden="true">
+                <article class="bg-white/5 border border-white/20 rounded-2xl p-4 md:p-6 grid gap-2 shadow-xl backdrop-blur-sm transition-transform duration-300 hover:-translate-y-1">
+                    <div class="text-[#93c5fd]" aria-hidden="true">
                         <UserGroupIcon width={28} height={28} fill="currentColor"/>
                     </div>
-                    <div class="value" data-target="7500">0</div>
-                    <div class="label">Spokojných klientov</div>
+                    <div class="text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight tracking-tight value" data-target="7500">0</div>
+                    <div class="text-sm md:text-base text-gray-200">Spokojných klientov</div>
                 </article>
 
-                <article class="stat-item">
-                    <div class="icon" aria-hidden="true">
+                <article class="bg-white/5 border border-white/20 rounded-2xl p-4 md:p-6 grid gap-2 shadow-xl backdrop-blur-sm transition-transform duration-300 hover:-translate-y-1">
+                    <div class="text-[#93c5fd]" aria-hidden="true">
                         <SquareCheckIcon width={28} height={28} fill="currentColor"/>
                     </div>
-                    <div class="value" data-target="300">0</div>
-                    <div class="label">Ukončené projekty</div>
+                    <div class="text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight tracking-tight value" data-target="300">0</div>
+                    <div class="text-sm md:text-base text-gray-200">Ukončené projekty</div>
                 </article>
 
-                <article class="stat-item">
-                    <div class="icon" aria-hidden="true">
+                <article class="bg-white/5 border border-white/20 rounded-2xl p-4 md:p-6 grid gap-2 shadow-xl backdrop-blur-sm transition-transform duration-300 hover:-translate-y-1">
+                    <div class="text-[#93c5fd]" aria-hidden="true">
                         <CalendarIcon width={28} height={28} fill="currentColor"/>
                     </div>
-                    <div class="value" data-target="15">0</div>
-                    <div class="label">Rokov na trhu</div>
+                    <div class="text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight tracking-tight value" data-target="15">0</div>
+                    <div class="text-sm md:text-base text-gray-200">Rokov na trhu</div>
                 </article>
             </div>
         </div>
@@ -55,18 +55,18 @@ import Container from "../layout/Container.astro";
                 const section = document.querySelector('.stats-section');
                 if (!section) return;
 
-                const values = Array.from(section.querySelectorAll('.value'));
+                const values = Array.from(section.querySelectorAll('.value')) as HTMLElement[];
                 let started = false;
 
-                const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+                const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
-                const animate = (el, target) => {
+                const animate = (el: HTMLElement, target: number) => {
                     const duration = 3000; // exactly 3 seconds
                     const start = performance.now();
                     // Ensure we always start from 0 in UI
                     el.textContent = (0).toLocaleString('sk-SK');
 
-                    const step = (now) => {
+                    const step = (now: number) => {
                         const p = Math.min(1, (now - start) / duration);
                         const eased = easeOutCubic(p);
                         const val = Math.round(eased * target);
@@ -110,97 +110,3 @@ import Container from "../layout/Container.astro";
     </script>
 </section>
 
-<style>
-    .stats-section {
-        position: relative;
-        background-image: url('/images/banners/stats-banner.jpg');
-        background-size: cover;
-        background-position: center;
-        color: #ffffff;
-    }
-
-    .overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.5);
-    }
-
-    .stats-container {
-        position: relative;
-    }
-
-    .stats-title {
-        margin: 0 0 1rem;
-        font-size: clamp(1.4rem, 3.5vw, 2rem);
-        letter-spacing: 0.02em;
-        position: relative;
-        display: inline-block;
-        padding-bottom: 0.15em;
-    }
-
-    .stats-title::after {
-        content: '';
-        position: absolute;
-        left: 0;
-        bottom: 0.02em;
-        height: 0.22em;
-        width: 56%;
-        background: linear-gradient(90deg, #67a8ff 0%, #0f62fe 100%);
-        border-radius: 999px;
-        box-shadow: 0 2px 6px rgba(15, 98, 254, 0.35);
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 1rem;
-    }
-
-    .stat-item {
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        border-radius: 14px;
-        padding: 1rem;
-        display: grid;
-        gap: 0.35rem;
-        align-content: start;
-        min-height: 120px;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
-        backdrop-filter: blur(2px);
-    }
-
-    .icon {
-        color: #93c5fd;
-    }
-
-    .value {
-        font-size: clamp(1.6rem, 4.5vw, 2.2rem);
-        font-weight: 800;
-        line-height: 1.1;
-        letter-spacing: 0.02em;
-    }
-
-    .label {
-        font-size: 0.95rem;
-        color: #e5e7eb;
-    }
-
-
-    @media (min-width: 900px) {
-        .stats-grid {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-        }
-
-        .stats-title::after {
-            width: 40%;
-            height: 0.24em;
-        }
-    }
-
-    @media (max-width: 520px) {
-        .stat-item {
-            min-height: 110px;
-        }
-    }
-</style>

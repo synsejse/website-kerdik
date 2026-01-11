@@ -3,34 +3,14 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="404 – Stránka sa nenašla">
-    <section class="wrap">
-        <h1>404 — Stránka sa nenašla</h1>
-        <p class="lead">
+    <section class="max-w-275 mx-auto px-4 py-16 md:py-24 text-center">
+        <h1 class="m-0 mb-2 text-3xl md:text-4xl font-bold leading-tight">404 — Stránka sa nenašla</h1>
+        <p class="m-0 mb-5 text-gray-600">
             Je nám ľúto, ale hľadaná stránka neexistuje alebo bola presunutá.
         </p>
+        <a href="/" class="inline-flex items-center px-6 py-3 bg-primary text-white no-underline rounded-lg font-bold transition-all hover:bg-[#0353e9]">
+            Späť na domovskú stránku
+        </a>
     </section>
 </Layout>
 
-<style>
-    .wrap {
-        text-align: center;
-        padding: 3rem 1rem;
-    }
-
-    h1 {
-        margin: 0 0 0.5rem;
-        font-size: 2.25rem;
-        line-height: 1.2;
-    }
-
-    .lead {
-        margin: 0 0 1.25rem;
-        color: #4b5563;
-    }
-
-    @media (min-width: 720px) {
-        .nav ul {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-        }
-    }
-</style>

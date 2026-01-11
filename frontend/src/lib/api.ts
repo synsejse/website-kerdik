@@ -8,6 +8,13 @@ export interface Message {
     created_at: string;
 }
 
+export interface PaginatedMessages {
+    data: Message[];
+    total: number;
+    page: number;
+    limit: number;
+}
+
 export class ApiError extends Error {
     constructor(
         public status: number,
@@ -50,9 +57,9 @@ export const api = {
             return handleResponse<boolean>(res);
         },
 
-        async getMessages(): Promise<Message[]> {
-            const res = await fetch("/admin/api/messages");
-            return handleResponse<Message[]>(res);
+        async getMessages(page: number = 1, limit: number = 10): Promise<PaginatedMessages> {
+            const res = await fetch(`/admin/api/messages?page=${page}&limit=${limit}`);
+            return handleResponse<PaginatedMessages>(res);
         },
 
         async deleteMessage(id: number): Promise<void> {
@@ -63,4 +70,3 @@ export const api = {
         },
     },
 };
-

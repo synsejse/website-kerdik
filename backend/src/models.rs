@@ -89,3 +89,12 @@ pub struct AdminSession {
     pub expires_at: Option<NaiveDateTime>,
     pub ip_address: Option<String>,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct PaginatedMessages {
+    pub data: Vec<Message>,
+    pub total: i64,
+    pub page: i64,
+    pub limit: i64,
+}

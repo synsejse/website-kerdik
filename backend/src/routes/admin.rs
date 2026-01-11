@@ -8,7 +8,7 @@ use std::net::SocketAddr;
 use uuid::Uuid;
 
 use crate::db::MessagesDB;
-use crate::models::{AdminLoginRequest, AdminSession, AppState, Message, NewAdminSession};
+use crate::models::{AdminLoginRequest, AdminSession, AppState, Message, NewAdminSession, PaginatedMessages};
 use crate::schema::{admin_sessions, messages};
 
 // Helper function to check if admin is authenticated
@@ -35,9 +35,16 @@ async fn is_admin_authenticated(
                 }
             }
 
-            // Check if IP address matches if both are present
-            if let (Some(saved_ip), Some(current_ip)) = (session.ip_address, remote_addr) {
-                return saved_ip == current_ip.ip().to_string();
+            // Check if IP address matches
+            if let Some(saved_ip) = session.ip_address {
+                if let Some(current_ip) = remote_addr {
+                    if saved_ip != current_ip.ip().to_string() {
+                        return false;
+                    }
+                } else {
+                    // Session has an IP but requester has no IP detected
+                    return false;
+                }
             }
             return true;
         }
@@ -112,18 +119,35 @@ pub async fn admin_check(
     Ok(Json(authenticated))
 }
 
-#[get("/admin/api/messages")]
+#[get("/admin/api/messages?<page>&<limit>")]
 pub async fn get_messages(
     mut db: Connection<MessagesDB>,
     cookies: &CookieJar<'_>,
     remote_addr: Option<SocketAddr>,
-) -> Result<Json<Vec<Message>>, Status> {
+    page: Option<i64>,
+    limit: Option<i64>,
+) -> Result<Json<PaginatedMessages>, Status> {
     if !is_admin_authenticated(cookies, &mut db, remote_addr).await {
         return Err(Status::Unauthorized);
     }
 
+    let page = page.unwrap_or(1);
+    let limit = limit.unwrap_or(10);
+    let offset = (page - 1) * limit;
+
+    let total_count: i64 = messages::table
+        .count()
+        .get_result(&mut db)
+        .await
+        .map_err(|e| {
+            eprintln!("Error counting messages: {}", e);
+            Status::InternalServerError
+        })?;
+
     let results = messages::table
         .order(messages::created_at.desc())
+        .limit(limit)
+        .offset(offset)
         .select(Message::as_select())
         .load(&mut db)
         .await
@@ -132,7 +156,12 @@ pub async fn get_messages(
             Status::InternalServerError
         })?;
 
-    Ok(Json(results))
+    Ok(Json(PaginatedMessages {
+        data: results,
+        total: total_count,
+        page,
+        limit,
+    }))
 }
 
 #[delete("/admin/api/messages/<id>")]

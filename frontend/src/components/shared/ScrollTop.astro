@@ -35,58 +35,16 @@ import ArrowUpIcon from "../icons/ArrowUp.astro";
 <button
         id="scrollTop"
         data-threshold={threshold}
-        class="scroll-top"
+        class="fixed bg-primary text-white border-none rounded-full cursor-pointer shadow-xl hidden transition-all duration-300 z-50 p-0 hover:bg-[#0b53d6] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20 active:scale-95 [&.show]:flex [&.show]:items-center [&.show]:justify-center"
         aria-label={label}
         title={label}
-        style={`--st-size:${size}px; --st-bottom:${bottom}; --st-right:${right};`}
+        style={`width:${size}px; height:${size}px; bottom:${bottom}; right:${right};`}
 >
     <ArrowUpIcon width={Math.round(size * 0.6)} height={Math.round(size * 0.6)} fill="currentColor"/>
 </button>
 
 <style>
-    .scroll-top {
-        position: fixed;
-        bottom: var(--st-bottom);
-        right: var(--st-right);
-        background: #0f62fe;
-        color: #ffffff;
-        border: none;
-        border-radius: 999px;
-        width: var(--st-size);
-        height: var(--st-size);
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-        display: none;
-        transition: opacity 0.3s ease,
-        transform 0.3s ease,
-        background-color 0.2s ease;
-        z-index: 1000;
-        padding: 0;
-        line-height: 1;
-    }
-
-    .scroll-top.show {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .scroll-top:hover {
-        background: #0b53d6;
-    }
-
-    .scroll-top:focus-visible {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.2),
-        0 4px 12px rgba(0, 0, 0, 0.25);
-    }
-
-
-    @media (prefers-reduced-motion: reduce) {
-        .scroll-top {
-            transition: none;
-        }
-    }
+    /* Handled by Tailwind [&.show] class */
 </style>
 
 <script>
