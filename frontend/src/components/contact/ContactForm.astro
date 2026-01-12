@@ -1,8 +1,13 @@
 ---
 import Container from "../layout/Container.astro";
+import UserGroupIcon from "../icons/UserGroup.astro";
+import EnvelopeIcon from "../icons/Envelope.astro";
+import PhoneIcon from "../icons/Phone.astro";
+import SquareCheckIcon from "../icons/SquareCheck.astro";
+import ArrowsRotateIcon from "../icons/ArrowsRotate.astro";
 ---
 
-<section class="bg-white" aria-labelledby="contact-form-title">
+<section class="bg-gray-50 py-12" aria-labelledby="contact-form-title">
     <Container>
         <h2 id="contact-form-title" class="m-0 mb-6 text-xl lg:text-2xl font-bold leading-tight relative pb-2 inline-block tracking-tight after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-1.5 after:w-[58%] after:bg-linear-to-r after:from-primary after:to-[#67a8ff] after:rounded-full after:shadow-[0_2px_6px_rgba(15,98,254,0.35)]">Napíšte nám</h2>
 
@@ -18,29 +23,53 @@ import Container from "../layout/Container.astro";
             <div class="grid sm:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
                 <div class="flex flex-col gap-1.5">
                     <label for="name" class="text-sm font-semibold text-gray-700">Meno a priezvisko</label>
-                    <input id="name" name="name" type="text" required placeholder="Vaše meno" class="appearance-none border border-gray-200 rounded-lg p-3 text-base outline-none bg-white text-gray-900 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"/>
+                    <div class="relative">
+                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                            <UserGroupIcon class="w-5 h-5"/>
+                        </div>
+                        <input id="name" name="name" type="text" required placeholder="Vaše meno" class="w-full appearance-none border border-gray-200 rounded-lg py-3 pl-11 pr-3 text-base outline-none bg-white text-gray-900 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"/>
+                    </div>
                 </div>
                 <div class="flex flex-col gap-1.5">
                     <label for="email" class="text-sm font-semibold text-gray-700">Email</label>
-                    <input id="email" name="email" type="email" required placeholder="vas@email.sk" class="appearance-none border border-gray-200 rounded-lg p-3 text-base outline-none bg-white text-gray-900 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"/>
+                    <div class="relative">
+                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                            <EnvelopeIcon class="w-5 h-5"/>
+                        </div>
+                        <input id="email" name="email" type="email" required placeholder="vas@email.sk" class="w-full appearance-none border border-gray-200 rounded-lg py-3 pl-11 pr-3 text-base outline-none bg-white text-gray-900 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"/>
+                    </div>
                 </div>
                 <div class="flex flex-col gap-1.5">
                     <label for="phone" class="text-sm font-semibold text-gray-700">Telefón (nepovinné)</label>
-                    <input id="phone" name="phone" type="tel" placeholder="+421 900 000 000" class="appearance-none border border-gray-200 rounded-lg p-3 text-base outline-none bg-white text-gray-900 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"/>
+                    <div class="relative">
+                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                            <PhoneIcon class="w-5 h-5"/>
+                        </div>
+                        <input id="phone" name="phone" type="tel" placeholder="+421 900 000 000" class="w-full appearance-none border border-gray-200 rounded-lg py-3 pl-11 pr-3 text-base outline-none bg-white text-gray-900 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"/>
+                    </div>
                 </div>
                 <div class="flex flex-col gap-1.5">
                     <label for="subject" class="text-sm font-semibold text-gray-700">Predmet (nepovinné)</label>
-                    <input id="subject" name="subject" type="text" placeholder="Téma správy" class="appearance-none border border-gray-200 rounded-lg p-3 text-base outline-none bg-white text-gray-900 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"/>
+                    <div class="relative">
+                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                            <SquareCheckIcon class="w-5 h-5"/>
+                        </div>
+                        <input id="subject" name="subject" type="text" placeholder="Téma správy" class="w-full appearance-none border border-gray-200 rounded-lg py-3 pl-11 pr-3 text-base outline-none bg-white text-gray-900 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"/>
+                    </div>
                 </div>
             </div>
 
             <div class="flex flex-col gap-1.5 mb-6 md:mb-8">
                 <label for="message" class="text-sm font-semibold text-gray-700">Správa</label>
-                <textarea id="message" name="message" rows="6" required placeholder="Vaša správa..." class="appearance-none border border-gray-200 rounded-lg p-3 text-base outline-none bg-white text-gray-900 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 resize-y"></textarea>
+                <textarea id="message" name="message" rows="6" required placeholder="Vaša správa..." class="w-full appearance-none border border-gray-200 rounded-lg p-3 text-base outline-none bg-white text-gray-900 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 resize-y"></textarea>
             </div>
 
             <div class="flex justify-end">
-                <button type="submit" id="submit-btn" class="w-full sm:w-auto px-8 py-3 bg-primary text-white border-none rounded-lg text-base font-bold cursor-pointer transition-all hover:bg-[#0353e9] hover:shadow-lg active:scale-[0.98]">Odoslať správu</button>
+                <button type="submit" id="submit-btn" class="w-full sm:w-auto px-8 py-3 bg-primary text-white border-none rounded-lg text-base font-bold cursor-pointer transition-all hover:bg-[#0353e9] hover:shadow-lg active:scale-[0.98] inline-flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                    <span id="btn-icon"><EnvelopeIcon class="w-5 h-5"/></span>
+                    <span id="btn-spinner" class="hidden animate-spin"><ArrowsRotateIcon class="w-5 h-5"/></span>
+                    <span id="btn-text">Odoslať správu</span>
+                </button>
             </div>
         </form>
     </Container>
@@ -50,6 +79,9 @@ import Container from "../layout/Container.astro";
     const form = document.getElementById('contact-form') as HTMLFormElement;
     const feedback = document.getElementById('form-feedback');
     const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+    const btnIcon = document.getElementById('btn-icon');
+    const btnSpinner = document.getElementById('btn-spinner');
+    const btnText = document.getElementById('btn-text');
 
     if (form) {
         // Clear custom validity on input
@@ -85,10 +117,10 @@ import Container from "../layout/Container.astro";
             }
 
             // Disable button
-            const originalBtnText = submitBtn.innerText;
             submitBtn.disabled = true;
-            submitBtn.innerText = 'Odosielam...';
-            submitBtn.style.opacity = '0.7';
+            if (btnIcon) btnIcon.classList.add('hidden');
+            if (btnSpinner) btnSpinner.classList.remove('hidden');
+            if (btnText) btnText.textContent = 'Odosielam...';
 
             feedback.classList.add('hidden');
             feedback.className = 'hidden mb-6 p-4 rounded-xl border text-sm font-bold';
@@ -119,8 +151,9 @@ import Container from "../layout/Container.astro";
             } finally {
                 // Re-enable button
                 submitBtn.disabled = false;
-                submitBtn.innerText = originalBtnText;
-                submitBtn.style.opacity = '1';
+                if (btnIcon) btnIcon.classList.remove('hidden');
+                if (btnSpinner) btnSpinner.classList.add('hidden');
+                if (btnText) btnText.textContent = 'Odoslať správu';
             }
         });
     }

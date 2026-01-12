@@ -6,11 +6,10 @@ export interface Props {
     as?: any;
 }
 
-const {className = "", as = "div"} = Astro.props;
+const { className = "", as = "div" } = Astro.props;
 const Tag = as;
 ---
 
 <Tag class={`max-w-275 mx-auto px-4 py-10 md:py-16 ${className}`.trim()}>
-    <slot/>
+    <slot />
 </Tag>
-

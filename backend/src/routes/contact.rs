@@ -14,7 +14,7 @@ use crate::schema::messages;
 pub async fn submit_message(
     mut db: Connection<MessagesDB>,
     form: Form<ContactMessageForm>,
-) ->  Result<Status, Status> {
+) -> Result<Status, Status> {
     let data = form.into_inner();
 
     // Check honeypot field to detect bots

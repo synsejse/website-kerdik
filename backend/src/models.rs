@@ -83,6 +83,7 @@ pub struct AppState {
 
 #[derive(Debug, Clone, Queryable, Selectable)]
 #[diesel(table_name = admin_sessions)]
+#[allow(dead_code)]
 pub struct AdminSession {
     pub session_token: String,
     pub created_at: Option<NaiveDateTime>,

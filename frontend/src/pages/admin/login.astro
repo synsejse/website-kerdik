@@ -13,20 +13,28 @@ import ArrowLeft from "../../components/icons/ArrowLeft.astro";
     <main
         class="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 relative overflow-hidden font-sans"
     >
-        <div class="w-full max-w-110 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div
+            class="w-full max-w-110 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700"
+        >
             <div
                 class="bg-white shadow-2xl p-8 sm:p-10 border border-gray-100 rounded-2xl"
             >
                 <div class="text-center mb-8">
                     <div class="flex justify-center mb-6">
-                        <img src="/images/brand/logo.png" alt="Logo" class="h-14 w-auto drop-shadow-sm" />
+                        <img
+                            src="/images/brand/logo.png"
+                            alt="Logo"
+                            class="h-14 w-auto drop-shadow-sm"
+                        />
                     </div>
                     <h1
                         class="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tight"
                     >
                         Administrácia
                     </h1>
-                    <p class="text-sm text-gray-500 font-medium lowercase tracking-wide italic">
+                    <p
+                        class="text-sm text-gray-500 font-medium lowercase tracking-wide italic"
+                    >
                         Prístup k prijatým správam
                     </p>
                 </div>
@@ -62,7 +70,9 @@ import ArrowLeft from "../../components/icons/ArrowLeft.astro";
                     >
                         <span class="inline-flex items-center gap-2">
                             Prihlásiť sa
-                            <ArrowRight class="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                            <ArrowRight
+                                class="h-4 w-4 transition-transform group-hover:translate-x-1"
+                            />
                         </span>
                     </button>
                 </form>
@@ -82,13 +92,17 @@ import ArrowLeft from "../../components/icons/ArrowLeft.astro";
         <div
             class="mt-8 text-center text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]"
         >
-            <span>&copy; {new Date().getFullYear()} SD Stavby - Všetky práva vyhradené</span>
+            <span
+                >&copy; {new Date().getFullYear()} SD Stavby - Všetky práva vyhradené</span
+            >
         </div>
     </main>
 
     <!-- Template for the arrow icon to use in dynamic button state -->
     <template id="arrow-right-icon-template">
-        <ArrowRight class="h-4 w-4 transition-transform group-hover:translate-x-1" />
+        <ArrowRight
+            class="h-4 w-4 transition-transform group-hover:translate-x-1"
+        />
     </template>
 
     <script>
@@ -105,7 +119,9 @@ import ArrowLeft from "../../components/icons/ArrowLeft.astro";
             "error-message",
         ) as HTMLDivElement;
 
-        const ARROW_RIGHT_ICON = document.getElementById("arrow-right-icon-template")?.innerHTML ?? "";
+        const ARROW_RIGHT_ICON =
+            document.getElementById("arrow-right-icon-template")?.innerHTML ??
+            "";
 
         form.addEventListener("submit", async (e) => {
             e.preventDefault();

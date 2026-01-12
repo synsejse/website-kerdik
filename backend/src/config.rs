@@ -1,5 +1,8 @@
+use rocket::figment::{
+    Figment,
+    providers::{Env, Format, Toml},
+};
 use serde::Deserialize;
-use rocket::figment::{Figment, providers::{Env, Format, Toml}};
 
 #[derive(Deserialize, Clone)]
 pub struct AppConfig {
@@ -37,4 +40,3 @@ impl AppConfig {
             .expect("Failed to load configuration. Ensure Config.toml exists or environment variables are set (DATABASE_URL, ADMIN_PASSWORD_HASH).")
     }
 }
-

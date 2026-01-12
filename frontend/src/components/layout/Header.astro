@@ -6,35 +6,71 @@ import LocationIcon from "../icons/LocationDot.astro";
 ---
 
 <header class="bg-white border-b border-gray-200 py-3 lg:py-5">
-    <div class="max-w-275 mx-auto px-4 flex flex-col lg:flex-row justify-between items-center gap-5 lg:gap-6">
+    <div
+        class="max-w-275 mx-auto px-4 flex flex-col lg:flex-row justify-between items-center gap-5 lg:gap-6"
+    >
         <div class="flex items-center">
             <a href="/" class="flex items-center no-underline text-inherit">
-                <img src="/images/brand/logo.png" alt="SD Stavby" class="h-10 md:h-11 lg:h-12.5 max-w-50 transition-[height] duration-250 ease-in-out"/>
+                <img
+                    src="/images/brand/logo.png"
+                    alt="SD Stavby"
+                    class="h-10 md:h-11 lg:h-12.5 max-w-50 transition-[height] duration-250 ease-in-out"
+                />
             </a>
         </div>
 
-        <div class="hidden md:grid lg:flex flex-wrap items-center gap-4 lg:gap-8 grid-cols-[repeat(auto-fit,minmax(180px,1fr))] w-full lg:w-auto">
-            <div class="flex items-center gap-2.5 text-[0.8125rem] text-gray-600 leading-tight contact-item">
-                <PhoneIcon width={20} height={20} fill="currentColor"/>
+        <div
+            class="hidden md:grid lg:flex flex-wrap items-center gap-4 lg:gap-8 grid-cols-[repeat(auto-fit,minmax(180px,1fr))] w-full lg:w-auto"
+        >
+            <div
+                class="flex items-center gap-2.5 text-[0.8125rem] text-gray-600 leading-tight contact-item"
+            >
+                <PhoneIcon width={20} height={20} fill="currentColor" />
                 <div class="flex flex-col gap-0.5">
-                    <div class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider">Zavolajte nám</div>
-                    <a href="tel:+421903711356" class="text-gray-600 no-underline transition-colors duration-200 font-medium hover:text-gray-900">(+421) 903 711 356</a>
+                    <div
+                        class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider"
+                    >
+                        Zavolajte nám
+                    </div>
+                    <a
+                        href="tel:+421903711356"
+                        class="text-gray-600 no-underline transition-colors duration-200 font-medium hover:text-gray-900"
+                        >(+421) 903 711 356</a
+                    >
                 </div>
             </div>
 
-            <div class="flex items-center gap-2.5 text-[0.8125rem] text-gray-600 leading-tight contact-item">
-                <EmailIcon width={20} height={20} fill="currentColor"/>
+            <div
+                class="flex items-center gap-2.5 text-[0.8125rem] text-gray-600 leading-tight contact-item"
+            >
+                <EmailIcon width={20} height={20} fill="currentColor" />
                 <div class="flex flex-col gap-0.5">
-                    <div class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider">Napíšte nám</div>
-                    <a href="mailto:info@sd-stavby.sk" class="text-gray-600 no-underline transition-colors duration-200 font-medium hover:text-gray-900">info@sd-stavby.sk</a>
+                    <div
+                        class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider"
+                    >
+                        Napíšte nám
+                    </div>
+                    <a
+                        href="mailto:info@sd-stavby.sk"
+                        class="text-gray-600 no-underline transition-colors duration-200 font-medium hover:text-gray-900"
+                        >info@sd-stavby.sk</a
+                    >
                 </div>
             </div>
 
-            <div class="flex items-center gap-2.5 text-[0.8125rem] text-gray-600 leading-tight contact-item">
-                <LocationIcon width={20} height={20} fill="currentColor"/>
+            <div
+                class="flex items-center gap-2.5 text-[0.8125rem] text-gray-600 leading-tight contact-item"
+            >
+                <LocationIcon width={20} height={20} fill="currentColor" />
                 <div class="flex flex-col gap-0.5">
-                    <div class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider">Naše sídlo</div>
-                    <span class="font-medium">Nám. sv. J. Bosca 120, Žilina-Bánová</span>
+                    <div
+                        class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider"
+                    >
+                        Naše sídlo
+                    </div>
+                    <span class="font-medium"
+                        >Nám. sv. J. Bosca 120, Žilina-Bánová</span
+                    >
                 </div>
             </div>
         </div>

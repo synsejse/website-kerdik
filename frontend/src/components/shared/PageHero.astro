@@ -7,11 +7,17 @@ export interface Props {
 const { title, imageSrc = "/images/banners/stats-banner.jpg" } = Astro.props;
 ---
 
-<section class="relative min-h-[30vh] sm:min-h-[38vh] grid place-items-center text-white bg-center bg-cover bg-no-repeat overflow-hidden"
-         style={`background-image: url('${imageSrc}')`}>
+<section
+    class="relative min-h-[30vh] sm:min-h-[38vh] grid place-items-center text-white bg-center bg-cover bg-no-repeat overflow-hidden"
+    style={`background-image: url('${imageSrc}')`}
+>
     <div class="absolute inset-0 bg-black/40 backdrop-blur-[1px]"></div>
-    <div class="relative z-10 text-center py-12 px-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-        <h1 class="m-0 text-3xl md:text-4xl lg:text-5xl tracking-tight font-extrabold uppercase">
+    <div
+        class="relative z-10 text-center py-12 px-4 animate-in fade-in slide-in-from-bottom-4 duration-1000"
+    >
+        <h1
+            class="m-0 text-3xl md:text-4xl lg:text-5xl tracking-tight font-extrabold uppercase"
+        >
             {title}
         </h1>
         <div class="mt-4 h-1.5 w-24 bg-primary mx-auto rounded-full"></div>

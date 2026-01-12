@@ -23,8 +23,4 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(
-    admin_sessions,
-    messages,
-);
-
+diesel::allow_tables_to_appear_in_same_query!(admin_sessions, messages,);

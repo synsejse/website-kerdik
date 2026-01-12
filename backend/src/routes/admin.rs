@@ -8,7 +8,9 @@ use std::net::SocketAddr;
 use uuid::Uuid;
 
 use crate::db::MessagesDB;
-use crate::models::{AdminLoginRequest, AdminSession, AppState, Message, NewAdminSession, PaginatedMessages};
+use crate::models::{
+    AdminLoginRequest, AdminSession, AppState, Message, NewAdminSession, PaginatedMessages,
+};
 use crate::schema::{admin_sessions, messages};
 
 // Helper function to check if admin is authenticated
@@ -29,10 +31,10 @@ async fn is_admin_authenticated(
 
         if let Some(session) = session {
             // Check if session has expired
-            if let Some(expires_at) = session.expires_at {
-                if expires_at < chrono::Utc::now().naive_utc() {
-                    return false;
-                }
+            if let Some(expires_at) = session.expires_at
+                && expires_at < chrono::Utc::now().naive_utc()
+            {
+                return false;
             }
 
             // Check if IP address matches

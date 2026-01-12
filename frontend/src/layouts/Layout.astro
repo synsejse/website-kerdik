@@ -18,31 +18,38 @@ const {
     showHeader = true,
     showFooter = true,
     showScrollTop = true,
-    className = ""
+    className = "",
 } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="sk">
-<head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <link rel="icon" type="image/png" href="/favicon.png"/>
-    <title>{title}</title>
-</head>
-<body class:list={["flex flex-col min-h-screen bg-white text-[#111111] leading-relaxed font-sans", className]}>
-{showHeader && (
-        <div class="sticky top-0 z-50 bg-white shadow-md">
-            <Header/>
-            <Navbar/>
-        </div>
-)}
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <title>{title}</title>
+    </head>
+    <body
+        class:list={[
+            "flex flex-col min-h-screen bg-white text-[#111111] leading-relaxed font-sans",
+            className,
+        ]}
+    >
+        {
+            showHeader && (
+                <div class="sticky top-0 z-50 bg-white shadow-md">
+                    <Header />
+                    <Navbar />
+                </div>
+            )
+        }
 
-<main class="w-full grow">
-    <slot/>
-</main>
+        <main class="w-full grow">
+            <slot />
+        </main>
 
-{showFooter && <Footer/>}
-{showScrollTop && <ScrollTop/>}
-</body>
+        {showFooter && <Footer />}
+        {showScrollTop && <ScrollTop />}
+    </body>
 </html>
