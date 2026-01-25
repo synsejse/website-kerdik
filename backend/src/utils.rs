@@ -1,7 +1,7 @@
 // Utility functions for common operations
 
-use rocket::fs::TempFile;
 use rocket::tokio::io::AsyncReadExt;
+use rocket::{fs::TempFile, http::ContentType};
 
 use crate::error::{AppError, AppResult};
 
@@ -14,10 +14,16 @@ pub async fn process_image_upload<'r>(
         None => return Ok(None),
     };
 
-    // Validate content type is an image we accept
-    let content_type = temp_file
-        .content_type()
-        .filter(|ct: &&rocket::http::ContentType| ct.is_jpeg() || ct.is_png() || ct.is_gif())
+    let content_type = temp_file.content_type().cloned().or_else(|| {
+        temp_file
+            .name()
+            .and_then(|n| n.split('.').next_back()) // Get extension
+            .and_then(ContentType::from_extension)
+    });
+
+    // Now validate against your allowed list
+    let final_ct = content_type
+        .filter(|ct| ct.is_jpeg() || ct.is_png() || ct.is_gif())
         .ok_or(AppError::UnsupportedMediaType)?;
 
     let mut buffer = Vec::new();
@@ -31,7 +37,8 @@ pub async fn process_image_upload<'r>(
         AppError::Io(e)
     })?;
 
-    Ok(Some((buffer, content_type.to_string())))
+    // Return the normalized content type string (e.g., "image/jpeg")
+    Ok(Some((buffer, final_ct.to_string())))
 }
 
 /// Validate an email address format

@@ -38,7 +38,7 @@ fn rocket() -> _ {
         tracing::info!("Admin authentication is enabled");
     }
 
-    let figment = rocket::config::Config::figment()
+    let figment = rocket::Config::figment()
         .merge(("port", app_config.rocket_port))
         .merge(("address", app_config.rocket_address.clone()))
         .merge((

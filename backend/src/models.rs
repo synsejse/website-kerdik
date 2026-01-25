@@ -221,8 +221,6 @@ pub struct AdminUpdateOfferMultipart<'r> {
     /// Optional: Only provided if the user uploaded a new image
     #[field(name = "image")]
     pub image: Option<TempFile<'r>>,
-    /// Keep existing image if true and no new image provided
-    pub keep_existing_image: Option<bool>,
 }
 
 #[cfg(test)]

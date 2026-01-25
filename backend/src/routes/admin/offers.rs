@@ -117,28 +117,14 @@ pub async fn update_offer(
                 .execute(&mut db)
                 .await
         }
-        None if update_data.keep_existing_image.unwrap_or(false) => {
-            // Keep existing image
-            diesel::update(target)
-                .set((
-                    offers::title.eq(&update_data.title),
-                    offers::slug.eq(&update_data.slug),
-                    offers::description.eq(&update_data.description),
-                    offers::link.eq(&update_data.link),
-                ))
-                .execute(&mut db)
-                .await
-        }
         None => {
-            // Remove existing image
+            // No new image provided - keep existing image
             diesel::update(target)
                 .set((
                     offers::title.eq(&update_data.title),
                     offers::slug.eq(&update_data.slug),
                     offers::description.eq(&update_data.description),
                     offers::link.eq(&update_data.link),
-                    offers::image.eq(None::<Vec<u8>>),
-                    offers::image_mime.eq(None::<String>),
                 ))
                 .execute(&mut db)
                 .await

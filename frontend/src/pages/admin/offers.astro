@@ -3,6 +3,17 @@ import AdminLayout from "../../layouts/admin/Layout.astro";
 import Trash from "../../components/icons/Trash.astro";
 import Edit from "../../components/icons/Edit.astro";
 import ArrowsRotate from "../../components/icons/ArrowsRotate.astro";
+import Loading from "../../components/admin/common/Loading.astro";
+import EmptyState from "../../components/admin/common/EmptyState.astro";
+import Modal from "../../components/admin/common/Modal.astro";
+
+const TRASH_ICON = `<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+</svg>`;
+
+const EDIT_ICON = `<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+</svg>`;
 ---
 
 <AdminLayout title="Admin - Ponuky" showFooter={false}>
@@ -29,221 +40,107 @@ import ArrowsRotate from "../../components/icons/ArrowsRotate.astro";
           </div>
         </div>
 
-        <div id="loading" class="text-center py-32 hidden">
-          <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-primary"></div>
-          <p class="mt-6 text-gray-400 font-bold text-xs uppercase tracking-widest">
-            Načítavam dáta...
-          </p>
+        <div id="loading" class="hidden">
+          <Loading text="Načítavam dáta..." />
         </div>
 
         <div id="offers-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
 
-        <div id="no-offers" class="hidden text-center py-32 bg-white border border-gray-100 rounded-3xl shadow-sm text-gray-400">
-          <p class="font-bold text-sm uppercase tracking-widest italic">
-            Zatiaľ žiadne ponuky.
-          </p>
+        <div id="no-offers" class="hidden">
+          <EmptyState
+            title="Zatiaľ žiadne ponuky."
+            subtitle=""
+          />
         </div>
       </div>
     </main>
 
-    <div id="modal-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
-      <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-          <h3 id="modal-title" class="text-lg font-black uppercase tracking-widest text-gray-900">Nová Ponuka</h3>
-          <button id="modal-close" class="text-2xl text-gray-400 hover:text-red-500 transition-colors">&times;</button>
+    <Modal id="modal-overlay" title="Nová Ponuka">
+      <form id="offer-form" class="space-y-4">
+        <input type="hidden" id="offer-id" />
+        <input
+          type="text"
+          id="offer-title"
+          required
+          class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none font-bold"
+          placeholder="Názov ponuky"
+        />
+        <input
+          type="text"
+          id="offer-slug"
+          required
+          class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none font-mono text-sm"
+          placeholder="slug-adresy"
+        />
+        <textarea
+          id="offer-desc"
+          rows="4"
+          class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm"
+          placeholder="Popis..."
+        ></textarea>
+
+        <div>
+          <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+            Externý odkaz (voliteľné)
+          </label>
+          <input
+            type="url"
+            id="offer-link"
+            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm"
+            placeholder="https://example.com"
+          />
         </div>
-        <form id="offer-form" class="p-6 space-y-4">
-          <input type="hidden" id="offer-id" />
-          <input type="text" id="offer-title" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none font-bold" placeholder="Názov ponuky" />
-          <input type="text" id="offer-slug" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none font-mono text-sm" placeholder="slug-adresy" />
-          <textarea id="offer-desc" rows="4" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm" placeholder="Popis..."></textarea>
 
-          <div>
-            <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Externý odkaz (voliteľné)</label>
-            <input type="url" id="offer-link" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm" placeholder="https://example.com" />
+        <div>
+          <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+            Obrázok (PNG/JPG)
+          </label>
+          <input
+            type="file"
+            id="offer-image"
+            accept="image/*"
+            class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-primary"
+          />
+          <div id="image-preview" class="mt-3 hidden rounded-lg overflow-hidden border border-gray-200 h-24 w-full">
+            <img src="" class="w-full h-full object-cover" alt="Náhľad obrázka" />
           </div>
+        </div>
 
-          <div>
-            <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Obrázok (PNG/JPG)</label>
-            <input type="file" id="offer-image" accept="image/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-primary" />
-            <div id="image-preview" class="mt-3 hidden rounded-lg overflow-hidden border border-gray-200 h-24 w-full">
-              <img src="" class="w-full h-full object-cover" />
-            </div>
-          </div>
-
-          <div class="pt-4 flex justify-end gap-3">
-            <button type="button" id="modal-cancel" class="px-4 py-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-gray-700 transition-colors">Zrušiť</button>
-            <button type="submit" class="px-6 py-2.5 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-[#0353e9] transition-all shadow-lg hover:shadow-xl active:scale-95">Uložiť</button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div class="pt-4 flex justify-end gap-3">
+          <button type="button" id="modal-cancel" class="px-4 py-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-gray-700 transition-colors">
+            Zrušiť
+          </button>
+          <button type="submit" class="px-6 py-2.5 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-[#0353e9] transition-all shadow-lg hover:shadow-xl active:scale-95">
+            Uložiť
+          </button>
+        </div>
+      </form>
+    </Modal>
   </div>
 
-  <template id="trash-icon-tmpl"><Trash class="h-4 w-4" /></template>
-  <template id="edit-icon-tmpl"><Edit class="h-4 w-4" /></template>
-
   <script>
-    import { api, type OfferSummary } from "../../lib/api";
+    import { initializeOffersPage } from "../../lib/admin/offers";
 
-    // Extend window with helpers used from inline onclick attributes
-    declare global {
-      interface Window {
-        editOffer?: (id: number) => void;
-        deleteOffer?: (id: number) => Promise<void>;
-      }
-    }
-
-    // DOM references
-    const container = document.getElementById("offers-container") as HTMLElement | null;
-    const loading = document.getElementById("loading") as HTMLElement | null;
-    const noOffers = document.getElementById("no-offers") as HTMLElement | null;
-    const form = document.getElementById("offer-form") as HTMLFormElement | null;
-    const modal = document.getElementById("modal-overlay") as HTMLElement | null;
-
-    const TRASH_ICON = document.getElementById("trash-icon-tmpl")?.innerHTML ?? "";
-    const EDIT_ICON = document.getElementById("edit-icon-tmpl")?.innerHTML ?? "";
-
-    let offersData: OfferSummary[] = [];
-
-    async function loadOffers(): Promise<void> {
-      loading?.classList.remove("hidden");
-      if (container) container.innerHTML = "";
-
-      try {
-        offersData = await api.offers.getOffers();
-        if (offersData.length === 0) {
-          noOffers?.classList.remove("hidden");
-        } else {
-          noOffers?.classList.add("hidden");
-          render(offersData);
-        }
-      } catch (e) {
-        // Keep the UX simple: notify user on failure
-        // Layout handles auth/redirects; here we only report fetch errors.
-        // You may want to add a nicer UI error in future.
-        alert("Chyba pri načítaní.");
-      } finally {
-        loading?.classList.add("hidden");
-      }
-    }
-
-    function render(offers: OfferSummary[]): void {
-      if (!container) return;
-
-      container.innerHTML = offers
-        .map((o) => {
-          const imageUrl = api.offers.getOfferImageUrl(o.id);
-          const title = escapeHtml(o.title);
-          const slug = escapeHtml(o.slug);
-          const desc = escapeHtml(o.description ?? "");
-          return `
-            <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/20">
-              <div class="h-32 bg-gray-100 rounded-xl mb-4 overflow-hidden border">
-                <img src="${imageUrl}" class="w-full h-full object-cover" />
-              </div>
-              <h3 class="font-black text-gray-900 mb-1">${title}</h3>
-              <p class="text-xs text-gray-400 mb-4 font-mono">/${slug}</p>
-              <p class="text-sm text-gray-600 mb-4">${desc}</p>
-              <div class="flex gap-2">
-                <button onclick="window.editOffer && window.editOffer(${o.id})" class="flex-1 py-2 bg-gray-50 hover:bg-blue-50 text-xs font-black uppercase tracking-widest rounded-lg transition-colors flex items-center justify-center gap-2">
-                  ${EDIT_ICON} Upraviť
-                </button>
-                <button onclick="window.deleteOffer && window.deleteOffer(${o.id})" class="px-3 py-2 bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-lg transition-colors">
-                  ${TRASH_ICON}
-                </button>
-              </div>
-            </div>
-          `;
-        })
-        .join("");
-    }
-
-    function escapeHtml(text?: string | null): string {
-      if (!text) return "";
-      return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-    }
-
-    // Form submit handler
-    form?.addEventListener("submit", async (e: Event) => {
-      e.preventDefault();
-      const id = (document.getElementById("offer-id") as HTMLInputElement).value;
-      const title = (document.getElementById("offer-title") as HTMLInputElement).value;
-      const slug = (document.getElementById("offer-slug") as HTMLInputElement).value;
-      const description = (document.getElementById("offer-desc") as HTMLTextAreaElement).value;
-      const link = (document.getElementById("offer-link") as HTMLInputElement).value;
-      const file = (document.getElementById("offer-image") as HTMLInputElement).files?.[0];
-
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("slug", slug);
-      if (description) formData.append("description", description);
-      if (link) formData.append("link", link);
-
-      try {
-        if (id) {
-          if (file) {
-            formData.append("image", file);
-          } else {
-            formData.append("keep_existing_image", "true");
-          }
-          await api.admin.updateOffer(parseInt(id, 10), formData);
-        } else {
-          if (file) formData.append("image", file);
-          await api.admin.createOffer(formData);
-        }
-
-        closeModal();
-        await loadOffers();
-      } catch (e) {
-        alert("Chyba pri ukladaní.");
-      }
-    });
-
-    // Expose helpers on window for inline onclicks (typed above)
-    window.editOffer = (id: number): void => {
-      const o = offersData.find((x) => x.id === id);
-      if (!o) return;
-      (document.getElementById("offer-id") as HTMLInputElement).value = String(o.id);
-      (document.getElementById("offer-title") as HTMLInputElement).value = o.title;
-      (document.getElementById("offer-slug") as HTMLInputElement).value = o.slug;
-      (document.getElementById("offer-desc") as HTMLTextAreaElement).value = o.description || "";
-      (document.getElementById("offer-link") as HTMLInputElement).value = o.link || "";
-      modal?.classList.remove("hidden");
+    const elements = {
+      container: document.getElementById("offers-container") as HTMLElement | null,
+      loading: document.getElementById("loading") as HTMLElement | null,
+      noOffers: document.getElementById("no-offers") as HTMLElement | null,
+      form: document.getElementById("offer-form") as HTMLFormElement | null,
+      modal: document.getElementById("modal-overlay") as HTMLElement | null,
+      refreshBtn: document.getElementById("refresh-btn") as HTMLElement | null,
+      addOfferBtn: document.getElementById("add-offer-btn") as HTMLElement | null,
+      modalClose: document.getElementById("modal-overlay-close") as HTMLElement | null,
+      modalCancel: document.getElementById("modal-cancel") as HTMLElement | null,
+      offerId: document.getElementById("offer-id") as HTMLInputElement | null,
+      offerTitle: document.getElementById("offer-title") as HTMLInputElement | null,
+      offerSlug: document.getElementById("offer-slug") as HTMLInputElement | null,
+      offerDesc: document.getElementById("offer-desc") as HTMLTextAreaElement | null,
+      offerLink: document.getElementById("offer-link") as HTMLInputElement | null,
+      offerImage: document.getElementById("offer-image") as HTMLInputElement | null,
+      imagePreview: document.getElementById("image-preview") as HTMLElement | null,
+      imagePreviewImg: document.querySelector("#image-preview img") as HTMLImageElement | null,
     };
 
-    window.deleteOffer = async (id: number): Promise<void> => {
-      if (!confirm("Zmazať?")) return;
-      try {
-        await api.admin.deleteOffer(id);
-        await loadOffers();
-      } catch (e) {
-        alert("Chyba pri mazaní.");
-      }
-    };
-
-    function closeModal(): void {
-      modal?.classList.add("hidden");
-      form?.reset();
-      (document.getElementById("image-preview") as HTMLDivElement).classList.add("hidden");
-    }
-
-    document.getElementById("add-offer-btn")?.addEventListener("click", () => {
-      (document.getElementById("offer-id") as HTMLInputElement).value = "";
-      modal?.classList.remove("hidden");
-    });
-
-    document.getElementById("modal-close")?.addEventListener("click", closeModal);
-    document.getElementById("modal-cancel")?.addEventListener("click", closeModal);
-    document.getElementById("refresh-btn")?.addEventListener("click", () => loadOffers());
-    document.getElementById("admin-logout-btn")?.addEventListener("click", () =>
-      api.admin.logout().then(() => (location.href = "/admin/login"))
-    );
-
-    // Authentication is handled by Admin layout. Just load offers.
-    loadOffers();
+    initializeOffersPage(elements);
   </script>
 </AdminLayout>
