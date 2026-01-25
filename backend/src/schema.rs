@@ -23,4 +23,17 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(admin_sessions, messages,);
+diesel::table! {
+    offers (id) {
+        id -> BigInt,
+        title -> Text,
+        slug -> Text,
+        description -> Nullable<Text>,
+        link -> Nullable<Text>,
+        image -> Nullable<Binary>,
+        image_mime -> Nullable<Varchar>,
+        created_at -> Timestamp,
+    }
+}
+
+diesel::allow_tables_to_appear_in_same_query!(admin_sessions, messages, offers,);

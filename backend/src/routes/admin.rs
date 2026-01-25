@@ -1,17 +1,22 @@
 use bcrypt::verify;
 use rocket::State;
-use rocket::http::{Cookie, CookieJar, SameSite, Status};
+use rocket::http::{ContentType, Cookie, CookieJar, SameSite, Status};
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
 use rocket_db_pools::diesel::prelude::*;
 use std::net::SocketAddr;
+use std::str::FromStr;
 use uuid::Uuid;
+
+use rocket::form::Form;
+use rocket::tokio::io::AsyncReadExt;
 
 use crate::db::MessagesDB;
 use crate::models::{
-    AdminLoginRequest, AdminSession, AppState, Message, NewAdminSession, PaginatedMessages,
+    AdminCreateOfferMultipart, AdminLoginRequest, AdminSession, AdminUpdateOfferMultipart,
+    AppState, Message, NewAdminSession, NewOffer, Offer, OfferDto, PaginatedMessages,
 };
-use crate::schema::{admin_sessions, messages};
+use crate::schema::{admin_sessions, messages, offers};
 
 // Helper function to check if admin is authenticated
 async fn is_admin_authenticated(
@@ -186,4 +191,246 @@ pub async fn delete_message(
         })?;
 
     Ok(Status::Ok)
+}
+
+//
+// Offers - admin endpoints
+//
+
+#[post("/admin/api/offers", data = "<offer_form>")]
+pub async fn create_offer(
+    mut db: Connection<MessagesDB>,
+    cookies: &CookieJar<'_>,
+    remote_addr: Option<SocketAddr>,
+    offer_form: Form<AdminCreateOfferMultipart<'_>>,
+) -> Result<Json<OfferDto>, Status> {
+    if !is_admin_authenticated(cookies, &mut db, remote_addr).await {
+        return Err(Status::Unauthorized);
+    }
+
+    let offer = offer_form.into_inner();
+
+    // Process image if uploaded
+    let (image_bytes, image_mime) = match offer.image {
+        Some(temp_file) => {
+            // Validate content type is an image we accept
+            let ct = temp_file
+                .content_type()
+                .filter(|ct| ct.is_jpeg() || ct.is_png() || ct.is_gif())
+                .ok_or(Status::UnsupportedMediaType)?;
+
+            let mut buffer = Vec::new();
+            temp_file
+                .open()
+                .await
+                .map_err(|_| Status::InternalServerError)?
+                .read_to_end(&mut buffer)
+                .await
+                .map_err(|_| Status::InternalServerError)?;
+
+            (Some(buffer), Some(ct.to_string()))
+        }
+        _ => (None, None),
+    };
+
+    let new_offer = NewOffer {
+        title: offer.title,
+        slug: offer.slug,
+        description: offer.description,
+        link: offer.link,
+        image: image_bytes,
+        image_mime,
+    };
+
+    // Insert
+    diesel::insert_into(offers::table)
+        .values(&new_offer)
+        .execute(&mut db)
+        .await
+        .map_err(|e| {
+            eprintln!("Error inserting offer: {}", e);
+            Status::InternalServerError
+        })?;
+
+    // Retrieve inserted row by slug (slug should be unique)
+    let inserted = offers::table
+        .filter(offers::slug.eq(&new_offer.slug))
+        .select(Offer::as_select())
+        .first::<Offer>(&mut db)
+        .await
+        .map_err(|e| {
+            eprintln!("Error fetching created offer: {}", e);
+            Status::InternalServerError
+        })?;
+
+    let dto = OfferDto {
+        id: inserted.id,
+        title: inserted.title,
+        slug: inserted.slug,
+        description: inserted.description,
+        link: inserted.link,
+        image_mime: inserted.image_mime,
+        created_at: inserted.created_at,
+    };
+
+    Ok(Json(dto))
+}
+
+#[put("/admin/api/offers/<id>", data = "<update_form>")]
+pub async fn update_offer(
+    mut db: Connection<MessagesDB>,
+    cookies: &CookieJar<'_>,
+    remote_addr: Option<SocketAddr>,
+    id: i64,
+    update_form: Form<AdminUpdateOfferMultipart<'_>>,
+) -> Result<Status, Status> {
+    if !is_admin_authenticated(cookies, &mut db, remote_addr).await {
+        return Err(Status::Unauthorized);
+    }
+
+    let update_data = update_form.into_inner();
+    let target = offers::table.find(id);
+
+    // Check if offer exists
+    let _existing_offer: Offer = offers::table
+        .find(id)
+        .first(&mut db)
+        .await
+        .map_err(|_| Status::NotFound)?;
+
+    let update_values = match update_data.image {
+        Some(temp_file) => {
+            // New image uploaded – validate MIME type
+            let ct = temp_file
+                .content_type()
+                .filter(|ct| ct.is_jpeg() || ct.is_png() || ct.is_gif())
+                .ok_or(Status::UnsupportedMediaType)?;
+
+            let mut buffer = Vec::new();
+            temp_file
+                .open()
+                .await
+                .map_err(|_| Status::InternalServerError)?
+                .read_to_end(&mut buffer)
+                .await
+                .map_err(|_| Status::InternalServerError)?;
+
+            // Update with new image
+            diesel::update(target)
+                .set((
+                    offers::title.eq(&update_data.title),
+                    offers::slug.eq(&update_data.slug),
+                    offers::description.eq(&update_data.description),
+                    offers::link.eq(&update_data.link),
+                    offers::image.eq(buffer),
+                    offers::image_mime.eq(Some(ct.to_string())),
+                ))
+                .execute(&mut db)
+                .await
+        }
+        _ if update_data.keep_existing_image.unwrap_or(false) => {
+            // Keep existing image
+            diesel::update(target)
+                .set((
+                    offers::title.eq(&update_data.title),
+                    offers::slug.eq(&update_data.slug),
+                    offers::description.eq(&update_data.description),
+                    offers::link.eq(&update_data.link),
+                ))
+                .execute(&mut db)
+                .await
+        }
+        _ => {
+            // Remove existing image
+            diesel::update(target)
+                .set((
+                    offers::title.eq(&update_data.title),
+                    offers::slug.eq(&update_data.slug),
+                    offers::description.eq(&update_data.description),
+                    offers::link.eq(&update_data.link),
+                    offers::image.eq(None::<Vec<u8>>),
+                    offers::image_mime.eq(None::<String>),
+                ))
+                .execute(&mut db)
+                .await
+        }
+    };
+
+    match update_values {
+        Ok(_) => Ok(Status::Ok),
+        Err(e) => {
+            eprintln!("Error updating offer: {}", e);
+            Err(Status::InternalServerError)
+        }
+    }
+}
+
+#[delete("/admin/api/offers/<id>")]
+pub async fn delete_offer(
+    mut db: Connection<MessagesDB>,
+    cookies: &CookieJar<'_>,
+    remote_addr: Option<SocketAddr>,
+    id: i64,
+) -> Result<Status, Status> {
+    if !is_admin_authenticated(cookies, &mut db, remote_addr).await {
+        return Err(Status::Unauthorized);
+    }
+
+    diesel::delete(offers::table.find(id))
+        .execute(&mut db)
+        .await
+        .map_err(|e| {
+            eprintln!("Error deleting offer: {}", e);
+            Status::InternalServerError
+        })?;
+
+    Ok(Status::Ok)
+}
+
+#[get("/api/offers")]
+pub async fn list_offers(mut db: Connection<MessagesDB>) -> Result<Json<Vec<OfferDto>>, Status> {
+    let results = offers::table
+        .order(offers::created_at.desc())
+        .select(Offer::as_select())
+        .load::<Offer>(&mut db)
+        .await
+        .map_err(|_| Status::InternalServerError)?;
+
+    let dtos = results
+        .into_iter()
+        .map(|o| OfferDto {
+            id: o.id,
+            title: o.title,
+            slug: o.slug,
+            description: o.description,
+            link: o.link,
+            image_mime: o.image_mime,
+            created_at: o.created_at,
+        })
+        .collect();
+
+    Ok(Json(dtos))
+}
+
+#[get("/api/offers/<id>/image")]
+pub async fn get_offer_image(
+    mut db: Connection<MessagesDB>,
+    id: i64,
+) -> Result<(ContentType, Vec<u8>), Status> {
+    let offer = offers::table
+        .find(id)
+        .first::<Offer>(&mut db)
+        .await
+        .map_err(|_| Status::NotFound)?;
+
+    if let Some(image_bytes) = offer.image {
+        let content_type = offer
+            .image_mime
+            .and_then(|m| ContentType::from_str(&m).ok())
+            .unwrap_or(ContentType::JPEG);
+
+        Ok((content_type, image_bytes))
+    } else {
+        Err(Status::NotFound)
+    }
 }

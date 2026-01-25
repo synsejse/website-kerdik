@@ -15,6 +15,16 @@ export interface PaginatedMessages {
   limit: number;
 }
 
+export interface OfferSummary {
+  id: number;
+  title: string;
+  slug: string;
+  description: string | null;
+  link: string | null;
+  image_mime: string | null;
+  created_at: string;
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -29,7 +39,8 @@ async function handleResponse<T>(response: Response): Promise<T> {
     if (response.status === 401) {
       throw new ApiError(response.status, "Unauthorized");
     }
-    throw new ApiError(response.status, response.statusText);
+    const text = await response.text();
+    throw new ApiError(response.status, text || response.statusText);
   }
   const text = await response.text();
   return text ? JSON.parse(text) : ({} as T);
@@ -43,9 +54,7 @@ export const api = {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
       });
-      if (!res.ok) {
-        throw new Error("Nesprávne heslo");
-      }
+      if (!res.ok) throw new Error("Nesprávne heslo");
     },
 
     async logout(): Promise<void> {
@@ -54,7 +63,7 @@ export const api = {
 
     async checkAuth(): Promise<boolean> {
       const res = await fetch("/admin/check");
-      return handleResponse<boolean>(res);
+      return res.ok;
     },
 
     async getMessages(
@@ -72,6 +81,89 @@ export const api = {
         method: "DELETE",
       });
       return handleResponse<void>(res);
+    },
+
+    // --- Admin Offer Mutations ---
+    async createOffer(data: any): Promise<OfferSummary> {
+      // Accept either a FormData (from the form) or a plain object and convert to FormData
+      let body: FormData;
+      if (data instanceof FormData) {
+        body = data;
+      } else {
+        body = new FormData();
+        body.append("title", data.title);
+        body.append("slug", data.slug);
+        if (data.description !== undefined && data.description !== null) {
+          body.append("description", data.description);
+        }
+        if (data.link !== undefined && data.link !== null) {
+          body.append("link", data.link);
+        }
+
+        // If a file input was provided use it directly
+        if (data.image_file) {
+          body.append("image", data.image_file);
+        }
+      }
+
+      const res = await fetch("/admin/api/offers", {
+        method: "POST",
+        // Do not set Content-Type header when sending FormData; the browser will set the boundary
+        body,
+      });
+      return handleResponse<OfferSummary>(res);
+    },
+
+    async updateOffer(id: number, data: any): Promise<void> {
+      // Accept either a FormData (from the form) or a plain object and convert to FormData
+      let body: FormData;
+      if (data instanceof FormData) {
+        body = data;
+      } else {
+        body = new FormData();
+        body.append("title", data.title);
+        body.append("slug", data.slug);
+        if (data.description !== undefined && data.description !== null) {
+          body.append("description", data.description);
+        }
+        if (data.link !== undefined && data.link !== null) {
+          body.append("link", data.link);
+        }
+        // keep_existing_image is expected by the backend as 'true'/'false' string
+        body.append(
+          "keep_existing_image",
+          data.keep_existing_image ? "true" : "false",
+        );
+
+        if (data.image_file) {
+          body.append("image", data.image_file);
+        }
+      }
+
+      const res = await fetch(`/admin/api/offers/${id}`, {
+        method: "PUT",
+        // Do not set Content-Type header for FormData requests
+        body,
+      });
+      return handleResponse<void>(res);
+    },
+
+    async deleteOffer(id: number): Promise<void> {
+      const res = await fetch(`/admin/api/offers/${id}`, { method: "DELETE" });
+      return handleResponse<void>(res);
+    },
+  },
+
+  // Shared Offers API (Used by both Public site and Admin UI)
+  offers: {
+    async getOffers(): Promise<OfferSummary[]> {
+      const res = await fetch("/api/offers");
+      return handleResponse<OfferSummary[]>(res);
+    },
+
+    getOfferImageUrl(id: number): string {
+      // Added a cache-buster 't' parameter as an option for updates
+      return `/api/offers/${id}/image`;
     },
   },
 };

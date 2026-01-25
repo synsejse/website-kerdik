@@ -2,10 +2,11 @@
 
 use chrono::NaiveDateTime;
 use rocket::form::FromForm;
+use rocket::fs::TempFile;
 use rocket::serde::{Deserialize, Serialize};
 use rocket_db_pools::diesel::prelude::*;
 
-use crate::schema::{admin_sessions, messages};
+use crate::schema::{admin_sessions, messages, offers};
 
 /// Form data received from the contact form
 #[derive(Debug, Clone, Deserialize, Serialize, FromForm)]
@@ -98,4 +99,71 @@ pub struct PaginatedMessages {
     pub total: i64,
     pub page: i64,
     pub limit: i64,
+}
+
+//
+// Offers - DB models and DTOs
+//
+
+#[derive(Debug, Clone, Queryable, Selectable)]
+#[diesel(table_name = offers)]
+pub struct Offer {
+    pub id: i64,
+    pub title: String,
+    pub slug: String,
+    pub description: Option<String>,
+    pub link: Option<String>,
+    pub image: Option<Vec<u8>>,
+    pub image_mime: Option<String>,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Clone, Insertable)]
+#[diesel(table_name = offers)]
+pub struct NewOffer {
+    pub title: String,
+    pub slug: String,
+    pub description: Option<String>,
+    pub link: Option<String>,
+    pub image: Option<Vec<u8>>,
+    pub image_mime: Option<String>,
+}
+
+/// DTO used by the frontend / API for returning offer data.
+/// Images are represented by `image_mime` and served via a separate
+/// image endpoint; handlers may inline images when necessary.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct OfferDto {
+    pub id: i64,
+    pub title: String,
+    pub slug: String,
+    pub description: Option<String>,
+    pub link: Option<String>,
+    pub image_mime: Option<String>,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, FromForm)]
+pub struct AdminCreateOfferMultipart<'r> {
+    pub title: String,
+    pub slug: String,
+    pub description: Option<String>,
+    pub link: Option<String>,
+    /// Image uploaded as file instead of base64
+    #[field(name = "image")]
+    pub image: Option<TempFile<'r>>,
+}
+
+#[derive(Debug, FromForm)]
+pub struct AdminUpdateOfferMultipart<'r> {
+    pub title: String,
+    pub slug: String,
+    pub description: Option<String>,
+    pub link: Option<String>,
+    /// Optional: Only provided if the user uploaded a new image
+    #[field(name = "image")]
+    pub image: Option<TempFile<'r>>,
+    /// Keep existing image if true and no new image provided
+    pub keep_existing_image: Option<bool>,
 }

@@ -57,7 +57,12 @@ fn rocket() -> _ {
                 admin::admin_logout,
                 admin::admin_check,
                 admin::get_messages,
-                admin::delete_message
+                admin::delete_message,
+                admin::list_offers,
+                admin::get_offer_image,
+                admin::create_offer,
+                admin::delete_offer,
+                admin::update_offer,
             ],
         )
         .mount("/", FileServer::from(&static_dir))
