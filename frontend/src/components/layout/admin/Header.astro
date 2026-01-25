@@ -1,0 +1,83 @@
+---
+export interface Props {
+  title?: string;
+  showLogout?: boolean;
+}
+
+const {
+  title = "Administrácia",
+  showLogout = true,
+} = Astro.props;
+---
+
+<header class="bg-white border-b border-gray-200 py-3 lg:py-5">
+  <div class="max-w-275 mx-auto px-4 flex flex-col lg:flex-row justify-between items-center gap-5 lg:gap-6">
+    <div class="flex items-center">
+      <a href="/" class="flex items-center no-underline text-inherit">
+        <img src="/images/brand/logo.png" alt="SD Stavby" class="h-10 md:h-11 lg:h-12.5 max-w-50 transition-[height] duration-250 ease-in-out"/>
+      </a>
+    </div>
+
+    <div class="hidden md:grid lg:flex flex-wrap items-center gap-4 lg:gap-8 grid-cols-[repeat(auto-fit,minmax(180px,1fr))] w-full lg:w-auto">
+      <!-- Admin title replaces contact info -->
+      <div class="flex items-center gap-2.5 text-[0.8125rem] text-gray-600 leading-tight">
+        <div class="flex flex-col gap-0.5">
+          <div class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider">Režim</div>
+          <span class="font-medium text-gray-900">{title}</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5 text-[0.8125rem] text-gray-600 leading-tight">
+        <div class="flex flex-col gap-0.5">
+          <div class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider">Panel</div>
+          <span class="font-medium text-gray-900">Administrátor</span>
+        </div>
+      </div>
+
+      <!-- Logout button positioned like a contact item -->
+      <div class="flex items-center gap-2.5 text-[0.8125rem] leading-tight" id="admin-logout-container">
+        <div class="flex flex-col gap-0.5 w-full">
+          <div class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider">Akcia</div>
+          <button id="admin-logout-btn" class="hidden px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-black uppercase rounded-xl transition-colors">
+            Odhlásiť
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  (async function () {
+    const container = document.getElementById("admin-logout-container");
+    const btn = document.getElementById("admin-logout-btn");
+    if (!btn || !container) return;
+
+    try {
+      const res = await fetch("/admin/check", { credentials: "same-origin" });
+      if (res.ok) {
+        const isAuth = await res.json();
+        if (isAuth) {
+          btn.classList.remove("hidden");
+          container.classList.remove("hidden");
+        } else {
+          btn.classList.add("hidden");
+          container.classList.add("hidden");
+        }
+      }
+    } catch (e) {
+      container.classList.add("hidden");
+    }
+
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      try {
+        await fetch("/admin/logout", { method: "POST", credentials: "same-origin" });
+      } catch (err) {
+        // ignore network errors
+      } finally {
+        window.location.href = "/admin/login";
+      }
+    });
+  })();
+</script>

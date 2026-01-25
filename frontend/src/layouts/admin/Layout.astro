@@ -1,11 +1,13 @@
 ---
-import "../styles/global.css";
-import AdminHeader from "../components/layout/AdminHeader.astro";
-import Footer from "../components/layout/Footer.astro";
-import ScrollTop from "../components/shared/ScrollTop.astro";
+import "../../styles/global.css";
+import Header from "../../components/layout/admin/Header.astro";
+import Navbar from "../../components/layout/admin/Navbar.astro";
+import Footer from "../../components/layout/Footer.astro";
+import ScrollTop from "../../components/shared/ScrollTop.astro";
 
 export interface Props {
   title?: string;
+  showHeader?: boolean;
   showFooter?: boolean;
   showScrollTop?: boolean;
   className?: string;
@@ -13,9 +15,10 @@ export interface Props {
 
 const {
   title = "Admin",
+  showHeader = true,
   showFooter = false,
   showScrollTop = false,
-  className = ""
+  className = "",
 } = Astro.props;
 ---
 
@@ -29,17 +32,25 @@ const {
   </head>
   <body
     class:list={[
-      "flex flex-col min-h-screen bg-gray-50 text-gray-900 leading-relaxed font-sans",
+      "flex flex-col min-h-screen bg-white text-[#111111] leading-relaxed font-sans",
       className,
     ]}
   >
-    <div class="sticky top-0 z-50">
-      <AdminHeader title={title} />
-    </div>
+    {
+      showHeader && (
+        <div class="sticky top-0 z-50 bg-white shadow-md">
+          <Header title={title} />
+          <Navbar />
+        </div>
+      )
+    }
 
     <main class="w-full grow">
       <slot />
     </main>
+
+    {showFooter && <Footer />}
+    {showScrollTop && <ScrollTop />}
 
     <script>
       (async function () {
@@ -62,8 +73,5 @@ const {
         }
       })();
     </script>
-
-    {showFooter && <Footer />}
-    {showScrollTop && <ScrollTop />}
   </body>
 </html>

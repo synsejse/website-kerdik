@@ -1,0 +1,130 @@
+---
+/*
+  Admin Navbar: navigation + admin controls (logout). Mobile toggle targets the admin menu id.
+*/
+---
+
+<nav class="bg-[#1f2937] shadow-lg min-h-16 relative">
+    <div class="max-w-300 mx-auto px-4 flex justify-between lg:justify-start items-center min-h-16">
+        <ul
+            id="admin-primary-navigation"
+            class="hidden lg:flex list-none m-0 p-0 gap-2 items-center
+            lg:static lg:opacity-100 lg:pointer-events-auto
+            max-lg:absolute max-lg:top-full max-lg:left-0 max-lg:right-0 max-lg:bg-[#1f2937] max-lg:flex-col max-lg:gap-0 max-lg:p-0 max-lg:border-t max-lg:border-white/15 max-lg:opacity-0 max-lg:pointer-events-none max-lg:transition-opacity max-lg:duration-300 max-lg:shadow-lg max-lg:z-50 [&.active]:flex! [&.active]:opacity-100! [&.active]:pointer-events-auto!"
+            aria-hidden="true"
+        >
+            <li class="nav-item w-full lg:w-auto max-lg:border-b max-lg:border-white/10">
+                <a href="/admin/offers" class="block py-4 px-5 text-[#f9fafb] no-underline font-black text-[0.9375rem] relative transition-all duration-300 hover:text-[#60a5fa] hover:bg-white/5 group">
+                    Ponuky
+                    <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.75 bg-[#60a5fa] transition-all duration-300 group-hover:w-[80%]"></span>
+                </a>
+            </li>
+
+            <li class="nav-item w-full lg:w-auto max-lg:border-b max-lg:border-white/10">
+                <a href="/admin/messages" class="block py-4 px-5 text-[#f9fafb] no-underline font-black text-[0.9375rem] relative transition-all duration-300 hover:text-[#60a5fa] hover:bg-white/5 group">
+                    Správy
+                    <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.75 bg-[#60a5fa] transition-all duration-300 group-hover:w-[80%]"></span>
+                </a>
+            </li>
+
+            <!-- Logout inside mobile menu -->
+            <li class="nav-item w-full lg:hidden border-t border-white/10 px-4 py-3">
+                <button id="admin-logout-btn-mobile" class="w-full text-left px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-black uppercase rounded-xl transition-colors">
+                    Odhlásiť
+                </button>
+            </li>
+        </ul>
+
+        <button
+            class="mobile-menu-toggle lg:hidden flex flex-col bg-none border-none cursor-pointer gap-1 justify-center items-center h-16 px-3 group"
+            type="button"
+            aria-label="Toggle menu"
+            aria-expanded="false"
+            aria-controls="admin-primary-navigation"
+            aria-haspopup="true"
+        >
+            <span class="hamburger block w-6 h-0.5 bg-[#f9fafb] transition-all duration-300 group-aria-expanded:rotate-45 group-aria-expanded:translate-y-1.5"></span>
+            <span class="hamburger block w-6 h-0.5 bg-[#f9fafb] transition-all duration-300 group-aria-expanded:opacity-0"></span>
+            <span class="hamburger block w-6 h-0.5 bg-[#f9fafb] transition-all duration-300 group-aria-expanded:-rotate-45 group-aria-expanded:-translate-y-1.5"></span>
+        </button>
+    </div>
+</nav>
+
+<script>
+    const menuToggle = document.querySelector(".mobile-menu-toggle");
+    const navMenu = document.getElementById("admin-primary-navigation");
+
+    function setMenu(open: boolean) {
+        if (!menuToggle || !navMenu) return;
+        menuToggle.setAttribute("aria-expanded", String(open));
+        if (open) {
+            navMenu.classList.add("active");
+            navMenu.setAttribute("aria-hidden", "false");
+        } else {
+            navMenu.classList.remove("active");
+            navMenu.setAttribute("aria-hidden", "true");
+        }
+    }
+
+    function isOpen() {
+        return menuToggle?.getAttribute("aria-expanded") === "true";
+    }
+
+    menuToggle?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        setMenu(!isOpen());
+    });
+
+    navMenu?.querySelectorAll("a, button").forEach((link) => {
+        link.addEventListener("click", () => setMenu(false));
+    });
+
+    // Admin auth check
+    (async function () {
+        const logoutBtnMobile = document.getElementById("admin-logout-btn-mobile");
+        if (!logoutBtnMobile) return;
+
+        try {
+            const resp = await fetch("/admin/check", { credentials: "same-origin" });
+            if (resp.ok) {
+                const isAuth = await resp.json();
+                if (!isAuth) {
+                    logoutBtnMobile.classList.add("hidden");
+                }
+            }
+        } catch (e) {
+            logoutBtnMobile.classList.add("hidden");
+        }
+
+        logoutBtnMobile.addEventListener("click", async (e) => {
+            e.preventDefault();
+            try {
+                await fetch("/admin/logout", { method: "POST", credentials: "same-origin" });
+            } catch (err) {
+                // ignore
+            } finally {
+                window.location.href = "/admin/login";
+            }
+        });
+    })();
+
+    document.addEventListener("click", (e) => {
+        if (!menuToggle || !navMenu) return;
+        const target = e.target as Node;
+        if (!navMenu.contains(target) && !menuToggle.contains(target)) {
+            setMenu(false);
+        }
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            setMenu(false);
+        }
+    });
+
+    window.addEventListener("resize", () => {
+        if (window.innerWidth >= 1024) {
+            setMenu(false);
+        }
+    });
+</script>
