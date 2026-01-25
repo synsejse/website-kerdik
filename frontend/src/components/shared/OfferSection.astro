@@ -19,7 +19,7 @@ import Container from "../layout/Container.astro";
 </section>
 
 <script>
-  import { api } from "../../lib/api";
+  import { api, type OfferSummary } from "../../lib/api";
 
   // Wrap your logic in a function or block to isolate scope if needed,
   // though Astro scopes scripts to components automatically.
@@ -27,7 +27,7 @@ import Container from "../layout/Container.astro";
   const container = document.getElementById("offers-list");
   const loadingEl = document.getElementById("offers-loading");
 
-  function createOfferElement(offer) {
+  function createOfferElement(offer: OfferSummary) {
       // ... your existing code ...
       const article = document.createElement("article");
       article.setAttribute("role", "article");

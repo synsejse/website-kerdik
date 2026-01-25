@@ -2,6 +2,7 @@ use bcrypt::verify;
 use rocket::State;
 use rocket::http::{ContentType, Cookie, CookieJar, SameSite, Status};
 use rocket::serde::json::Json;
+use rocket::serde::{Deserialize, Serialize};
 use rocket_db_pools::Connection;
 use rocket_db_pools::diesel::prelude::*;
 use std::net::SocketAddr;
@@ -14,9 +15,10 @@ use rocket::tokio::io::AsyncReadExt;
 use crate::db::MessagesDB;
 use crate::models::{
     AdminCreateOfferMultipart, AdminLoginRequest, AdminSession, AdminUpdateOfferMultipart,
-    AppState, Message, NewAdminSession, NewOffer, Offer, OfferDto, PaginatedMessages,
+    AppState, ArchiveAction, ArchiveRequest, ArchivedMessage, ContactMessage, Message,
+    NewAdminSession, NewOffer, Offer, OfferDto, PaginatedMessages,
 };
-use crate::schema::{admin_sessions, messages, offers};
+use crate::schema::{admin_sessions, messages, messages_archive, offers};
 
 // Helper function to check if admin is authenticated
 async fn is_admin_authenticated(
@@ -171,8 +173,182 @@ pub async fn get_messages(
     }))
 }
 
+#[post(
+    "/admin/api/messages/<id>/archive",
+    format = "json",
+    data = "<request>"
+)]
+pub async fn archive_message(
+    mut db: Connection<MessagesDB>,
+    cookies: &CookieJar<'_>,
+    remote_addr: Option<SocketAddr>,
+    id: i64,
+    request: Json<ArchiveRequest>,
+) -> Result<Status, Status> {
+    if !is_admin_authenticated(cookies, &mut db, remote_addr).await {
+        return Err(Status::Unauthorized);
+    }
+
+    let action = match request.action.as_str() {
+        "archive" => ArchiveAction::Archive,
+        "restore" => ArchiveAction::Restore,
+        _ => return Err(Status::BadRequest),
+    };
+
+    match action {
+        ArchiveAction::Archive => {
+            // Get the message first
+            let message: Message = messages::table
+                .find(id)
+                .select(Message::as_select())
+                .first(&mut db)
+                .await
+                .map_err(|_| Status::NotFound)?;
+
+            // Create archived message
+            let archived_message = message.into_archived();
+
+            // Start transaction: insert into archive, then delete original
+            db.transaction(|mut conn| {
+                Box::pin(async move {
+                    diesel::insert_into(messages_archive::table)
+                        .values(&archived_message)
+                        .execute(&mut conn)
+                        .await?;
+
+                    diesel::delete(messages::table.find(id))
+                        .execute(&mut conn)
+                        .await?;
+
+                    Ok::<_, diesel::result::Error>(())
+                })
+            })
+            .await
+            .map_err(|e| {
+                eprintln!("Error archiving message: {}", e);
+                Status::InternalServerError
+            })?;
+
+            Ok(Status::Ok)
+        }
+        ArchiveAction::Restore => {
+            // Find the most recent archived record for the original id
+            let archived: ArchivedMessage = messages_archive::table
+                .filter(messages_archive::original_id.eq(id))
+                .order(messages_archive::archived_at.desc())
+                .select(ArchivedMessage::as_select())
+                .first(&mut db)
+                .await
+                .map_err(|_| Status::NotFound)?;
+
+            // Convert back to regular message (attempt to restore original id)
+            let message = ContactMessage {
+                id: Some(archived.original_id),
+                name: archived.name,
+                email: archived.email,
+                phone: archived.phone,
+                subject: archived.subject,
+                message: archived.message,
+            };
+
+            // Start transaction: insert back into messages, delete archive record
+            db.transaction(|mut conn| {
+                Box::pin(async move {
+                    diesel::insert_into(messages::table)
+                        .values(&message)
+                        .execute(&mut conn)
+                        .await?;
+
+                    diesel::delete(messages_archive::table.find(archived.id))
+                        .execute(&mut conn)
+                        .await?;
+
+                    Ok::<_, diesel::result::Error>(())
+                })
+            })
+            .await
+            .map_err(|e| {
+                eprintln!("Error restoring message: {}", e);
+                Status::InternalServerError
+            })?;
+
+            Ok(Status::Ok)
+        }
+    }
+}
+
+#[get("/admin/api/archived/messages?<page>&<limit>")]
+pub async fn get_archived_messages(
+    mut db: Connection<MessagesDB>,
+    cookies: &CookieJar<'_>,
+    remote_addr: Option<SocketAddr>,
+    page: Option<i64>,
+    limit: Option<i64>,
+) -> Result<Json<PaginatedArchivedMessages>, Status> {
+    if !is_admin_authenticated(cookies, &mut db, remote_addr).await {
+        return Err(Status::Unauthorized);
+    }
+
+    let page = page.unwrap_or(1);
+    let limit = limit.unwrap_or(10);
+    let offset = (page - 1) * limit;
+
+    let total_count: i64 = messages_archive::table
+        .count()
+        .get_result(&mut db)
+        .await
+        .map_err(|e| {
+            eprintln!("Error counting archived messages: {}", e);
+            Status::InternalServerError
+        })?;
+
+    let results = messages_archive::table
+        .order(messages_archive::archived_at.desc())
+        .limit(limit)
+        .offset(offset)
+        .select(ArchivedMessage::as_select())
+        .load(&mut db)
+        .await
+        .map_err(|e| {
+            eprintln!("Error loading archived messages: {}", e);
+            Status::InternalServerError
+        })?;
+
+    Ok(Json(PaginatedArchivedMessages {
+        data: results,
+        total: total_count,
+        page,
+        limit,
+    }))
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct PaginatedArchivedMessages {
+    pub data: Vec<ArchivedMessage>,
+    pub total: i64,
+    pub page: i64,
+    pub limit: i64,
+}
+
+/// Update delete_message to archive instead of hard-delete
 #[delete("/admin/api/messages/<id>")]
 pub async fn delete_message(
+    mut db: Connection<MessagesDB>,
+    cookies: &CookieJar<'_>,
+    remote_addr: Option<SocketAddr>,
+    id: i64,
+) -> Result<Status, Status> {
+    // Instead of deleting, archive the message
+    let archive_request = Json(ArchiveRequest {
+        action: "archive".to_string(),
+    });
+
+    archive_message(db, cookies, remote_addr, id, archive_request).await
+}
+
+#[delete("/admin/api/archived/messages/<id>")]
+pub async fn permanently_delete_archived_message(
     mut db: Connection<MessagesDB>,
     cookies: &CookieJar<'_>,
     remote_addr: Option<SocketAddr>,
@@ -182,11 +358,11 @@ pub async fn delete_message(
         return Err(Status::Unauthorized);
     }
 
-    diesel::delete(messages::table.find(id))
+    diesel::delete(messages_archive::table.find(id))
         .execute(&mut db)
         .await
         .map_err(|e| {
-            eprintln!("Error deleting message: {}", e);
+            eprintln!("Error permanently deleting archived message: {}", e);
             Status::InternalServerError
         })?;
 

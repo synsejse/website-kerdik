@@ -15,6 +15,25 @@ export interface PaginatedMessages {
   limit: number;
 }
 
+export interface ArchivedMessage {
+  id: number;
+  original_id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  subject: string | null;
+  message: string;
+  created_at: string;
+  archived_at: string;
+}
+
+export interface PaginatedArchivedMessages {
+  data: ArchivedMessage[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export interface OfferSummary {
   id: number;
   title: string;
@@ -77,7 +96,44 @@ export const api = {
     },
 
     async deleteMessage(id: number): Promise<void> {
+      // This endpoint was repurposed on the server side to archive messages.
+      // It remains as a convenience wrapper for the "archive" DELETE action.
       const res = await fetch(`/admin/api/messages/${id}`, {
+        method: "DELETE",
+      });
+      return handleResponse<void>(res);
+    },
+
+    async archiveMessage(id: number): Promise<void> {
+      const res = await fetch(`/admin/api/messages/${id}/archive`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "archive" }),
+      });
+      return handleResponse<void>(res);
+    },
+
+    async restoreMessage(id: number): Promise<void> {
+      const res = await fetch(`/admin/api/messages/${id}/archive`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "restore" }),
+      });
+      return handleResponse<void>(res);
+    },
+
+    async getArchivedMessages(
+      page: number = 1,
+      limit: number = 10,
+    ): Promise<PaginatedArchivedMessages> {
+      const res = await fetch(
+        `/admin/api/archived/messages?page=${page}&limit=${limit}`,
+      );
+      return handleResponse<PaginatedArchivedMessages>(res);
+    },
+
+    async permanentlyDeleteArchivedMessage(id: number): Promise<void> {
+      const res = await fetch(`/admin/api/archived/messages/${id}`, {
         method: "DELETE",
       });
       return handleResponse<void>(res);

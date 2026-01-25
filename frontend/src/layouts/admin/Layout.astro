@@ -56,7 +56,7 @@ const {
       (async function () {
         try {
           const resp = await fetch("/admin/check", { credentials: "same-origin" });
-          const isAuth = resp.ok ? await resp.json() : false;
+          const isAuth: boolean = resp.ok ? Boolean(await resp.json()) : false;
           const path = window.location.pathname.replace(/\/+$/, "");
           const onLogin = path === "/admin/login";
 

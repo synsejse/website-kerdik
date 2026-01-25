@@ -100,20 +100,20 @@ import ArrowLeft from "../../components/icons/ArrowLeft.astro";
     <script>
         import { api } from "../../lib/api";
 
-        const form = document.getElementById("login-form") as HTMLFormElement;
-        const passwordInput = document.getElementById(
-            "password",
-        ) as HTMLInputElement;
-        const loginBtn = document.getElementById(
-            "login-btn",
-        ) as HTMLButtonElement;
-        const errorMessage = document.getElementById(
-            "error-message",
-        ) as HTMLDivElement;
+        const form = document.getElementById("login-form") as HTMLFormElement | null;
+        const passwordInput = document.getElementById("password") as HTMLInputElement | null;
+        const loginBtn = document.getElementById("login-btn") as HTMLButtonElement | null;
+        const errorMessage = document.getElementById("error-message") as HTMLDivElement | null;
 
-        form.addEventListener("submit", async (e) => {
+        form?.addEventListener("submit", async (e: Event) => {
             e.preventDefault();
-            const password = passwordInput.value;
+
+            const password = passwordInput?.value ?? "";
+
+            if (!passwordInput || !loginBtn || !errorMessage) {
+                // Elements missing - cannot proceed
+                return;
+            }
 
             try {
                 passwordInput.disabled = true;
@@ -130,8 +130,10 @@ import ArrowLeft from "../../components/icons/ArrowLeft.astro";
                 passwordInput.disabled = false;
                 loginBtn.disabled = false;
                 loginBtn.innerHTML = `<span class="inline-flex items-center gap-2">Prihlásiť sa <span class="h-4 w-4"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L12.586 12H4a1 1 0 110-2h8.586l-2.293-2.293a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></span></span>`;
-                passwordInput.value = "";
-                passwordInput.focus();
+                if (passwordInput) {
+                    passwordInput.value = "";
+                    passwordInput.focus();
+                }
             }
         });
     </script>

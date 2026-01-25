@@ -6,7 +6,7 @@ use rocket::fs::TempFile;
 use rocket::serde::{Deserialize, Serialize};
 use rocket_db_pools::diesel::prelude::*;
 
-use crate::schema::{admin_sessions, messages, offers};
+use crate::schema::{admin_sessions, messages, messages_archive, offers};
 
 /// Form data received from the contact form
 #[derive(Debug, Clone, Deserialize, Serialize, FromForm)]
@@ -62,6 +62,63 @@ pub struct Message {
     pub subject: Option<String>,
     pub message: String,
     pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Clone, Queryable, Selectable, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+#[diesel(table_name = messages_archive)]
+pub struct ArchivedMessage {
+    pub id: i64,
+    pub original_id: i64,
+    pub name: String,
+    pub email: String,
+    pub phone: Option<String>,
+    pub subject: Option<String>,
+    pub message: String,
+    pub created_at: NaiveDateTime,
+    pub archived_at: NaiveDateTime,
+}
+
+#[derive(Debug, Clone, Insertable)]
+#[diesel(table_name = messages_archive)]
+pub struct NewArchivedMessage {
+    pub original_id: i64,
+    pub name: String,
+    pub email: String,
+    pub phone: Option<String>,
+    pub subject: Option<String>,
+    pub message: String,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub enum ArchiveAction {
+    Archive,
+    Restore,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct ArchiveRequest {
+    pub action: String,
+}
+
+impl Message {
+    /// Convert a Message into a NewArchivedMessage suitable for inserting into
+    /// the `messages_archive` table. This intentionally does NOT include an
+    /// `archived_by` field per request.
+    pub fn into_archived(self) -> NewArchivedMessage {
+        NewArchivedMessage {
+            original_id: self.id,
+            name: self.name,
+            email: self.email,
+            phone: self.phone,
+            subject: self.subject,
+            message: self.message,
+            created_at: self.created_at,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Insertable)]

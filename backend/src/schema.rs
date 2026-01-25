@@ -24,6 +24,20 @@ diesel::table! {
 }
 
 diesel::table! {
+    messages_archive (id) {
+        id -> BigInt,
+        original_id -> BigInt,
+        name -> Text,
+        email -> Text,
+        phone -> Nullable<Text>,
+        subject -> Nullable<Text>,
+        message -> Text,
+        created_at -> Timestamp,
+        archived_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     offers (id) {
         id -> BigInt,
         title -> Text,
@@ -36,4 +50,4 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(admin_sessions, messages, offers,);
+diesel::allow_tables_to_appear_in_same_query!(admin_sessions, messages, messages_archive, offers,);
