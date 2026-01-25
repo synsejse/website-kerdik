@@ -5,9 +5,11 @@ extern crate rocket;
 
 mod config;
 mod db;
+mod error;
 mod models;
 mod routes;
 mod schema;
+mod utils;
 
 use rocket::fairing::AdHoc;
 use rocket::fs::FileServer;
@@ -20,10 +22,20 @@ use routes::{admin, contact};
 
 #[rocket::launch]
 fn rocket() -> _ {
+    // Initialize tracing
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::from_default_env()
+                .add_directive(tracing::Level::INFO.into()),
+        )
+        .init();
+
     let app_config = AppConfig::load();
 
     if app_config.admin_password_hash.is_empty() {
-        eprintln!("WARNING: ADMIN_PASSWORD_HASH is not set. Admin login will be disabled.");
+        tracing::warn!("ADMIN_PASSWORD_HASH is not set. Admin login will be disabled.");
+    } else {
+        tracing::info!("Admin authentication is enabled");
     }
 
     let figment = rocket::config::Config::figment()

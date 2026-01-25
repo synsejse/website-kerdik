@@ -5,6 +5,7 @@ use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
 use rocket::Rocket;
 use rocket_db_pools::Database;
 use rocket_db_pools::diesel::MysqlPool;
+use tracing::{error, info};
 
 /// Database connection pool for messages
 #[derive(Database)]
@@ -41,16 +42,16 @@ pub async fn run_migrations(rocket: Rocket<rocket::Build>) -> Rocket<rocket::Bui
     match result {
         Ok(versions) => {
             if versions.is_empty() {
-                println!("✅ Database is up to date");
+                info!("Database is up to date");
             } else {
-                println!("✅ Applied {} migration(s):", versions.len());
+                info!("Applied {} migration(s):", versions.len());
                 for version in versions {
-                    println!("   - {}", version);
+                    info!("  - {}", version);
                 }
             }
         }
         Err(e) => {
-            eprintln!("❌ {}", e);
+            error!("Database migration failed: {}", e);
             panic!("Database migration failed");
         }
     }

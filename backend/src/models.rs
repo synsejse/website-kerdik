@@ -224,3 +224,93 @@ pub struct AdminUpdateOfferMultipart<'r> {
     /// Keep existing image if true and no new image provided
     pub keep_existing_image: Option<bool>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_contact_message_form_is_bot() {
+        // Test bot detection with company field filled
+        let bot_form = ContactMessageForm {
+            company: Some("spam".to_string()),
+            name: "Spam Bot".to_string(),
+            email: "bot@spam.com".to_string(),
+            phone: None,
+            subject: None,
+            message: "Spam message".to_string(),
+        };
+        assert!(bot_form.is_bot());
+
+        // Test legitimate submission
+        let legit_form = ContactMessageForm {
+            company: None,
+            name: "John Doe".to_string(),
+            email: "john@example.com".to_string(),
+            phone: None,
+            subject: Some("Test".to_string()),
+            message: "Hello, this is a test".to_string(),
+        };
+        assert!(!legit_form.is_bot());
+
+        // Test with empty company field
+        let empty_company = ContactMessageForm {
+            company: Some("".to_string()),
+            name: "Jane Doe".to_string(),
+            email: "jane@example.com".to_string(),
+            phone: None,
+            subject: None,
+            message: "Another test".to_string(),
+        };
+        assert!(!empty_company.is_bot());
+    }
+
+    #[test]
+    fn test_contact_message_from_form() {
+        let form = ContactMessageForm {
+            company: None,
+            name: "Alice".to_string(),
+            email: "alice@example.com".to_string(),
+            phone: Some("123-456-7890".to_string()),
+            subject: Some("Question".to_string()),
+            message: "I have a question about your services".to_string(),
+        };
+
+        let contact = ContactMessage::from(form.clone());
+
+        assert_eq!(contact.id, None);
+        assert_eq!(contact.name, form.name);
+        assert_eq!(contact.email, form.email);
+        assert_eq!(contact.phone, form.phone);
+        assert_eq!(contact.subject, form.subject);
+        assert_eq!(contact.message, form.message);
+    }
+
+    #[test]
+    fn test_message_into_archived() {
+        use chrono::NaiveDateTime;
+
+        let created_at = NaiveDateTime::parse_from_str("2024-01-01 12:00:00", "%Y-%m-%d %H:%M:%S")
+            .expect("Failed to parse datetime");
+
+        let message = Message {
+            id: 123,
+            name: "Bob".to_string(),
+            email: "bob@example.com".to_string(),
+            phone: None,
+            subject: Some("Inquiry".to_string()),
+            message: "Interested in your product".to_string(),
+            created_at,
+        };
+
+        let archived = message.clone().into_archived();
+
+        assert_eq!(archived.original_id, message.id);
+        assert_eq!(archived.name, message.name);
+        assert_eq!(archived.email, message.email);
+        assert_eq!(archived.phone, message.phone);
+        assert_eq!(archived.subject, message.subject);
+        assert_eq!(archived.message, message.message);
+        assert_eq!(archived.created_at, message.created_at);
+    }
+}
