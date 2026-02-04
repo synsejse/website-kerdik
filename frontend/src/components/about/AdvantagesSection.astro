@@ -1,0 +1,81 @@
+---
+import Container from "../layout/Container.astro";
+import UserGroup from "../icons/UserGroup.astro";
+import Computer from "../icons/Computer.astro";
+import Shield from "../icons/Shield.astro";
+import Video from "../icons/Video.astro";
+import Building from "../icons/Building.astro";
+import LocationDot from "../icons/LocationDot.astro";
+---
+
+<section class="py-12 md:py-16 lg:py-20 bg-gray-50">
+    <Container>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Advantage 1 -->
+            <div class="group bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-100">
+                <div class="flex flex-col items-center text-center space-y-4">
+                    <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <UserGroup class="w-10 h-10 text-primary" />
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Flexibilita ku klientom</h3>
+                    <p class="text-gray-600 text-sm">Individuálny prístup a riešenia šité na mieru vašim potrebám</p>
+                </div>
+            </div>
+
+            <!-- Advantage 2 -->
+            <div class="group bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-100">
+                <div class="flex flex-col items-center text-center space-y-4">
+                    <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <Computer class="w-10 h-10 text-primary" />
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Digitalizácia procesov</h3>
+                    <p class="text-gray-600 text-sm">Moderné technológie pre efektívnu a transparentnú správu</p>
+                </div>
+            </div>
+
+            <!-- Advantage 3 -->
+            <div class="group bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-100">
+                <div class="flex flex-col items-center text-center space-y-4">
+                    <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <Shield class="w-10 h-10 text-primary" />
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Odbornosť zamestnancov</h3>
+                    <p class="text-gray-600 text-sm">Kvalifikovaný tím s dlhoročnými skúsenosťami v odbore</p>
+                </div>
+            </div>
+
+            <!-- Advantage 4 -->
+            <div class="group bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-100">
+                <div class="flex flex-col items-center text-center space-y-4">
+                    <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <Video class="w-10 h-10 text-primary" />
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Možnosť účasti na schôdzi online</h3>
+                    <p class="text-gray-600 text-sm">Efektívne stretnutia s možnosťou vzdialenej účasti</p>
+                </div>
+            </div>
+
+            <!-- Advantage 5 -->
+            <div class="group bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-100">
+                <div class="flex flex-col items-center text-center space-y-4">
+                    <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <Building class="w-10 h-10 text-primary" />
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Zastrešenie všetkých služieb</h3>
+                    <p class="text-gray-600 text-sm">Komplexná správa a servis pod jednou strechou</p>
+                </div>
+            </div>
+
+            <!-- Advantage 6 -->
+            <div class="group bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-100">
+                <div class="flex flex-col items-center text-center space-y-4">
+                    <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <LocationDot class="w-10 h-10 text-primary" />
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Dostupnosť v Ružomberku</h3>
+                    <p class="text-gray-600 text-sm">Sídlo spoločnosti priamo v meste s možnosťou osobnej návštevy</p>
+                </div>
+            </div>
+        </div>
+    </Container>
+</section>

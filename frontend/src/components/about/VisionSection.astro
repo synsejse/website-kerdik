@@ -1,0 +1,44 @@
+---
+import Container from "../layout/Container.astro";
+import User from "../icons/User.astro";
+---
+
+<section class="py-12 md:py-16 lg:py-20 bg-gray-50">
+    <Container>
+        <div class="max-w-6xl mx-auto">
+            <h2 class="m-0 mb-8 text-2xl lg:text-3xl font-bold leading-tight text-gray-900 text-center relative pb-3 inline-block tracking-tight after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:h-1.5 after:w-[58%] after:bg-linear-to-r after:from-primary after:to-[#67a8ff] after:rounded-full after:shadow-[0_2px_6px_rgba(15,98,254,0.35)] w-full">
+                Vízia konateľa
+            </h2>
+            <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-stretch">
+                <div class="space-y-4">
+                    <div class="bg-white p-6 rounded-xl shadow-sm h-full flex flex-col justify-center">
+                        <div class="text-center mb-4">
+                            <div class="w-32 h-32 mx-auto bg-gray-200 rounded-full mb-4 flex items-center justify-center">
+                                <User width={64} height={64} class="text-gray-400" />
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900">Miroslav Kerdík</h3>
+                            <p class="text-sm text-gray-600 font-medium">Konateľ spoločnosti</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="prose prose-lg max-w-none text-gray-600 leading-relaxed space-y-4">
+                    <p>
+                        Mojím cieľom je poskytovať našim klientom nielen kvalitnú správu ich nehnuteľností, 
+                        ale aj pokročilé riešenia a služby, ktoré zjednodušia ich život a zabezpečia optimálnu 
+                        hodnotu ich majetku.
+                    </p>
+                    <p>
+                        V spoločnosti MK-SBD s.r.o. chceme ísť nad rámec tradičného prístupu k správe nehnuteľností. 
+                        Chcem, aby naša firma nebola len poskytovateľom služieb, ale partnerom pre našich klientov, 
+                        prekonávajúcich ich očakávania.
+                    </p>
+                    <p>
+                        Náš záväzok k individuálnemu prístupu a kvalite je tou hnacou silou, ktorá nás bude sprevádzať 
+                        na ceste k dosahovaniu vynikajúcich výsledkov pre našich klientov. Verím, že naša spoločnosť 
+                        bude synonymom pre spoľahlivosť, profesionálnu starostlivosť a riešenia v oblasti správy nehnuteľností.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </Container>
+</section>
