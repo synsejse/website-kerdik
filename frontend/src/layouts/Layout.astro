@@ -20,6 +20,8 @@ const {
     showScrollTop = true,
     className = "",
 } = Astro.props;
+
+const pageTitle = title === "Úvod" ? "MK-SBD s.r.o." : `MK-SBD - ${title}`;
 ---
 
 <!doctype html>
@@ -28,7 +30,7 @@ const {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/png" href="/favicon.png" />
-        <title>{title}</title>
+        <title>{pageTitle}</title>
     </head>
     <body
         class:list={[

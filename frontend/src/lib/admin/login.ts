@@ -23,22 +23,15 @@ export function initAdminLogin(): void {
             loginBtn.disabled = true;
             errorMessage.classList.add("hidden");
 
-            const success = await api.admin.login(password);
-
-            if (success) {
-                window.location.href = "/admin/messages";
-            } else {
-                errorMessage.textContent = "Nesprávne heslo";
-                errorMessage.classList.remove("hidden");
-                passwordInput.disabled = false;
-                loginBtn.disabled = false;
-                passwordInput.focus();
-            }
+            await api.admin.login(password);
+            window.location.href = "/admin/messages";
         } catch (err) {
-            errorMessage.textContent = "Chyba pri prihlasovaní";
+            errorMessage.textContent = "Nesprávne heslo. Skúste to znova.";
             errorMessage.classList.remove("hidden");
             passwordInput.disabled = false;
             loginBtn.disabled = false;
+            passwordInput.value = "";
+            passwordInput.focus();
         }
     });
 }
