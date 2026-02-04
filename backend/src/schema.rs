@@ -47,6 +47,8 @@ diesel::table! {
         image -> Nullable<Binary>,
         image_mime -> Nullable<Varchar>,
         created_at -> Timestamp,
+        latitude -> Nullable<Double>,
+        longitude -> Nullable<Double>,
     }
 }
 

@@ -173,6 +173,8 @@ pub struct Offer {
     pub image: Option<Vec<u8>>,
     pub image_mime: Option<String>,
     pub created_at: NaiveDateTime,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
 }
 
 #[derive(Debug, Clone, Insertable)]
@@ -184,6 +186,8 @@ pub struct NewOffer {
     pub link: Option<String>,
     pub image: Option<Vec<u8>>,
     pub image_mime: Option<String>,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
 }
 
 /// DTO used by the frontend / API for returning offer data.
@@ -199,6 +203,8 @@ pub struct OfferDto {
     pub link: Option<String>,
     pub image_mime: Option<String>,
     pub created_at: NaiveDateTime,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
 }
 
 #[derive(Debug, FromForm)]
@@ -210,6 +216,8 @@ pub struct AdminCreateOfferMultipart<'r> {
     /// Image uploaded as file instead of base64
     #[field(name = "image")]
     pub image: Option<TempFile<'r>>,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
 }
 
 #[derive(Debug, FromForm)]
@@ -221,6 +229,8 @@ pub struct AdminUpdateOfferMultipart<'r> {
     /// Optional: Only provided if the user uploaded a new image
     #[field(name = "image")]
     pub image: Option<TempFile<'r>>,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
 }
 
 #[cfg(test)]

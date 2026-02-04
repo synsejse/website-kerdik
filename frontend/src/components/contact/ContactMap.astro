@@ -2,17 +2,16 @@
 import Container from "../layout/Container.astro";
 ---
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
 <section class="bg-gray-100" aria-labelledby="contact-map-title">
     <Container>
         <h2 id="contact-map-title" class="m-0 mb-6 text-xl lg:text-2xl font-bold leading-tight relative pb-2 inline-block tracking-tight after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-1.5 after:w-[58%] after:bg-linear-to-r after:from-primary after:to-[#67a8ff] after:rounded-full after:shadow-[0_2px_6px_rgba(15,98,254,0.35)]">Mapa</h2>
-        <div class="w-full aspect-video max-h-[70vh] bg-gray-200 rounded-xl overflow-hidden shadow-md">
-            <iframe
-                    class="w-full h-full border-none block grayscale contrast-[1.1] hover:grayscale-0 transition-all duration-500"
-                    title="Mapa - ŠD STAVBY"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d651.773562417979!2d18.71992812923502!3d49.19877159870765!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47145ec4dc52461d%3A0xda695ee27625ef5d!2zTsOhbWVzdGllIHN2w6R0w6lobyBKw6FuYSBCb3NjYSAxMjAsIDAxMCAwNCDFvWlsaW5hLVrDoXZvZGll!5e0!3m2!1ssk!2ssk!4v1591867718110!5m2!1ssk!2ssk"
-                    allowfullscreen
-                    loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade"></iframe>
-        </div>
+        <div id="contact-map" class="w-full aspect-video max-h-[70vh] bg-gray-200 rounded-xl overflow-hidden shadow-md relative z-0"></div>
     </Container>
 </section>
+
+<script>
+    import { initContactMap } from "../../lib/components/contact-map";
+    initContactMap();
+</script>

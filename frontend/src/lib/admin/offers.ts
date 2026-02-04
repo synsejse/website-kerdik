@@ -24,6 +24,8 @@ export interface OffersPageElements {
   offerSlug: HTMLInputElement | null;
   offerDesc: HTMLTextAreaElement | null;
   offerLink: HTMLInputElement | null;
+  offerLatitude: HTMLInputElement | null;
+  offerLongitude: HTMLInputElement | null;
   offerImage: HTMLInputElement | null;
   imagePreview: HTMLElement | null;
   imagePreviewImg: HTMLImageElement | null;
@@ -35,6 +37,8 @@ export interface OfferFormData {
   slug: string;
   description: string;
   link: string;
+  latitude?: string;
+  longitude?: string;
   imageFile?: File;
 }
 
@@ -162,7 +166,7 @@ export class OffersPageController {
   }
 
   private getFormData(): OfferFormData {
-    const { offerId, offerTitle, offerSlug, offerDesc, offerLink, offerImage } =
+    const { offerId, offerTitle, offerSlug, offerDesc, offerLink, offerLatitude, offerLongitude, offerImage } =
       this.elements;
 
     return {
@@ -171,6 +175,8 @@ export class OffersPageController {
       slug: offerSlug?.value || "",
       description: offerDesc?.value || "",
       link: offerLink?.value || "",
+      latitude: offerLatitude?.value || "",
+      longitude: offerLongitude?.value || "",
       imageFile: offerImage?.files?.[0],
     };
   }
@@ -183,6 +189,8 @@ export class OffersPageController {
       if (formData.description)
         data.append("description", formData.description);
       if (formData.link) data.append("link", formData.link);
+      if (formData.latitude) data.append("latitude", formData.latitude);
+      if (formData.longitude) data.append("longitude", formData.longitude);
 
       if (formData.id) {
         // If image is provided, update it. Otherwise, don't send the field and backend keeps existing image
@@ -213,6 +221,8 @@ export class OffersPageController {
       offerSlug,
       offerDesc,
       offerLink,
+      offerLatitude,
+      offerLongitude,
       imagePreview,
       imagePreviewImg,
       modal,
@@ -223,6 +233,8 @@ export class OffersPageController {
     if (offerSlug) offerSlug.value = offer.slug;
     if (offerDesc) offerDesc.value = offer.description || "";
     if (offerLink) offerLink.value = offer.link || "";
+    if (offerLatitude) offerLatitude.value = offer.latitude ? String(offer.latitude) : "";
+    if (offerLongitude) offerLongitude.value = offer.longitude ? String(offer.longitude) : "";
     if (imagePreview && imagePreviewImg) {
       imagePreview.classList.remove("hidden");
       imagePreviewImg.src = api.offers.getOfferImageUrl(offer.id);

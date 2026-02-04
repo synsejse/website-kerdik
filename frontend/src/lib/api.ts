@@ -42,6 +42,8 @@ export interface OfferSummary {
   link: string | null;
   image_mime: string | null;
   created_at: string;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 import { apiClient, ApiError } from "./api-client";

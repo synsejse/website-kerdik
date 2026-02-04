@@ -6,7 +6,6 @@ use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
 use rocket_db_pools::diesel::prelude::*;
 use std::net::SocketAddr;
-use std::str::FromStr;
 use tracing::{error, info};
 
 use crate::db::MessagesDB;
@@ -44,6 +43,8 @@ pub async fn create_offer(
         link: offer.link,
         image: image_bytes,
         image_mime,
+        latitude: offer.latitude,
+        longitude: offer.longitude,
     };
 
     // Insert
@@ -75,6 +76,8 @@ pub async fn create_offer(
         link: inserted.link,
         image_mime: inserted.image_mime,
         created_at: inserted.created_at,
+        latitude: inserted.latitude,
+        longitude: inserted.longitude,
     };
 
     info!("Offer created successfully with id: {}", inserted.id);
@@ -113,6 +116,8 @@ pub async fn update_offer(
                     offers::link.eq(&update_data.link),
                     offers::image.eq(buffer),
                     offers::image_mime.eq(Some(ct_string)),
+                    offers::latitude.eq(update_data.latitude),
+                    offers::longitude.eq(update_data.longitude),
                 ))
                 .execute(&mut db)
                 .await
@@ -125,6 +130,8 @@ pub async fn update_offer(
                     offers::slug.eq(&update_data.slug),
                     offers::description.eq(&update_data.description),
                     offers::link.eq(&update_data.link),
+                    offers::latitude.eq(update_data.latitude),
+                    offers::longitude.eq(update_data.longitude),
                 ))
                 .execute(&mut db)
                 .await
@@ -185,6 +192,8 @@ pub async fn list_offers(mut db: Connection<MessagesDB>) -> AppResult<Json<Vec<O
             link: o.link,
             image_mime: o.image_mime,
             created_at: o.created_at,
+            latitude: o.latitude,
+            longitude: o.longitude,
         })
         .collect();
 
@@ -205,7 +214,7 @@ pub async fn get_offer_image(
     if let Some(image_bytes) = offer.image {
         let content_type = offer
             .image_mime
-            .and_then(|m| ContentType::from_str(&m).ok())
+            .and_then(|m| ContentType::parse_flexible(&m))
             .unwrap_or(ContentType::JPEG);
 
         Ok((content_type, image_bytes))

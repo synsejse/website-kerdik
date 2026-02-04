@@ -53,25 +53,8 @@ const {
     {showScrollTop && <ScrollTop />}
 
     <script>
-      (async function () {
-        try {
-          const resp = await fetch("/admin/check", { credentials: "same-origin" });
-          const isAuth: boolean = resp.ok ? Boolean(await resp.json()) : false;
-          const path = window.location.pathname.replace(/\/+$/, "");
-          const onLogin = path === "/admin/login";
-
-          if (!isAuth && !onLogin) {
-            window.location.href = "/admin/login";
-          } else if (isAuth && onLogin) {
-            window.location.href = "/admin/messages";
-          }
-        } catch (e) {
-          const path = window.location.pathname.replace(/\/+$/, "");
-          if (path !== "/admin/login") {
-            window.location.href = "/admin/login";
-          }
-        }
-      })();
+      import { checkAdminAuth } from "../../lib/admin/auth-check";
+      checkAdminAuth();
     </script>
   </body>
 </html>

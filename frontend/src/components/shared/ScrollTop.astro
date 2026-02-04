@@ -40,6 +40,32 @@ import ArrowUpIcon from "../icons/ArrowUp.astro";
     title={label}
     style={`width:${size}px; height:${size}px; bottom:${bottom}; right:${right};`}
 >
+    <svg
+        class="absolute inset-0 -rotate-90 pointer-events-none"
+        width={size}
+        height={size}
+    >
+        <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={(size - 6) / 2}
+            stroke="rgba(255,255,255,0.2)"
+            stroke-width="3"
+            fill="none"
+        />
+        <circle
+            id="scrollProgress"
+            cx={size / 2}
+            cy={size / 2}
+            r={(size - 6) / 2}
+            stroke="rgba(255,255,255,0.9)"
+            stroke-width="3"
+            fill="none"
+            stroke-linecap="round"
+            style={`stroke-dasharray: ${Math.PI * (size - 6)}; stroke-dashoffset: ${Math.PI * (size - 6)};`}
+            class="transition-[stroke-dashoffset] duration-100 ease-out"
+        />
+    </svg>
     <ArrowUpIcon
         width={Math.round(size * 0.6)}
         height={Math.round(size * 0.6)}
@@ -52,30 +78,6 @@ import ArrowUpIcon from "../icons/ArrowUp.astro";
 </style>
 
 <script>
-    if (typeof window !== "undefined") {
-        const btn = document.getElementById("scrollTop");
-        const scrollThreshold = parseInt(btn?.dataset.threshold || "300", 10);
-
-        function onScroll() {
-            if (!btn) return;
-            if (window.scrollY > scrollThreshold) {
-                btn.classList.add("show");
-            } else {
-                btn.classList.remove("show");
-            }
-        }
-
-        window.addEventListener("scroll", onScroll, { passive: true });
-        // Initialize state on load
-        onScroll();
-
-        btn?.addEventListener("click", () => {
-            try {
-                window.scrollTo({ top: 0, behavior: "smooth" });
-            } catch {
-                // Fallback for older browsers
-                window.scrollTo(0, 0);
-            }
-        });
-    }
+    import { initScrollTop } from "../../lib/components/scroll-top";
+    initScrollTop();
 </script>

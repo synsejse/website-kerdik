@@ -1,4 +1,84 @@
 import { api, type OfferSummary } from "../../lib/api";
+import * as L from "leaflet";
+
+let map: L.Map | null = null;
+let markers: L.Marker[] = [];
+
+/**
+ * Initialize Leaflet map with offer locations
+ */
+function initMap(offers: OfferSummary[]) {
+  const mapContainer = document.getElementById("map-container");
+  const mapLoading = document.getElementById("map-loading");
+  const mapError = document.getElementById("map-error");
+
+  // Filter offers with valid coordinates
+  const offersWithCoords = offers.filter(
+    (offer) => offer.latitude != null && offer.longitude != null
+  );
+
+  if (offersWithCoords.length === 0) {
+    if (mapLoading) mapLoading.classList.add("hidden");
+    if (mapError) {
+      mapError.textContent = "Žiadne objekty s GPS súradnicami.";
+      mapError.classList.remove("hidden");
+    }
+    return;
+  }
+
+  if (!mapContainer) return;
+
+  try {
+    // Calculate center (average of all coordinates)
+    const avgLat = offersWithCoords.reduce((sum, o) => sum + (o.latitude || 0), 0) / offersWithCoords.length;
+    const avgLng = offersWithCoords.reduce((sum, o) => sum + (o.longitude || 0), 0) / offersWithCoords.length;
+
+    // Show container first
+    if (mapLoading) mapLoading.classList.add("hidden");
+    mapContainer.classList.remove("hidden");
+
+    // Small delay to ensure container is rendered
+    setTimeout(() => {
+      // Create map centered on average coordinates
+      map = L.map(mapContainer).setView([avgLat, avgLng], 13);
+
+      // Add OpenStreetMap tile layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+      }).addTo(map);
+
+      // Add markers for each offer
+      offersWithCoords.forEach((offer) => {
+        if (offer.latitude == null || offer.longitude == null || !map) return;
+
+        const marker = L.marker([offer.latitude, offer.longitude]).addTo(map);
+
+        // Create popup content
+        const popupContent = `
+          <div style="max-width: 200px;">
+            <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold;">${offer.title || "Objekt"}</h3>
+            <p style="margin: 0; font-size: 12px; color: #666;">${offer.description || ""}</p>
+            ${offer.link ? `<a href="${offer.link}" style="display: inline-block; margin-top: 8px; color: #0f62fe; font-size: 12px; font-weight: 600;">Zistiť viac →</a>` : ""}
+          </div>
+        `;
+
+        marker.bindPopup(popupContent);
+        markers.push(marker);
+      });
+
+      // Force map to recalculate size
+      map.invalidateSize();
+    }, 100);
+  } catch (error) {
+    console.error("Error initializing map:", error);
+    if (mapLoading) mapLoading.classList.add("hidden");
+    if (mapError) {
+      mapError.textContent = "Chyba pri načítaní mapy.";
+      mapError.classList.remove("hidden");
+    }
+  }
+}
 
 /**
  * Initialize offer section and load offers from API
@@ -86,6 +166,9 @@ export function initOfferSection(): void {
         const el = createOfferElement(offer);
         if (container) container.appendChild(el);
       });
+
+      // Initialize map after loading offers
+      initMap(offers);
     } catch (err) {
       console.error("Error loading offers:", err);
       showEmptyState();
