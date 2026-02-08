@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import PageHero from "../components/shared/PageHero.astro";
 import Container from "../components/layout/Container.astro";
 import Loading from "../components/admin/common/Loading.astro";
+import ChevronRight from "../components/icons/ChevronRight.astro";
 ---
 
 <Layout title="Blog">
@@ -33,8 +34,13 @@ import Loading from "../components/admin/common/Loading.astro";
     </Container>
   </section>
 
+  <template id="icon-chevron-right">
+    <ChevronRight class="h-4 w-4" />
+  </template>
+
   <script>
     import { api } from "../lib/api";
+    import { markdownToHtml } from "../utils/markdown";
 
     async function loadBlogPosts() {
       const loading = document.getElementById("loading-posts");
@@ -69,22 +75,28 @@ import Loading from "../components/admin/common/Loading.astro";
                       ${post.title}
                     </a>
                   </h3>
-                  ${post.excerpt ? `<p class="text-sm text-gray-600 mb-4 line-clamp-3 break-words">${post.excerpt}</p>` : ''}
+                  ${post.excerpt ? `<div class="text-sm text-gray-600 mb-4 line-clamp-3 break-words prose prose-sm max-w-none">${markdownToHtml(post.excerpt)}</div>` : ''}
                   <div class="flex items-center justify-between">
                     <time class="text-xs text-gray-400" datetime="${post.created_at}">
                       ${formattedDate}
                     </time>
                     <a href="/blog/post?slug=${post.slug}" class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-blue-600 transition-colors no-underline">
                       Čítať viac
-                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                      </svg>
+                      <span class="icon-chevron-right"></span>
                     </a>
                   </div>
                 </div>
               </article>
             `;
           }).join("");
+
+          // Replace icon placeholders with cloned templates
+          const chevronTemplate = document.getElementById('icon-chevron-right') as HTMLTemplateElement;
+          if (chevronTemplate && container) {
+            container.querySelectorAll('.icon-chevron-right').forEach((placeholder) => {
+              placeholder.replaceWith(chevronTemplate.content.cloneNode(true));
+            });
+          }
         }
       } catch (e) {
         console.error("Error loading blog posts:", e);

@@ -1,4 +1,5 @@
 import { api, type OfferSummary } from "../../lib/api";
+import { markdownToHtml } from "../../utils/markdown";
 import * as L from "leaflet";
 import markerIcon from "leaflet/dist/images/marker-icon.png?url";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png?url";
@@ -69,7 +70,7 @@ function initMap(offers: OfferSummary[]) {
         const popupContent = `
           <div style="max-width: 200px;">
             <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold;">${offer.title || "Objekt"}</h3>
-            <p style="margin: 0; font-size: 12px; color: #666;">${offer.description || ""}</p>
+            <div style="margin: 0; font-size: 12px; color: #666;">${offer.description ? markdownToHtml(offer.description) : ""}</div>
             ${offer.link ? `<a href="${offer.link}" style="display: inline-block; margin-top: 8px; color: #0f62fe; font-size: 12px; font-weight: 600;">Zistiť viac →</a>` : ""}
           </div>
         `;
@@ -133,13 +134,13 @@ export function initOfferSection(): void {
     descContainer.className = "mb-4";
     
     const descId = `desc-${offer.id}`;
-    const p = document.createElement("p");
-    p.id = descId;
-    p.className = "m-0 text-sm text-gray-600 leading-relaxed line-clamp-3 transition-all duration-300";
-    p.textContent = offer.description || "";
+    const descDiv = document.createElement("div");
+    descDiv.id = descId;
+    descDiv.className = "m-0 text-sm text-gray-600 leading-relaxed line-clamp-3 transition-all duration-300 prose prose-sm max-w-none";
+    descDiv.innerHTML = offer.description ? markdownToHtml(offer.description) : "";
 
     // Check if description is long enough to need expansion
-    const needsExpansion = (offer.description || "").length > 150;
+    const needsExpansion = (offer.description || "").length > 200;
 
     if (needsExpansion) {
       const expandBtn = document.createElement("button");
@@ -148,20 +149,20 @@ export function initOfferSection(): void {
       expandBtn.type = "button";
       
       expandBtn.addEventListener("click", () => {
-        const isExpanded = !p.classList.contains("line-clamp-3");
+        const isExpanded = !descDiv.classList.contains("line-clamp-3");
         if (isExpanded) {
-          p.classList.add("line-clamp-3");
+          descDiv.classList.add("line-clamp-3");
           expandBtn.textContent = "Zobraziť viac";
         } else {
-          p.classList.remove("line-clamp-3");
+          descDiv.classList.remove("line-clamp-3");
           expandBtn.textContent = "Zobraziť menej";
         }
       });
 
-      descContainer.appendChild(p);
+      descContainer.appendChild(descDiv);
       descContainer.appendChild(expandBtn);
     } else {
-      descContainer.appendChild(p);
+      descContainer.appendChild(descDiv);
     }
 
     // Footer with link
@@ -179,10 +180,17 @@ export function initOfferSection(): void {
     
     a.innerHTML = `
       Viac informácií
-      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-      </svg>
+      <span class="icon-chevron-right"></span>
     `;
+
+    // Clone icon template
+    const chevronTemplate = document.getElementById('icon-chevron-right') as HTMLTemplateElement;
+    if (chevronTemplate) {
+      const chevronIcon = a.querySelector('.icon-chevron-right');
+      if (chevronIcon) {
+        chevronIcon.replaceWith(chevronTemplate.content.cloneNode(true));
+      }
+    }
 
     footer.appendChild(a);
 

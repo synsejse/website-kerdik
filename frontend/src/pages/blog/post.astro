@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import Container from "../../components/layout/Container.astro";
 import Loading from "../../components/admin/common/Loading.astro";
+import ChevronLeft from "../../components/icons/ChevronLeft.astro";
 ---
 
 <Layout title="Blog príspevok">
@@ -14,9 +15,7 @@ import Loading from "../../components/admin/common/Loading.astro";
       <div id="error-post" class="hidden text-center py-12">
         <p class="text-gray-600">Príspevok sa nenašiel.</p>
         <a href="/blog" class="inline-flex items-center gap-2 mt-4 text-primary hover:text-blue-600 font-bold transition-colors no-underline">
-          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-          </svg>
+          <ChevronLeft class="h-5 w-5" />
           Späť na blog
         </a>
       </div>
@@ -25,8 +24,13 @@ import Loading from "../../components/admin/common/Loading.astro";
     </Container>
   </article>
 
+  <template id="icon-chevron-left">
+    <ChevronLeft class="h-5 w-5" />
+  </template>
+
   <script>
     import { api } from "../../lib/api";
+    import { markdownToHtml } from "../../utils/markdown";
 
     async function loadBlogPost() {
       const loading = document.getElementById("loading-post");
@@ -84,27 +88,31 @@ import Loading from "../../components/admin/common/Loading.astro";
 
           ${post.excerpt ? `
             <div class="mb-8 p-6 bg-blue-50 border-l-4 border-primary rounded-r-lg">
-              <p class="text-lg text-gray-700 italic m-0">
-                ${escapeHtml(post.excerpt)}
-              </p>
+              <div class="text-lg text-gray-700 italic m-0 prose max-w-none">
+                ${markdownToHtml(post.excerpt)}
+              </div>
             </div>
           ` : ''}
 
           <div class="prose prose-lg max-w-none">
-            <div class="text-gray-800 leading-relaxed whitespace-pre-wrap">
-              ${escapeHtml(post.content)}
-            </div>
+            ${markdownToHtml(post.content)}
           </div>
 
           <div class="mt-12 pt-8 border-t border-gray-200">
             <a href="/blog" class="inline-flex items-center gap-2 text-primary hover:text-blue-600 font-bold transition-colors no-underline">
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-              </svg>
+              <span class="icon-chevron-left"></span>
               Späť na blog
             </a>
           </div>
         `;
+
+        // Replace icon placeholders with cloned templates
+        const chevronTemplate = document.getElementById('icon-chevron-left') as HTMLTemplateElement;
+        if (chevronTemplate && content) {
+          content.querySelectorAll('.icon-chevron-left').forEach((placeholder) => {
+            placeholder.replaceWith(chevronTemplate.content.cloneNode(true));
+          });
+        }
 
         content.classList.remove("hidden");
       } catch (e) {
@@ -123,71 +131,4 @@ import Loading from "../../components/admin/common/Loading.astro";
 
     loadBlogPost();
   </script>
-
-  <style>
-    .prose {
-      color: #374151;
-    }
-    
-    .prose h2 {
-      font-size: 1.875rem;
-      font-weight: 700;
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-      color: #111827;
-    }
-    
-    .prose h3 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-top: 1.5rem;
-      margin-bottom: 0.75rem;
-      color: #111827;
-    }
-    
-    .prose p {
-      margin-bottom: 1.25rem;
-      line-height: 1.75;
-    }
-    
-    .prose ul,
-    .prose ol {
-      margin-bottom: 1.25rem;
-      padding-left: 1.5rem;
-    }
-    
-    .prose li {
-      margin-bottom: 0.5rem;
-    }
-    
-    .prose a {
-      color: #0f62fe;
-      text-decoration: underline;
-    }
-    
-    .prose a:hover {
-      color: #0353e9;
-    }
-    
-    .prose strong {
-      font-weight: 600;
-      color: #111827;
-    }
-    
-    .prose code {
-      background-color: #f3f4f6;
-      padding: 0.125rem 0.375rem;
-      border-radius: 0.25rem;
-      font-size: 0.875em;
-      font-family: monospace;
-    }
-    
-    .prose blockquote {
-      border-left: 4px solid #0f62fe;
-      padding-left: 1rem;
-      font-style: italic;
-      color: #6b7280;
-      margin: 1.5rem 0;
-    }
-  </style>
 </Layout>

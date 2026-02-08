@@ -86,19 +86,50 @@ import Pagination from "../../components/admin/common/Pagination.astro";
           <EmptyState
             title="Momentálne nemáte žiadne aktívne správy."
             subtitle="Nové správy sa zobrazia tu."
-            icon='<svg class="h-20 w-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>'
-          />
+          >
+            <Envelope slot="icon" class="h-20 w-20" />
+          </EmptyState>
         </div>
 
         <div id="no-archived-messages" class="hidden">
           <EmptyState
             title="Archív správ je prázdny."
             subtitle="Archivované správy sa zobrazia tu."
-            icon='<svg class="h-20 w-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>'
-          />
+          >
+            <ArchiveBox slot="icon" class="h-20 w-20" />
+          </EmptyState>
         </div>
       </div>
     </main>
+
+    <!-- Icon Templates -->
+    <template id="icon-calendar">
+      <Calendar class="h-4 w-4" />
+    </template>
+    <template id="icon-calendar-small">
+      <Calendar class="h-3 w-3" />
+    </template>
+    <template id="icon-user">
+      <User class="h-3 w-3" />
+    </template>
+    <template id="icon-envelope">
+      <Envelope class="h-4 w-4" />
+    </template>
+    <template id="icon-phone">
+      <Phone class="h-4 w-4" />
+    </template>
+    <template id="icon-archive">
+      <ArchiveBox class="h-4 w-4 group-hover:scale-110 transition-transform" />
+    </template>
+    <template id="icon-trash">
+      <Trash class="h-4 w-4" />
+    </template>
+    <template id="icon-clock">
+      <Clock class="h-4 w-4" />
+    </template>
+    <template id="icon-undo">
+      <Undo class="h-4 w-4 group-hover:scale-110 transition-transform" />
+    </template>
 
     <footer class="bg-white border-t border-gray-100 py-10">
       <div class="max-w-300 mx-auto px-4 text-center">

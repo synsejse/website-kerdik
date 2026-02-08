@@ -1,0 +1,321 @@
+---
+interface Props {
+  targetId: string;
+}
+
+import Bold from "../../icons/Bold.astro";
+import Italic from "../../icons/Italic.astro";
+import Heading from "../../icons/Heading.astro";
+import Link from "../../icons/Link.astro";
+import ListUl from "../../icons/ListUl.astro";
+import ListOl from "../../icons/ListOl.astro";
+import QuoteLeft from "../../icons/QuoteLeft.astro";
+import Code from "../../icons/Code.astro";
+
+const { targetId } = Astro.props;
+---
+
+<div class="markdown-toolbar flex flex-wrap gap-1 sm:gap-2 p-2 bg-gray-100 border border-gray-200 rounded-t-xl">
+  <button type="button" data-markdown-action="bold" data-target={targetId} class="px-2 sm:px-3 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors" title="Bold">
+    <Bold class="h-4 w-4" />
+  </button>
+  <button type="button" data-markdown-action="italic" data-target={targetId} class="px-2 sm:px-3 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors" title="Italic">
+    <Italic class="h-4 w-4" />
+  </button>
+  <button type="button" data-markdown-action="heading" data-target={targetId} class="px-2 sm:px-3 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors" title="Heading">
+    <Heading class="h-4 w-4" />
+  </button>
+  <button type="button" data-markdown-action="link" data-target={targetId} class="px-2 sm:px-3 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors" title="Link">
+    <Link class="h-4 w-4" />
+  </button>
+  <button type="button" data-markdown-action="list" data-target={targetId} class="px-2 sm:px-3 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors" title="Unordered List">
+    <ListUl class="h-4 w-4" />
+  </button>
+  <button type="button" data-markdown-action="ordered-list" data-target={targetId} class="px-2 sm:px-3 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors" title="Ordered List">
+    <ListOl class="h-4 w-4" />
+  </button>
+  <button type="button" data-markdown-action="quote" data-target={targetId} class="px-2 sm:px-3 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors" title="Quote">
+    <QuoteLeft class="h-4 w-4" />
+  </button>
+  <button type="button" data-markdown-action="code" data-target={targetId} class="px-2 sm:px-3 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors" title="Code">
+    <Code class="h-4 w-4" />
+  </button>
+</div>
+
+<script>
+  // Undo stack for each textarea
+  const undoStacks = new Map<string, Array<{ value: string; selectionStart: number; selectionEnd: number }>>();
+  const MAX_UNDO_STACK = 50;
+
+  function saveUndoState(targetId: string, textarea: HTMLTextAreaElement) {
+    if (!undoStacks.has(targetId)) {
+      undoStacks.set(targetId, []);
+    }
+    const stack = undoStacks.get(targetId)!;
+    
+    stack.push({
+      value: textarea.value,
+      selectionStart: textarea.selectionStart,
+      selectionEnd: textarea.selectionEnd,
+    });
+    
+    // Limit stack size
+    if (stack.length > MAX_UNDO_STACK) {
+      stack.shift();
+    }
+  }
+
+  function undo(targetId: string) {
+    const textarea = document.getElementById(targetId) as HTMLTextAreaElement;
+    if (!textarea) return;
+    
+    const stack = undoStacks.get(targetId);
+    if (!stack || stack.length === 0) return;
+    
+    const state = stack.pop()!;
+    textarea.value = state.value;
+    textarea.setSelectionRange(state.selectionStart, state.selectionEnd);
+    textarea.focus();
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  function detectAndRemoveMarkdown(text: string, action: string): { unwrapped: string; wasWrapped: boolean } {
+    let unwrapped = text;
+    let wasWrapped = false;
+
+    switch (action) {
+      case 'bold':
+        if (text.startsWith('**') && text.endsWith('**') && text.length > 4) {
+          unwrapped = text.slice(2, -2);
+          wasWrapped = true;
+        }
+        break;
+      case 'italic':
+        if (text.startsWith('*') && text.endsWith('*') && text.length > 2 && !text.startsWith('**')) {
+          unwrapped = text.slice(1, -1);
+          wasWrapped = true;
+        }
+        break;
+      case 'heading':
+        if (text.startsWith('## ')) {
+          unwrapped = text.slice(3);
+          wasWrapped = true;
+        } else if (text.startsWith('# ')) {
+          unwrapped = text.slice(2);
+          wasWrapped = true;
+        }
+        break;
+      case 'link':
+        const linkMatch = text.match(/^\[(.+)\]\((.+)\)$/);
+        if (linkMatch) {
+          unwrapped = linkMatch[1];
+          wasWrapped = true;
+        }
+        break;
+      case 'list':
+        if (text.split('\n').every(line => line.startsWith('- '))) {
+          unwrapped = text.split('\n').map(line => line.slice(2)).join('\n');
+          wasWrapped = true;
+        }
+        break;
+      case 'ordered-list':
+        if (text.split('\n').every((line, i) => line.match(/^\d+\. /))) {
+          unwrapped = text.split('\n').map(line => line.replace(/^\d+\. /, '')).join('\n');
+          wasWrapped = true;
+        }
+        break;
+      case 'quote':
+        if (text.split('\n').every(line => line.startsWith('> '))) {
+          unwrapped = text.split('\n').map(line => line.slice(2)).join('\n');
+          wasWrapped = true;
+        }
+        break;
+      case 'code':
+        if (text.startsWith('```\n') && text.endsWith('\n```')) {
+          unwrapped = text.slice(4, -4);
+          wasWrapped = true;
+        } else if (text.startsWith('`') && text.endsWith('`') && text.length > 2) {
+          unwrapped = text.slice(1, -1);
+          wasWrapped = true;
+        }
+        break;
+    }
+
+    return { unwrapped, wasWrapped };
+  }
+
+  function handleMarkdownAction(action: string, targetId: string) {
+    const textarea = document.getElementById(targetId) as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    // Save undo state before making changes
+    saveUndoState(targetId, textarea);
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+    const beforeText = textarea.value.substring(0, start);
+    const afterText = textarea.value.substring(end);
+
+    // Check if we should unwrap instead of wrap
+    const { unwrapped, wasWrapped } = detectAndRemoveMarkdown(selectedText, action);
+    
+    if (wasWrapped && selectedText) {
+      // Remove the markdown
+      textarea.value = beforeText + unwrapped + afterText;
+      textarea.focus();
+      textarea.setSelectionRange(start, start + unwrapped.length);
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      return;
+    }
+
+    let replacement = '';
+    let selectionStart = start;
+    let selectionEnd = start;
+
+    switch (action) {
+      case 'bold':
+        if (selectedText) {
+          replacement = `**${selectedText}**`;
+          selectionStart = start;
+          selectionEnd = start + replacement.length;
+        } else {
+          replacement = '**text**';
+          selectionStart = start + 2;
+          selectionEnd = start + 6;
+        }
+        break;
+        
+      case 'italic':
+        if (selectedText) {
+          replacement = `*${selectedText}*`;
+          selectionStart = start;
+          selectionEnd = start + replacement.length;
+        } else {
+          replacement = '*text*';
+          selectionStart = start + 1;
+          selectionEnd = start + 5;
+        }
+        break;
+        
+      case 'heading':
+        if (selectedText) {
+          replacement = `## ${selectedText}`;
+          selectionStart = start;
+          selectionEnd = start + replacement.length;
+        } else {
+          replacement = '## Heading';
+          selectionStart = start + 3;
+          selectionEnd = start + 10;
+        }
+        break;
+        
+      case 'link':
+        if (selectedText) {
+          replacement = `[${selectedText}](url)`;
+          selectionStart = start + selectedText.length + 3;
+          selectionEnd = start + replacement.length - 1;
+        } else {
+          replacement = '[text](url)';
+          selectionStart = start + 1;
+          selectionEnd = start + 5;
+        }
+        break;
+        
+      case 'list':
+        if (selectedText) {
+          const lines = selectedText.split('\n');
+          replacement = lines.map(line => `- ${line}`).join('\n');
+          selectionStart = start;
+          selectionEnd = start + replacement.length;
+        } else {
+          replacement = '- item';
+          selectionStart = start + 2;
+          selectionEnd = start + 6;
+        }
+        break;
+        
+      case 'ordered-list':
+        if (selectedText) {
+          const lines = selectedText.split('\n');
+          replacement = lines.map((line, i) => `${i + 1}. ${line}`).join('\n');
+          selectionStart = start;
+          selectionEnd = start + replacement.length;
+        } else {
+          replacement = '1. item';
+          selectionStart = start + 3;
+          selectionEnd = start + 7;
+        }
+        break;
+        
+      case 'quote':
+        if (selectedText) {
+          const lines = selectedText.split('\n');
+          replacement = lines.map(line => `> ${line}`).join('\n');
+          selectionStart = start;
+          selectionEnd = start + replacement.length;
+        } else {
+          replacement = '> quote';
+          selectionStart = start + 2;
+          selectionEnd = start + 7;
+        }
+        break;
+        
+      case 'code':
+        if (selectedText) {
+          if (selectedText.includes('\n')) {
+            replacement = `\`\`\`\n${selectedText}\n\`\`\``;
+            selectionStart = start;
+            selectionEnd = start + replacement.length;
+          } else {
+            replacement = `\`${selectedText}\``;
+            selectionStart = start;
+            selectionEnd = start + replacement.length;
+          }
+        } else {
+          replacement = '`code`';
+          selectionStart = start + 1;
+          selectionEnd = start + 5;
+        }
+        break;
+        
+      default:
+        return;
+    }
+
+    textarea.value = beforeText + replacement + afterText;
+    textarea.focus();
+    textarea.setSelectionRange(selectionStart, selectionEnd);
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  // Handle Ctrl+Z for undo
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'TEXTAREA' && target.id) {
+        const toolbar = document.querySelector(`[data-target="${target.id}"]`);
+        if (toolbar) {
+          e.preventDefault();
+          undo(target.id);
+        }
+      }
+    }
+  });
+
+  // Use event delegation to avoid duplicate listeners
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const button = target.closest('[data-markdown-action]') as HTMLButtonElement;
+    
+    if (button) {
+      e.preventDefault();
+      const action = button.dataset.markdownAction;
+      const targetId = button.dataset.target;
+      
+      if (action && targetId) {
+        handleMarkdownAction(action, targetId);
+      }
+    }
+  });
+</script>

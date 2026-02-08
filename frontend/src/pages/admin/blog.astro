@@ -1,9 +1,12 @@
 ---
 import AdminLayout from "../../layouts/admin/Layout.astro";
 import ArrowsRotate from "../../components/icons/ArrowsRotate.astro";
+import Edit from "../../components/icons/Edit.astro";
+import Trash from "../../components/icons/Trash.astro";
 import Loading from "../../components/admin/common/Loading.astro";
 import EmptyState from "../../components/admin/common/EmptyState.astro";
 import Modal from "../../components/admin/common/Modal.astro";
+import MarkdownToolbar from "../../components/admin/common/MarkdownToolbar.astro";
 ---
 
 <AdminLayout title="Admin - Blog" showFooter={false}>
@@ -45,6 +48,14 @@ import Modal from "../../components/admin/common/Modal.astro";
       </div>
     </main>
 
+    <!-- Icon Templates -->
+    <template id="icon-edit">
+      <Edit class="h-4 w-4" />
+    </template>
+    <template id="icon-trash">
+      <Trash class="h-4 w-4" />
+    </template>
+
     <Modal id="modal-overlay" title="Blog príspevok">
       <form id="post-form">
         <input type="hidden" id="post-id" />
@@ -68,20 +79,32 @@ import Modal from "../../components/admin/common/Modal.astro";
               placeholder="slug-prispevku"
             />
             
-            <textarea
-              id="post-excerpt"
-              rows="3"
-              class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-words resize-none"
-              placeholder="Krátky popis (excerpt)..."
-            ></textarea>
+            <div>
+              <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                Krátky popis (markdown)
+              </label>
+              <MarkdownToolbar targetId="post-excerpt" />
+              <textarea
+                id="post-excerpt"
+                rows="3"
+                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 border-t-0 rounded-b-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-words resize-none"
+                placeholder="Krátky popis s markdown formátovaním..."
+              ></textarea>
+            </div>
 
-            <textarea
-              id="post-content"
-              rows="12"
-              required
-              class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-words resize-y"
-              placeholder="Obsah príspevku..."
-            ></textarea>
+            <div>
+              <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                Obsah (markdown)
+              </label>
+              <MarkdownToolbar targetId="post-content" />
+              <textarea
+                id="post-content"
+                rows="12"
+                required
+                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 border-t-0 rounded-b-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-words resize-y"
+                placeholder="Obsah príspevku s markdown formátovaním..."
+              ></textarea>
+            </div>
 
             <div>
               <label class="flex items-center gap-2 cursor-pointer">
