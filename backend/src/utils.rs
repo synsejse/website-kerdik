@@ -60,13 +60,18 @@ pub async fn process_image_upload<'r>(
 
 /// Compress and resize an image if necessary
 fn compress_image(buffer: Vec<u8>, content_type: &ContentType) -> AppResult<(Vec<u8>, String)> {
+    let image_format = if content_type.is_png() {
+        ImageFormat::Png
+    } else if content_type.is_gif() {
+        ImageFormat::Gif
+    } else if content_type.is_jpeg() {
+        ImageFormat::Jpeg
+    } else {
+        return Err(AppError::UnsupportedMediaType);
+    };
+
     // Load the image
-    let img = ImageReader::new(Cursor::new(&buffer))
-        .with_guessed_format()
-        .map_err(|e| {
-            tracing::error!("Failed to guess image format: {}", e);
-            AppError::InvalidInput("Invalid image format".to_string())
-        })?
+    let img = ImageReader::with_format(Cursor::new(&buffer), image_format)
         .decode()
         .map_err(|e| {
             tracing::error!("Failed to decode image: {}", e);
@@ -92,42 +97,18 @@ fn compress_image(buffer: Vec<u8>, content_type: &ContentType) -> AppResult<(Vec
         img
     };
 
-    // Convert to RGB/RGBA for encoding
-    let output_format = if content_type.is_png() {
-        ImageFormat::Png
-    } else {
-        // Convert GIF and JPEG to JPEG for better compression
-        ImageFormat::Jpeg
-    };
-
     let mut output_buffer = Vec::new();
     let mut cursor = Cursor::new(&mut output_buffer);
 
-    match output_format {
-        ImageFormat::Jpeg => {
-            let rgb_img = image::DynamicImage::ImageRgb8(img.to_rgb8());
-            let encoder = image::codecs::jpeg::JpegEncoder::new_with_quality(&mut cursor, JPEG_QUALITY);
-            rgb_img.write_with_encoder(encoder).map_err(|e| {
-                tracing::error!("Failed to encode JPEG: {}", e);
-                AppError::InvalidInput("Failed to encode image".to_string())
-            })?;
-        }
-        ImageFormat::Png => {
-            img.write_to(&mut cursor, ImageFormat::Png).map_err(|e| {
-                tracing::error!("Failed to encode PNG: {}", e);
-                AppError::InvalidInput("Failed to encode image".to_string())
-            })?;
-        }
-        _ => {
-            return Err(AppError::UnsupportedMediaType);
-        }
-    }
+    // Always convert to JPEG for consistent compression and storage
+    let rgb_img = image::DynamicImage::ImageRgb8(img.to_rgb8());
+    let encoder = image::codecs::jpeg::JpegEncoder::new_with_quality(&mut cursor, JPEG_QUALITY);
+    rgb_img.write_with_encoder(encoder).map_err(|e| {
+        tracing::error!("Failed to encode JPEG: {}", e);
+        AppError::InvalidInput("Failed to encode image".to_string())
+    })?;
 
-    let mime_type = match output_format {
-        ImageFormat::Jpeg => "image/jpeg",
-        ImageFormat::Png => "image/png",
-        _ => "application/octet-stream",
-    };
+    let mime_type = "image/jpeg";
 
     Ok((output_buffer, mime_type.to_string()))
 }
