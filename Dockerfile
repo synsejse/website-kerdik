@@ -13,7 +13,7 @@ RUN npm run build
 ##############################################
 
 # Common setup for backend stages
-FROM rust:1.91-slim-trixie AS backend-common
+FROM rust:1.93-slim-trixie AS backend-common
 WORKDIR /app/backend
 RUN cargo install cargo-chef
 RUN apt-get update && \
