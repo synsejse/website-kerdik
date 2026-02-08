@@ -1,4 +1,7 @@
 ---
+import { Image } from "astro:assets";
+import logo from "../../../assets/brand/logo.png";
+
 export interface Props {
   title?: string;
   showLogout?: boolean;
@@ -14,7 +17,7 @@ const {
   <div class="max-w-275 mx-auto px-4 flex flex-col lg:flex-row justify-between items-center gap-5 lg:gap-6">
     <div class="flex items-center">
       <a href="/" class="flex items-center no-underline text-inherit">
-        <img src="/images/brand/logo.png" alt="MK-SBD" class="h-12 md:h-13 lg:h-14 w-auto aspect-square bg-white p-1.5 rounded-md shadow-sm transition-[height] duration-250 ease-in-out"/>
+        <Image src={logo} alt="MK-SBD" class="h-12 md:h-13 lg:h-14 w-auto aspect-square bg-white p-1.5 rounded-md shadow-sm transition-[height] duration-250 ease-in-out" width={56} height={56} />
       </a>
     </div>
 

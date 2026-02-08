@@ -1,0 +1,148 @@
+---
+import AdminLayout from "../../layouts/admin/Layout.astro";
+import ArrowsRotate from "../../components/icons/ArrowsRotate.astro";
+import Loading from "../../components/admin/common/Loading.astro";
+import EmptyState from "../../components/admin/common/EmptyState.astro";
+import Modal from "../../components/admin/common/Modal.astro";
+---
+
+<AdminLayout title="Admin - Blog" showFooter={false}>
+  <div class="min-h-screen bg-gray-50 flex flex-col font-sans">
+    <main class="grow py-8 md:py-12 px-4">
+      <div class="max-w-275 mx-auto">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10 md:mb-12">
+          <div>
+            <h1 class="m-0 text-3xl md:text-4xl font-black text-gray-900 tracking-tight relative inline-block pb-3 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-2 after:w-2/3 after:bg-linear-to-r after:from-primary after:to-blue-400 after:rounded-full">
+              Blog Príspevky
+            </h1>
+            <p class="mt-4 text-xs text-gray-500 font-bold uppercase tracking-widest italic">
+              Správa blog príspevkov
+            </p>
+          </div>
+          <div class="flex gap-3 items-center">
+            <button id="refresh-btn" class="px-6 py-3 bg-primary hover:bg-[#0353e9] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 flex items-center gap-2 group">
+              <ArrowsRotate class="h-4 w-4 transition-transform duration-500 group-hover:rotate-180" />
+              Obnoviť
+            </button>
+            <button id="add-post-btn" class="px-6 py-3 bg-primary hover:bg-[#0353e9] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-95">
+              + Pridať príspevok
+            </button>
+          </div>
+        </div>
+
+        <div id="loading" class="hidden">
+          <Loading text="Načítavam príspevky..." />
+        </div>
+
+        <div id="posts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+        <div id="no-posts" class="hidden">
+          <EmptyState
+            title="Zatiaľ žiadne príspevky."
+            subtitle="Vytvorte prvý blog príspevok."
+          />
+        </div>
+      </div>
+    </main>
+
+    <Modal id="modal-overlay" title="Blog príspevok">
+      <form id="post-form" class="space-y-4">
+        <input type="hidden" id="post-id" />
+        
+        <input
+          type="text"
+          id="post-title"
+          required
+          class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none font-bold break-words"
+          placeholder="Názov príspevku"
+        />
+        
+        <input
+          type="text"
+          id="post-slug"
+          required
+          class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none font-mono text-sm break-all"
+          placeholder="slug-prispevku"
+        />
+        
+        <textarea
+          id="post-excerpt"
+          rows="2"
+          class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-words resize-none"
+          placeholder="Krátky popis (excerpt)..."
+        ></textarea>
+
+        <textarea
+          id="post-content"
+          rows="8"
+          required
+          class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-words resize-y"
+          placeholder="Obsah príspevku..."
+        ></textarea>
+
+        <div>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              id="post-published"
+              class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+            />
+            <span class="text-sm font-bold text-gray-700">Publikovať</span>
+          </label>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+            Obrázok (voliteľné)
+          </label>
+          <input
+            type="file"
+            id="post-image"
+            accept="image/*"
+            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm"
+          />
+        </div>
+
+        <div id="image-preview" class="hidden">
+          <img id="image-preview-img" alt="Náhľad" class="max-w-full h-auto rounded-xl border border-gray-200" />
+        </div>
+
+        <div class="flex gap-3 pt-4">
+          <button type="submit" class="flex-1 px-6 py-3 bg-primary hover:bg-[#0353e9] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-95">
+            Uložiť
+          </button>
+          <button type="button" id="modal-cancel" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-black uppercase tracking-widest text-xs rounded-xl transition-all active:scale-95">
+            Zrušiť
+          </button>
+        </div>
+      </form>
+    </Modal>
+  </div>
+</AdminLayout>
+
+<script>
+  import { initializeBlogPage, type BlogPageElements } from "../../lib/admin/blog";
+
+  const elements: BlogPageElements = {
+    container: document.getElementById("posts-container"),
+    loading: document.getElementById("loading"),
+    noPosts: document.getElementById("no-posts"),
+    form: document.getElementById("post-form") as HTMLFormElement,
+    modal: document.getElementById("modal-overlay"),
+    refreshBtn: document.getElementById("refresh-btn"),
+    addPostBtn: document.getElementById("add-post-btn"),
+    modalClose: document.querySelector("#modal-overlay .modal-close"),
+    modalCancel: document.getElementById("modal-cancel"),
+    postId: document.getElementById("post-id") as HTMLInputElement,
+    postTitle: document.getElementById("post-title") as HTMLInputElement,
+    postSlug: document.getElementById("post-slug") as HTMLInputElement,
+    postExcerpt: document.getElementById("post-excerpt") as HTMLTextAreaElement,
+    postContent: document.getElementById("post-content") as HTMLTextAreaElement,
+    postPublished: document.getElementById("post-published") as HTMLInputElement,
+    postImage: document.getElementById("post-image") as HTMLInputElement,
+    imagePreview: document.getElementById("image-preview"),
+    imagePreviewImg: document.getElementById("image-preview-img") as HTMLImageElement,
+  };
+
+  initializeBlogPage(elements);
+</script>

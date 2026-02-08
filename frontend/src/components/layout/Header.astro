@@ -1,5 +1,7 @@
 ---
 // Header component with logo and contact information
+import { Image } from "astro:assets";
+import logo from "../../assets/brand/logo.png";
 import PhoneIcon from "../icons/Phone.astro";
 import EmailIcon from "../icons/Envelope.astro";
 import LocationIcon from "../icons/LocationDot.astro";
@@ -11,10 +13,12 @@ import LocationIcon from "../icons/LocationDot.astro";
     >
         <div class="flex items-center">
             <a href="/" class="flex items-center no-underline text-inherit">
-                <img
-                    src="/images/brand/logo.png"
+                <Image
+                    src={logo}
                     alt="MK-SBD"
                     class="h-12 md:h-13 lg:h-14 w-auto aspect-square bg-white p-1.5 rounded-md shadow-sm transition-[height] duration-250 ease-in-out"
+                    width={56}
+                    height={56}
                 />
             </a>
         </div>

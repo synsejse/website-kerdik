@@ -41,6 +41,8 @@ fn rocket() -> _ {
     let figment = rocket::Config::figment()
         .merge(("port", app_config.rocket_port))
         .merge(("address", app_config.rocket_address.clone()))
+        .merge(("limits.data-form", 10 * 1024 * 1024)) // 10 MB for form data (images will be compressed)
+        .merge(("limits.file", 10 * 1024 * 1024)) // 10 MB for file uploads
         .merge((
             "databases.messages_db",
             rocket_db_pools::Config {
@@ -78,6 +80,13 @@ fn rocket() -> _ {
                 admin::create_offer,
                 admin::delete_offer,
                 admin::update_offer,
+                admin::list_blog_posts,
+                admin::list_all_blog_posts,
+                admin::get_blog_post_by_slug,
+                admin::get_blog_post_image,
+                admin::create_blog_post,
+                admin::update_blog_post,
+                admin::delete_blog_post,
             ],
         )
         .mount("/", FileServer::from(&static_dir))

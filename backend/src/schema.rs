@@ -12,6 +12,21 @@ diesel::table! {
 }
 
 diesel::table! {
+    blog_posts (id) {
+        id -> BigInt,
+        title -> Text,
+        slug -> Text,
+        excerpt -> Nullable<Text>,
+        content -> Text,
+        image -> Nullable<Binary>,
+        image_mime -> Nullable<Varchar>,
+        published -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     messages (id) {
         id -> BigInt,
         name -> Text,
@@ -52,4 +67,4 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(admin_sessions, messages, messages_archive, offers,);
+diesel::allow_tables_to_appear_in_same_query!(admin_sessions, blog_posts, messages, messages_archive, offers,);

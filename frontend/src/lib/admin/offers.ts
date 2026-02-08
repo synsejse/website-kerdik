@@ -1,11 +1,12 @@
 import { api, type OfferSummary } from "../../lib/api";
 import { escapeHtml, showConfirmDialog } from "./utils";
 
-// Extend window with admin actions
+// Leaflet type declarations
 declare global {
   interface Window {
     editOffer?: (id: number) => void;
     deleteOffer?: (id: number) => Promise<void>;
+    L?: any; // Leaflet library
   }
 }
 
@@ -29,6 +30,7 @@ export interface OffersPageElements {
   offerImage: HTMLInputElement | null;
   imagePreview: HTMLElement | null;
   imagePreviewImg: HTMLImageElement | null;
+  mapPicker: HTMLElement | null;
 }
 
 export interface OfferFormData {
@@ -45,6 +47,8 @@ export interface OfferFormData {
 export class OffersPageController {
   private elements: OffersPageElements;
   private offersData: OfferSummary[] = [];
+  private map: any = null;
+  private marker: any = null;
 
   constructor(elements: OffersPageElements) {
     this.elements = elements;
@@ -64,6 +68,8 @@ export class OffersPageController {
       modalClose,
       modalCancel,
       offerImage,
+      offerLatitude,
+      offerLongitude,
     } = this.elements;
 
     form?.addEventListener("submit", (e) => this.handleFormSubmit(e));
@@ -72,6 +78,10 @@ export class OffersPageController {
     modalClose?.addEventListener("click", () => this.closeModal());
     modalCancel?.addEventListener("click", () => this.closeModal());
     offerImage?.addEventListener("change", () => this.handleImageChange());
+
+    // Sync input fields with map
+    offerLatitude?.addEventListener("input", () => this.updateMapFromInputs());
+    offerLongitude?.addEventListener("input", () => this.updateMapFromInputs());
 
     this.setupWindowFunctions();
   }
@@ -134,15 +144,13 @@ export class OffersPageController {
     const desc = escapeHtml(offer.description ?? "");
 
     return `
-      <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/20">
-        <div class="h-32 bg-gray-100 rounded-xl mb-4 overflow-hidden border">
-          <img src="${imageUrl}" class="w-full h-full object-cover" alt="${title}" />
-        </div>
-        <h3 class="font-black text-gray-900 mb-1">${title}</h3>
-        <p class="text-xs text-gray-400 mb-4 font-mono">/${slug}</p>
-        <p class="text-sm text-gray-600 mb-4">${desc}</p>
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/20 hover:-translate-y-1">
+        ${offer.image_mime ? `<img src="${imageUrl}" alt="${title}" class="w-full h-48 object-cover rounded-lg mb-4">` : ''}
+        <h3 class="m-0 text-lg font-bold text-gray-900 leading-tight mb-3 break-words">${title}</h3>
+        <p class="text-sm text-gray-500 mb-4"><strong>Slug:</strong> <code class="bg-gray-100 px-2 py-1 rounded text-xs break-all">${slug}</code></p>
+        ${desc ? `<p class="text-sm text-gray-600 mb-4 line-clamp-3 break-words">${desc}</p>` : ''}
         <div class="flex gap-2">
-          <button onclick="window.editOffer && window.editOffer(${offer.id})" class="flex-1 py-2 bg-gray-50 hover:bg-blue-50 text-xs font-black uppercase tracking-widest rounded-lg transition-colors flex items-center justify-center gap-2">
+          <button onclick="window.editOffer && window.editOffer(${offer.id})" class="flex-1 px-3 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center justify-center gap-2">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
             </svg>
@@ -240,6 +248,9 @@ export class OffersPageController {
       imagePreviewImg.src = api.offers.getOfferImageUrl(offer.id);
     }
     if (modal) modal.classList.remove("hidden");
+    
+    // Initialize map after modal is visible
+    setTimeout(() => this.initializeMap(), 100);
   }
 
   private handleImageChange(): void {
@@ -262,6 +273,9 @@ export class OffersPageController {
     const { modal, offerId } = this.elements;
     if (offerId) offerId.value = "";
     if (modal) modal.classList.remove("hidden");
+    
+    // Initialize map after modal is visible
+    setTimeout(() => this.initializeMap(), 100);
   }
 
   private closeModal(): void {
@@ -269,6 +283,73 @@ export class OffersPageController {
     if (modal) modal.classList.add("hidden");
     if (form) form.reset();
     if (imagePreview) imagePreview.classList.add("hidden");
+  }
+
+  private initializeMap(): void {
+    const { mapPicker, offerLatitude, offerLongitude } = this.elements;
+    
+    if (!mapPicker || !window.L) return;
+
+    // If map already exists, just update it
+    if (this.map) {
+      this.updateMapFromInputs();
+      this.map.invalidateSize();
+      return;
+    }
+
+    // Default center: Slovakia (Košice area)
+    const defaultLat = 48.7164;
+    const defaultLng = 21.2611;
+    
+    // Initialize map
+    this.map = window.L.map(mapPicker).setView([defaultLat, defaultLng], 7);
+
+    // Add OpenStreetMap tiles
+    window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 19,
+    }).addTo(this.map);
+
+    // Add click handler to place marker
+    this.map.on('click', (e: any) => {
+      const { lat, lng } = e.latlng;
+      
+      // Update input fields
+      if (offerLatitude) offerLatitude.value = lat.toFixed(6);
+      if (offerLongitude) offerLongitude.value = lng.toFixed(6);
+      
+      // Update marker
+      this.updateMarker(lat, lng);
+    });
+
+    // Set initial marker if coordinates exist
+    this.updateMapFromInputs();
+  }
+
+  private updateMapFromInputs(): void {
+    const { offerLatitude, offerLongitude } = this.elements;
+    
+    if (!this.map || !offerLatitude || !offerLongitude) return;
+
+    const lat = parseFloat(offerLatitude.value);
+    const lng = parseFloat(offerLongitude.value);
+
+    if (!isNaN(lat) && !isNaN(lng)) {
+      this.updateMarker(lat, lng);
+      this.map.setView([lat, lng], 13);
+    }
+  }
+
+  private updateMarker(lat: number, lng: number): void {
+    if (!this.map || !window.L) return;
+
+    // Remove existing marker
+    if (this.marker) {
+      this.map.removeLayer(this.marker);
+    }
+
+    // Add new marker
+    this.marker = window.L.marker([lat, lng]).addTo(this.map);
   }
 }
 

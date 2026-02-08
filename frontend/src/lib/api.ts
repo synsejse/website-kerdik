@@ -46,6 +46,18 @@ export interface OfferSummary {
   longitude?: number | null;
 }
 
+export interface BlogPost {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string;
+  image_mime: string | null;
+  published: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 import { apiClient, ApiError } from "./api-client";
 
 class AdminApi {
@@ -121,6 +133,22 @@ class AdminApi {
   async deleteOffer(id: number): Promise<void> {
     return apiClient.delete<void>(`/admin/api/offers/${id}`);
   }
+
+  async createBlogPost(formData: FormData): Promise<BlogPost> {
+    return apiClient.postMultipart<BlogPost>("/admin/api/blog", formData);
+  }
+
+  async updateBlogPost(id: number, formData: FormData): Promise<void> {
+    return apiClient.putMultipart<void>(`/admin/api/blog/${id}`, formData);
+  }
+
+  async deleteBlogPost(id: number): Promise<void> {
+    return apiClient.delete<void>(`/admin/api/blog/${id}`);
+  }
+
+  async getAllBlogPosts(): Promise<BlogPost[]> {
+    return apiClient.get<BlogPost[]>("/admin/api/blog");
+  }
 }
 
 class PublicApi {
@@ -131,9 +159,24 @@ class PublicApi {
   getOfferImageUrl(id: number): string {
     return `/api/offers/${id}/image`;
   }
+
+  async getBlogPosts(): Promise<BlogPost[]> {
+    return apiClient.get<BlogPost[]>("/api/blog");
+  }
+
+  async getBlogPostBySlug(slug: string): Promise<BlogPost> {
+    return apiClient.get<BlogPost>(`/api/blog/${slug}`);
+  }
+
+  getBlogPostImageUrl(id: number): string {
+    return `/api/blog/${id}/image`;
+  }
 }
+
+const publicApi = new PublicApi();
 
 export const api = {
   admin: new AdminApi(),
-  offers: new PublicApi(),
+  offers: publicApi,
+  blog: publicApi,
 };

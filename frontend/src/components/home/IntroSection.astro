@@ -1,13 +1,14 @@
 ---
+import { Image } from "astro:assets";
+import introBanner from "../../assets/banners/intro-banner.jpg";
 import Container from "../layout/Container.astro";
+
 export interface Props {
-    imageSrc?: string;
     imageAlt?: string;
     title?: string;
 }
 
 const {
-    imageSrc = "/images/banners/intro-banner.jpg",
     imageAlt = "MK-SBD – Kvalita, spoľahlivosť, tradícia",
     title = "KVALITA / SPOĽAHLIVOSŤ / TRADÍCIA",
 } = Astro.props;
@@ -65,8 +66,8 @@ const {
             </div>
 
             <figure class="m-0">
-                <img
-                    src={imageSrc}
+                <Image
+                    src={introBanner}
                     alt={imageAlt}
                     class="w-full h-auto lg:max-h-105 rounded-xl shadow-[0_4px_16px_rgba(17,24,39,0.08)] object-cover"
                     loading="lazy"

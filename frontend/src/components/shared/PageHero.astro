@@ -1,15 +1,22 @@
 ---
+import { getImage } from "astro:assets";
+import statsImage from "../../assets/banners/stats-banner.jpg";
+
 export interface Props {
     title: string;
     imageSrc?: string;
 }
 
-const { title, imageSrc = "/images/banners/stats-banner.jpg" } = Astro.props;
+const { title, imageSrc } = Astro.props;
+
+// Use optimized image
+const defaultBanner = await getImage({ src: statsImage });
+const bannerUrl = imageSrc || defaultBanner.src;
 ---
 
 <section
     class="relative min-h-[30vh] sm:min-h-[38vh] grid place-items-center text-white bg-center bg-cover bg-no-repeat overflow-hidden"
-    style={`background-image: url('${imageSrc}')`}
+    style={`background-image: url('${bannerUrl}')`}
 >
     <div class="absolute inset-0 bg-black/40 backdrop-blur-[1px]"></div>
     <div
@@ -23,7 +30,3 @@ const { title, imageSrc = "/images/banners/stats-banner.jpg" } = Astro.props;
         <div class="mt-4 h-1.5 w-24 bg-primary mx-auto rounded-full"></div>
     </div>
 </section>
-
-<style>
-    /* Custom animation replaced by Tailwind generic animate-in */
-</style>

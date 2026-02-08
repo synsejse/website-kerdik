@@ -1,14 +1,19 @@
 ---
 // Stats section with background image, dark overlay, animated counters
+import { getImage } from "astro:assets";
+import statsImage from "../../assets/banners/stats-banner.jpg";
 import StarIcon from "../icons/Star.astro";
 import UserGroupIcon from "../icons/UserGroup.astro";
 import SquareCheckIcon from "../icons/SquareCheck.astro";
 import CalendarIcon from "../icons/Calendar.astro";
 import Container from "../layout/Container.astro";
+
+const optimizedStats = await getImage({ src: statsImage });
 ---
 
 <section
-    class="relative bg-[url('/images/banners/stats-banner.jpg')] bg-cover bg-center text-white stats-section"
+    class="relative bg-cover bg-center text-white stats-section"
+    style={`background-image: url('${optimizedStats.src}')`}
     aria-labelledby="stats-title"
 >
     <div class="absolute inset-0 bg-black/50"></div>

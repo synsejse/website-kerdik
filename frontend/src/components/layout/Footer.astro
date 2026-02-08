@@ -1,5 +1,6 @@
 ---
-
+import { Image } from "astro:assets";
+import logo from "../../assets/brand/logo.png";
 ---
 
 <footer class="bg-[#1f2937] border-t border-white/10 text-[#f9fafb]">
@@ -10,11 +11,12 @@
                 class="inline-flex items-center no-underline"
                 aria-label="Domov"
             >
-                <img
-                    src="/images/brand/logo.png"
+                <Image
+                    src={logo}
                     alt="MK-SBD"
                     class="h-12 md:h-13 lg:h-14 w-auto aspect-square bg-white p-1.5 rounded-md shadow-sm"
-                    loading="lazy"
+                    width={56}
+                    height={56}
                 />
             </a>
         </div>

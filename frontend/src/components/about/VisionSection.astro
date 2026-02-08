@@ -1,6 +1,7 @@
 ---
 import Container from "../layout/Container.astro";
-import User from "../icons/User.astro";
+import { Image } from "astro:assets";
+import miroslavKerdik from "../../assets/miroslav-kerdik.png";
 ---
 
 <section class="py-12 md:py-16 lg:py-20 bg-gray-50">
@@ -13,8 +14,14 @@ import User from "../icons/User.astro";
                 <div class="space-y-4">
                     <div class="bg-white p-6 rounded-xl shadow-sm h-full flex flex-col justify-center">
                         <div class="text-center mb-4">
-                            <div class="w-32 h-32 mx-auto bg-gray-200 rounded-full mb-4 flex items-center justify-center">
-                                <User width={64} height={64} class="text-gray-400" />
+                            <div class="w-32 h-32 mx-auto mb-4 overflow-hidden rounded-full">
+                                <Image 
+                                    src={miroslavKerdik} 
+                                    alt="Miroslav Kerdík" 
+                                    class="w-full h-full object-cover"
+                                    width={128}
+                                    height={128}
+                                />
                             </div>
                             <h3 class="text-xl font-bold text-gray-900">Miroslav Kerdík</h3>
                             <p class="text-sm text-gray-600 font-medium">Konateľ spoločnosti</p>

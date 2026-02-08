@@ -13,13 +13,14 @@ rocket = { version = "0.5.1", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 diesel = { version = "2.1.6", features = ["mysql", "r2d2", "chrono"] }
 diesel_migrations = "2.1.0"
-bcrypt = "0.15"
-uuid = { version = "1.0", features = ["v4"] }
+bcrypt = "0.18"
+uuid = { version = "1.20", features = ["v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-validator = { version = "0.16", features = ["derive"] }
-thiserror = "1.0"
+validator = { version = "0.20", features = ["derive"] }
+thiserror = "2.0"
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "gif", "webp"] }
 
 [dependencies.rocket_db_pools]
 version = "0.2.0"

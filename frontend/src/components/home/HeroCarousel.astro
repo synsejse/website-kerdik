@@ -1,30 +1,40 @@
 ---
 // Hero Carousel component with image backgrounds and content slides
+import { Image } from "astro:assets";
 import ArrowLeftIcon from "../icons/ArrowLeft.astro";
 import ArrowRightIcon from "../icons/ArrowRight.astro";
-import { type Slide } from "../../lib/components/hero-carousel";
+import carousel01 from "../../assets/carousel/carousel-01.jpg";
+import carousel02 from "../../assets/carousel/carousel-02.jpg";
+import carousel03 from "../../assets/carousel/carousel-03.jpg";
+import carousel04 from "../../assets/carousel/carousel-04.jpg";
+
+interface Slide {
+    image: any;
+    title: string;
+    description: string;
+}
 
 const slides: Slide[] = [
     {
-        image: "/images/carousel/carousel-01.jpg",
+        image: carousel01,
         title: "PROFESIONÁLNA SPRÁVA BYTOVÝCH DOMOV",
         description:
             "Komplexný výkon správy bytových domov a nebytových priestorov. Viac ako 21 rokov skúseností v oblasti správy bytov.",
     },
     {
-        image: "/images/carousel/carousel-02.jpg",
+        image: carousel02,
         title: "TECHNICKÁ A EKONOMICKÁ SPRÁVA",
         description:
             "Zabezpečenie opráv a údržby, vedenie účtovníctva, evidencia úhrad, vymáhanie nedoplatkov a spravovanie fondu prevádzky a údržby.",
     },
     {
-        image: "/images/carousel/carousel-03.jpg",
+        image: carousel03,
         title: "SPRAVUJEME 45 BYTOVÝCH DOMOV",
         description:
             "V súčasnosti zabezpečujeme správu pre 43 bytových domov, 1 rodinný dom a 1 polyfunkčný dom s celkovým počtom viac ako 1740 bytov.",
     },
     {
-        image: "/images/carousel/carousel-04.jpg",
+        image: carousel04,
         title: "SPOKOJNOSŤ NAŠICH KLIENTOV NA PRVOM MIESTE",
         description:
             "Prvoradým cieľom našej práce je spokojnosť všetkých našich klientov. Zabezpečujeme kvalitné služby a výhodné podmienky.",
@@ -46,11 +56,13 @@ const slides: Slide[] = [
                         ]}
                         data-slide={index}
                     >
-                        <img
+                        <Image
                             src={slide.image}
                             alt={slide.title}
                             class="w-full h-full object-cover block transition-transform duration-[10s] ease-linear group-[.active]:scale-110"
-                            loading="lazy"
+                            loading={index === 0 ? "eager" : "lazy"}
+                            widths={[400, 800, 1200, 1600, 2000]}
+                            sizes="100vw"
                         />
                         <div class="absolute inset-0 bg-linear-to-b from-black/60 via-black/20 to-black/70" />
                         <div class="absolute inset-0 flex flex-col justify-center items-center text-white text-center px-4 md:px-16 lg:px-32">

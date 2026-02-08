@@ -6,7 +6,7 @@ use rocket::fs::TempFile;
 use rocket::serde::{Deserialize, Serialize};
 use rocket_db_pools::diesel::prelude::*;
 
-use crate::schema::{admin_sessions, messages, messages_archive, offers};
+use crate::schema::{admin_sessions, blog_posts, messages, messages_archive, offers};
 
 /// Form data received from the contact form
 #[derive(Debug, Clone, Deserialize, Serialize, FromForm)]
@@ -231,6 +231,80 @@ pub struct AdminUpdateOfferMultipart<'r> {
     pub image: Option<TempFile<'r>>,
     pub latitude: Option<f64>,
     pub longitude: Option<f64>,
+}
+
+//
+// Blog Posts - DB models and DTOs
+//
+
+#[derive(Debug, Clone, Queryable, Selectable)]
+#[diesel(table_name = blog_posts)]
+pub struct BlogPost {
+    pub id: i64,
+    pub title: String,
+    pub slug: String,
+    pub excerpt: Option<String>,
+    pub content: String,
+    pub image: Option<Vec<u8>>,
+    pub image_mime: Option<String>,
+    pub published: bool,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Clone, Insertable)]
+#[diesel(table_name = blog_posts)]
+pub struct NewBlogPost {
+    pub title: String,
+    pub slug: String,
+    pub excerpt: Option<String>,
+    pub content: String,
+    pub image: Option<Vec<u8>>,
+    pub image_mime: Option<String>,
+    pub published: bool,
+}
+
+/// DTO used by the frontend / API for returning blog post data.
+/// Images are represented by `image_mime` and served via a separate
+/// image endpoint; handlers may inline images when necessary.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct BlogPostDto {
+    pub id: i64,
+    pub title: String,
+    pub slug: String,
+    pub excerpt: Option<String>,
+    pub content: String,
+    pub image_mime: Option<String>,
+    pub published: bool,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, FromForm)]
+pub struct AdminCreateBlogPostMultipart<'r> {
+    pub title: String,
+    pub slug: String,
+    pub excerpt: Option<String>,
+    pub content: String,
+    /// Image uploaded as file instead of base64
+    #[field(name = "image")]
+    pub image: Option<TempFile<'r>>,
+    #[field(name = "published")]
+    pub published: Option<bool>,
+}
+
+#[derive(Debug, FromForm)]
+pub struct AdminUpdateBlogPostMultipart<'r> {
+    pub title: String,
+    pub slug: String,
+    pub excerpt: Option<String>,
+    pub content: String,
+    /// Optional: Only provided if the user uploaded a new image
+    #[field(name = "image")]
+    pub image: Option<TempFile<'r>>,
+    #[field(name = "published")]
+    pub published: Option<bool>,
 }
 
 #[cfg(test)]

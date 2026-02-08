@@ -1,0 +1,99 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHero from "../components/shared/PageHero.astro";
+import Container from "../components/layout/Container.astro";
+import Loading from "../components/admin/common/Loading.astro";
+---
+
+<Layout title="Blog">
+  <PageHero title="Blog" />
+
+  <section class="bg-gray-50" aria-labelledby="blog-title">
+    <Container>
+      <h2
+        id="blog-title"
+        class="m-0 mb-8 text-2xl md:text-3xl lg:text-4xl font-bold leading-tight relative pb-2 inline-block tracking-tight after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-1.5 md:after:h-2 after:w-[58%] lg:after:w-[46%] after:bg-linear-to-r after:from-primary after:to-[#67a8ff] after:rounded-full after:shadow-[0_2px_6px_rgba(15,98,254,0.35)]"
+      >
+        Naše príspevky
+      </h2>
+
+      <div id="loading-posts" class="hidden">
+        <Loading text="Načítavam príspevky..." />
+      </div>
+
+      <div id="error-message" class="hidden text-center py-12">
+        <p class="text-gray-600">Nepodarilo sa načítať príspevky.</p>
+      </div>
+
+      <div id="no-posts" class="hidden text-center py-12">
+        <p class="text-gray-600">Zatiaľ žiadne príspevky.</p>
+      </div>
+
+      <div id="posts-container" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
+    </Container>
+  </section>
+
+  <script>
+    import { api } from "../lib/api";
+
+    async function loadBlogPosts() {
+      const loading = document.getElementById("loading-posts");
+      const error = document.getElementById("error-message");
+      const noPosts = document.getElementById("no-posts");
+      const container = document.getElementById("posts-container");
+
+      if (!container) return;
+
+      if (loading) loading.classList.remove("hidden");
+
+      try {
+        const posts = await api.blog.getBlogPosts();
+
+        if (posts.length === 0) {
+          if (noPosts) noPosts.classList.remove("hidden");
+        } else {
+          container.innerHTML = posts.map((post) => {
+            const date = new Date(post.created_at);
+            const formattedDate = date.toLocaleDateString("sk-SK", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            });
+
+            return `
+              <article class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/20 hover:-translate-y-1">
+                ${post.image_mime ? `<img src="${api.blog.getBlogPostImageUrl(post.id)}" alt="${post.title}" class="w-full h-48 object-cover">` : ''}
+                <div class="p-6">
+                  <h3 class="m-0 mb-3 text-xl font-bold text-gray-900 leading-tight break-words">
+                    <a href="/blog/post?slug=${post.slug}" class="no-underline text-inherit hover:text-primary transition-colors">
+                      ${post.title}
+                    </a>
+                  </h3>
+                  ${post.excerpt ? `<p class="text-sm text-gray-600 mb-4 line-clamp-3 break-words">${post.excerpt}</p>` : ''}
+                  <div class="flex items-center justify-between">
+                    <time class="text-xs text-gray-400" datetime="${post.created_at}">
+                      ${formattedDate}
+                    </time>
+                    <a href="/blog/post?slug=${post.slug}" class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-blue-600 transition-colors no-underline">
+                      Čítať viac
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </article>
+            `;
+          }).join("");
+        }
+      } catch (e) {
+        console.error("Error loading blog posts:", e);
+        if (error) error.classList.remove("hidden");
+      } finally {
+        if (loading) loading.classList.add("hidden");
+      }
+    }
+
+    loadBlogPosts();
+  </script>
+</Layout>

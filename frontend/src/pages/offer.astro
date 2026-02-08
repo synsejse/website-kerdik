@@ -1,12 +1,16 @@
 ---
+import { getImage } from "astro:assets";
+import offerBanner from "../assets/banners/offer-banner.jpg";
 import Layout from "../layouts/Layout.astro";
 import PageHero from "../components/shared/PageHero.astro";
 import OfferSection from "../components/shared/OfferSection.astro";
 import BlueBanner from "../components/offer/BlueBanner.astro";
+
+const optimizedBanner = await getImage({ src: offerBanner });
 ---
 
 <Layout title="Ponuka">
-    <PageHero title="Naša Ponuka" imageSrc="/images/banners/offer-banner.jpg" />
+    <PageHero title="Naša Ponuka" imageSrc={optimizedBanner.src} />
     <OfferSection />
     <BlueBanner />
 </Layout>

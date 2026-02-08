@@ -17,6 +17,10 @@ const EDIT_ICON = `<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBo
 ---
 
 <AdminLayout title="Admin - Ponuky" showFooter={false}>
+  <Fragment slot="head">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script is:inline src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  </Fragment>
   <div class="min-h-screen bg-gray-50 flex flex-col font-sans">
     <main class="grow py-8 md:py-12 px-4">
       <div class="max-w-275 mx-auto">
@@ -62,20 +66,20 @@ const EDIT_ICON = `<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBo
           type="text"
           id="offer-title"
           required
-          class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none font-bold"
+          class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none font-bold break-words"
           placeholder="Názov ponuky"
         />
         <input
           type="text"
           id="offer-slug"
           required
-          class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none font-mono text-sm"
+          class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none font-mono text-sm break-all"
           placeholder="slug-adresy"
         />
         <textarea
           id="offer-desc"
           rows="4"
-          class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm"
+          class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-words resize-none"
           placeholder="Popis..."
         ></textarea>
 
@@ -86,7 +90,7 @@ const EDIT_ICON = `<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBo
           <input
             type="url"
             id="offer-link"
-            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm"
+            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-all"
             placeholder="https://example.com"
           />
         </div>
@@ -116,6 +120,14 @@ const EDIT_ICON = `<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBo
               placeholder="19.3056"
             />
           </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
+            Alebo vyberte na mape (kliknite pre označenie)
+          </label>
+          <div id="map-picker" class="h-64 rounded-xl border border-gray-200 overflow-hidden" style="z-index: 0;"></div>
+          <p class="text-xs text-gray-500 mt-2 italic">Kliknite na mapu pre výber polohy alebo zadajte súradnice manuálne</p>
         </div>
 
         <div>
@@ -168,6 +180,7 @@ const EDIT_ICON = `<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBo
       imagePreviewImg: document.querySelector("#image-preview img") as HTMLImageElement | null,
       offerLatitude: document.getElementById("offer-latitude") as HTMLInputElement | null,
       offerLongitude: document.getElementById("offer-longitude") as HTMLInputElement | null,
+      mapPicker: document.getElementById("map-picker") as HTMLElement | null,
     };
 
     initializeOffersPage(elements);

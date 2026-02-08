@@ -89,21 +89,21 @@ export function initOfferSection(): void {
   function createOfferElement(offer: OfferSummary) {
     const article = document.createElement("article");
     article.setAttribute("role", "article");
-    article.className = "border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm flex flex-col group transition-all duration-300 hover:shadow-md hover:border-primary/30";
+    article.className = "bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/20 hover:-translate-y-1 flex flex-col";
 
     // Figure with image
     const figure = document.createElement("figure");
-    figure.className = "m-0 h-40 lg:h-44 overflow-hidden bg-gray-100 italic border-b border-gray-100";
+    figure.className = "m-0";
 
     const img = document.createElement("img");
-    img.className = "w-full h-full object-cover transition-transform duration-500 group-hover:scale-110";
-    // Use public image endpoint provided by backend
+    img.className = "w-full h-48 object-cover";
     img.src = `/api/offers/${encodeURIComponent(offer.id)}/image`;
     img.alt = offer.title || "Ponuka";
     img.loading = "lazy";
 
     img.onerror = function () {
-      img.remove();
+      // If image fails, remove the figure entirely
+      figure.remove();
     };
 
     figure.appendChild(img);
@@ -111,34 +111,73 @@ export function initOfferSection(): void {
 
     // Content
     const content = document.createElement("div");
-    content.className = "p-4 lg:p-5 flex-1 flex flex-col gap-2.5";
+    content.className = "p-6 flex flex-col flex-1";
 
     const h3 = document.createElement("h3");
-    h3.className = "m-0 text-[1.05rem] font-bold leading-tight group-hover:text-primary transition-colors";
+    h3.className = "m-0 mb-3 text-xl font-bold text-gray-900 leading-tight hover:text-primary transition-colors cursor-pointer";
     h3.textContent = offer.title || "";
 
-    // Slug displayed under the title
-    const slugEl = document.createElement("p");
-    slugEl.className = "m-0 text-xs text-gray-400 font-mono";
-    slugEl.textContent = "/" + (offer.slug || "");
-
+    // Description with expandable functionality
+    const descContainer = document.createElement("div");
+    descContainer.className = "mb-4";
+    
+    const descId = `desc-${offer.id}`;
     const p = document.createElement("p");
-    p.className = "m-0 text-[#374151] text-sm leading-relaxed";
+    p.id = descId;
+    p.className = "m-0 text-sm text-gray-600 leading-relaxed line-clamp-3 transition-all duration-300";
     p.textContent = offer.description || "";
 
+    // Check if description is long enough to need expansion
+    const needsExpansion = (offer.description || "").length > 150;
+
+    if (needsExpansion) {
+      const expandBtn = document.createElement("button");
+      expandBtn.className = "text-sm font-medium text-primary hover:text-blue-600 transition-colors mt-2";
+      expandBtn.textContent = "Zobraziť viac";
+      expandBtn.type = "button";
+      
+      expandBtn.addEventListener("click", () => {
+        const isExpanded = !p.classList.contains("line-clamp-3");
+        if (isExpanded) {
+          p.classList.add("line-clamp-3");
+          expandBtn.textContent = "Zobraziť viac";
+        } else {
+          p.classList.remove("line-clamp-3");
+          expandBtn.textContent = "Zobraziť menej";
+        }
+      });
+
+      descContainer.appendChild(p);
+      descContainer.appendChild(expandBtn);
+    } else {
+      descContainer.appendChild(p);
+    }
+
+    // Footer with link
+    const footer = document.createElement("div");
+    footer.className = "mt-auto pt-4";
+
     const a = document.createElement("a");
-    a.className = "mt-auto self-start inline-flex items-center px-4 py-2 bg-primary text-white no-underline rounded-lg text-sm font-semibold transition-colors hover:bg-[#0353e9]";
+    a.className = "inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-blue-600 transition-colors no-underline";
     if (offer && typeof offer.link === "string" && offer.link.trim() !== "") {
       a.href = offer.link;
     } else {
       a.href = "#";
+      a.addEventListener("click", (e) => e.preventDefault());
     }
-    a.textContent = "Zistiť viac";
+    
+    a.innerHTML = `
+      Viac informácií
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    `;
+
+    footer.appendChild(a);
 
     content.appendChild(h3);
-    content.appendChild(slugEl);
-    content.appendChild(p);
-    content.appendChild(a);
+    content.appendChild(descContainer);
+    content.appendChild(footer);
 
     article.appendChild(content);
     return article;
@@ -146,7 +185,7 @@ export function initOfferSection(): void {
 
   function showEmptyState() {
     if (container) {
-      container.innerHTML = '<div class="col-span-full text-center text-gray-500">Žiadne ponuky na zobrazenie.</div>';
+      container.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-gray-600">Žiadne ponuky na zobrazenie.</p></div>';
     }
   }
 
