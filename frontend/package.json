@@ -5,6 +5,7 @@
     "@astrojs/check": "^0.9.6",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.17.1",
+    "cropperjs": "^2.1.0",
     "date-fns": "^4.1.0",
     "leaflet": "^1.9.4",
     "tailwindcss": "^4.1.18",

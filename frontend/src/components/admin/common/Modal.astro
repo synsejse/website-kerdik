@@ -8,13 +8,13 @@ interface Props {
 const { id, title, show = false } = Astro.props;
 ---
 
-<div id={id} class:list={["fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4", { hidden: !show }]}>
-  <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-      <h3 class="text-lg font-black uppercase tracking-widest text-gray-900">{title}</h3>
-      <button id={`${id}-close`} class="text-2xl text-gray-400 hover:text-red-500 transition-colors">&times;</button>
+<div id={id} class:list={["fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-2 sm:p-4", { hidden: !show }]}>
+  <div class="bg-white w-full max-w-sm sm:max-w-2xl lg:max-w-4xl xl:max-w-6xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]">
+    <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+      <h3 class="text-sm sm:text-base lg:text-lg font-black uppercase tracking-widest text-gray-900">{title}</h3>
+      <button id={`${id}-close`} class="text-xl sm:text-2xl text-gray-400 hover:text-red-500 transition-colors">&times;</button>
     </div>
-    <div class="p-6">
+    <div class="p-3 sm:p-4 lg:p-6 overflow-y-auto">
       <slot />
     </div>
   </div>

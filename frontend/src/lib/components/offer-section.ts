@@ -1,5 +1,16 @@
 import { api, type OfferSummary } from "../../lib/api";
 import * as L from "leaflet";
+import markerIcon from "leaflet/dist/images/marker-icon.png?url";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png?url";
+import markerShadow from "leaflet/dist/images/marker-shadow.png?url";
+
+// Fix default icon paths for Vite/Astro
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
 
 let map: L.Map | null = null;
 let markers: L.Marker[] = [];

@@ -1,12 +1,24 @@
 import { api, type OfferSummary } from "../../lib/api";
 import { escapeHtml, showConfirmDialog } from "./utils";
+import L from "leaflet";
+import Cropper from "cropperjs";
+import markerIcon from "leaflet/dist/images/marker-icon.png?url";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png?url";
+import markerShadow from "leaflet/dist/images/marker-shadow.png?url";
 
-// Leaflet type declarations
+// Fix default icon paths for Vite/Astro
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
+
+// Global function declarations
 declare global {
   interface Window {
     editOffer?: (id: number) => void;
     deleteOffer?: (id: number) => Promise<void>;
-    L?: any; // Leaflet library
   }
 }
 
@@ -31,6 +43,10 @@ export interface OffersPageElements {
   imagePreview: HTMLElement | null;
   imagePreviewImg: HTMLImageElement | null;
   mapPicker: HTMLElement | null;
+  imageCropContainer: HTMLElement | null;
+  imageCropPreview: HTMLImageElement | null;
+  cropApply: HTMLButtonElement | null;
+  cropCancel: HTMLButtonElement | null;
 }
 
 export interface OfferFormData {
@@ -49,6 +65,8 @@ export class OffersPageController {
   private offersData: OfferSummary[] = [];
   private map: any = null;
   private marker: any = null;
+  private cropper: any = null;
+  private croppedImageBlob: Blob | null = null;
 
   constructor(elements: OffersPageElements) {
     this.elements = elements;
@@ -70,6 +88,8 @@ export class OffersPageController {
       offerImage,
       offerLatitude,
       offerLongitude,
+      cropApply,
+      cropCancel,
     } = this.elements;
 
     form?.addEventListener("submit", (e) => this.handleFormSubmit(e));
@@ -78,6 +98,8 @@ export class OffersPageController {
     modalClose?.addEventListener("click", () => this.closeModal());
     modalCancel?.addEventListener("click", () => this.closeModal());
     offerImage?.addEventListener("change", () => this.handleImageChange());
+    cropApply?.addEventListener("click", () => this.applyCrop());
+    cropCancel?.addEventListener("click", () => this.cancelCrop());
 
     // Sync input fields with map
     offerLatitude?.addEventListener("input", () => this.updateMapFromInputs());
@@ -202,12 +224,18 @@ export class OffersPageController {
 
       if (formData.id) {
         // If image is provided, update it. Otherwise, don't send the field and backend keeps existing image
-        if (formData.imageFile) {
+        if (this.croppedImageBlob) {
+          data.append("image", this.croppedImageBlob, "image.jpg");
+        } else if (formData.imageFile) {
           data.append("image", formData.imageFile);
         }
         await api.admin.updateOffer(parseInt(formData.id, 10), data);
       } else {
-        if (formData.imageFile) data.append("image", formData.imageFile);
+        if (this.croppedImageBlob) {
+          data.append("image", this.croppedImageBlob, "image.jpg");
+        } else if (formData.imageFile) {
+          data.append("image", formData.imageFile);
+        }
         await api.admin.createOffer(data);
       }
 
@@ -254,19 +282,109 @@ export class OffersPageController {
   }
 
   private handleImageChange(): void {
-    const { offerImage, imagePreview, imagePreviewImg } = this.elements;
+    const { offerImage, imageCropContainer, imageCropPreview, imagePreview } = this.elements;
     const file = offerImage?.files?.[0];
 
-    if (file && imagePreview && imagePreviewImg) {
+    if (file && imageCropContainer && imageCropPreview) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        if (e.target?.result && imagePreviewImg) {
-          imagePreviewImg.src = e.target.result as string;
-          imagePreview.classList.remove("hidden");
+        if (e.target?.result && imageCropPreview) {
+          // Destroy existing cropper if any
+          if (this.cropper) {
+            this.cropper.destroy();
+          }
+
+          // Hide final preview and show crop container
+          if (imagePreview) imagePreview.classList.add("hidden");
+          imageCropContainer.classList.remove("hidden");
+
+          // Set image source and initialize cropper
+          imageCropPreview.src = e.target.result as string;
+
+          // Wait for image to load before initializing cropper
+          imageCropPreview.onload = () => {            
+            if (imageCropPreview) {
+              this.cropper = new Cropper(imageCropPreview);
+              
+              // Set canvas to fill 100% of grid container
+              const canvas = this.cropper.getCropperCanvas();
+              if (canvas) {
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+              }
+              
+              // Set aspect ratio on the selection element (v2.x API)
+              const selection = this.cropper.getCropperSelection();
+              if (selection) {
+                selection.aspectRatio = 16 / 9;
+                selection.initialCoverage = 0.8;
+              }
+            }
+          };
         }
       };
       reader.readAsDataURL(file);
     }
+  }
+
+  private async applyCrop(): Promise<void> {
+    if (!this.cropper) return;
+
+    const { imageCropContainer, imagePreview, imagePreviewImg } = this.elements;
+
+    // Get cropped canvas using Cropper 2.x API
+    const selection = this.cropper.getCropperSelection();
+    if (!selection) return;
+
+    try {
+      const croppedCanvas = await selection.$toCanvas({
+        width: 1920,
+        height: 1080,
+      });
+
+      if (croppedCanvas && imagePreview && imagePreviewImg) {
+        // Convert canvas to blob
+        croppedCanvas.toBlob((blob: Blob | null) => {
+          if (blob) {
+            this.croppedImageBlob = blob;
+
+            // Show preview
+            imagePreviewImg.src = croppedCanvas.toDataURL();
+            imagePreview.classList.remove("hidden");
+
+            // Hide crop container
+            if (imageCropContainer) imageCropContainer.classList.add("hidden");
+
+            // Destroy cropper
+            if (this.cropper) {
+              this.cropper.destroy();
+              this.cropper = null;
+            }
+          }
+        }, 'image/jpeg', 0.95);
+      }
+    } catch (error) {
+      console.error('Error cropping image:', error);
+    }
+  }
+
+  private cancelCrop(): void {
+    const { offerImage, imageCropContainer } = this.elements;
+
+    // Destroy cropper
+    if (this.cropper) {
+      this.cropper.destroy();
+      this.cropper = null;
+    }
+
+    // Hide crop container
+    if (imageCropContainer) imageCropContainer.classList.add("hidden");
+
+    // Clear file input
+    if (offerImage) offerImage.value = "";
+
+    // Clear cropped blob
+    this.croppedImageBlob = null;
   }
 
   private openModal(): void {
@@ -279,16 +397,27 @@ export class OffersPageController {
   }
 
   private closeModal(): void {
-    const { modal, form, imagePreview } = this.elements;
+    const { modal, form, imagePreview, imageCropContainer } = this.elements;
+    
+    // Destroy cropper if exists
+    if (this.cropper) {
+      this.cropper.destroy();
+      this.cropper = null;
+    }
+    
+    // Reset cropped blob
+    this.croppedImageBlob = null;
+    
     if (modal) modal.classList.add("hidden");
     if (form) form.reset();
     if (imagePreview) imagePreview.classList.add("hidden");
+    if (imageCropContainer) imageCropContainer.classList.add("hidden");
   }
 
   private initializeMap(): void {
     const { mapPicker, offerLatitude, offerLongitude } = this.elements;
     
-    if (!mapPicker || !window.L) return;
+    if (!mapPicker) return;
 
     // If map already exists, just update it
     if (this.map) {
@@ -302,10 +431,10 @@ export class OffersPageController {
     const defaultLng = 21.2611;
     
     // Initialize map
-    this.map = window.L.map(mapPicker).setView([defaultLat, defaultLng], 7);
+    this.map = L.map(mapPicker).setView([defaultLat, defaultLng], 7);
 
     // Add OpenStreetMap tiles
-    window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       maxZoom: 19,
     }).addTo(this.map);
@@ -341,7 +470,7 @@ export class OffersPageController {
   }
 
   private updateMarker(lat: number, lng: number): void {
-    if (!this.map || !window.L) return;
+    if (!this.map) return;
 
     // Remove existing marker
     if (this.marker) {
@@ -349,7 +478,7 @@ export class OffersPageController {
     }
 
     // Add new marker
-    this.marker = window.L.marker([lat, lng]).addTo(this.map);
+    this.marker = L.marker([lat, lng]).addTo(this.map);
   }
 }
 

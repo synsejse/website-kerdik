@@ -1,5 +1,6 @@
 import { api, type BlogPost } from "../../lib/api";
 import { escapeHtml, showConfirmDialog } from "./utils";
+import Cropper from "cropperjs";
 
 // Extend window with admin actions
 declare global {
@@ -28,6 +29,10 @@ export interface BlogPageElements {
   postImage: HTMLInputElement | null;
   imagePreview: HTMLElement | null;
   imagePreviewImg: HTMLImageElement | null;
+  blogImageCropContainer: HTMLElement | null;
+  blogImageCropPreview: HTMLImageElement | null;
+  blogCropApply: HTMLButtonElement | null;
+  blogCropCancel: HTMLButtonElement | null;
 }
 
 export interface BlogFormData {
@@ -43,6 +48,8 @@ export interface BlogFormData {
 export class BlogPageController {
   private elements: BlogPageElements;
   private postsData: BlogPost[] = [];
+  private cropper: any = null;
+  private croppedImageBlob: Blob | null = null;
 
   constructor(elements: BlogPageElements) {
     this.elements = elements;
@@ -62,6 +69,8 @@ export class BlogPageController {
       modalClose,
       modalCancel,
       postImage,
+      blogCropApply,
+      blogCropCancel,
     } = this.elements;
 
     form?.addEventListener("submit", (e) => this.handleFormSubmit(e));
@@ -70,6 +79,8 @@ export class BlogPageController {
     modalClose?.addEventListener("click", () => this.closeModal());
     modalCancel?.addEventListener("click", () => this.closeModal());
     postImage?.addEventListener("change", () => this.handleImageChange());
+    blogCropApply?.addEventListener("click", () => this.applyCrop());
+    blogCropCancel?.addEventListener("click", () => this.cancelCrop());
 
     this.setupWindowFunctions();
   }
@@ -188,13 +199,19 @@ export class BlogPageController {
 
       if (formData.id) {
         // Update existing post
-        if (formData.imageFile) {
+        if (this.croppedImageBlob) {
+          data.append("image", this.croppedImageBlob, "image.jpg");
+        } else if (formData.imageFile) {
           data.append("image", formData.imageFile);
         }
         await api.admin.updateBlogPost(parseInt(formData.id, 10), data);
       } else {
         // Create new post
-        if (formData.imageFile) data.append("image", formData.imageFile);
+        if (this.croppedImageBlob) {
+          data.append("image", this.croppedImageBlob, "image.jpg");
+        } else if (formData.imageFile) {
+          data.append("image", formData.imageFile);
+        }
         await api.admin.createBlogPost(data);
       }
 
@@ -236,19 +253,109 @@ export class BlogPageController {
   }
 
   private handleImageChange(): void {
-    const { postImage, imagePreview, imagePreviewImg } = this.elements;
+    const { postImage, blogImageCropContainer, blogImageCropPreview, imagePreview } = this.elements;
     const file = postImage?.files?.[0];
 
-    if (file && imagePreview && imagePreviewImg) {
+    if (file && blogImageCropContainer && blogImageCropPreview) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        if (e.target?.result && imagePreviewImg) {
-          imagePreviewImg.src = e.target.result as string;
-          imagePreview.classList.remove("hidden");
+        if (e.target?.result && blogImageCropPreview) {
+          // Destroy existing cropper if any
+          if (this.cropper) {
+            this.cropper.destroy();
+          }
+
+          // Hide final preview and show crop container
+          if (imagePreview) imagePreview.classList.add("hidden");
+          blogImageCropContainer.classList.remove("hidden");
+
+          // Set image source and initialize cropper
+          blogImageCropPreview.src = e.target.result as string;
+
+          // Wait for image to load before initializing cropper
+          blogImageCropPreview.onload = () => {
+            if (blogImageCropPreview) {
+              this.cropper = new Cropper(blogImageCropPreview);
+              
+              // Set canvas to fill 100% of grid container
+              const canvas = this.cropper.getCropperCanvas();
+              if (canvas) {
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+              }
+              
+              // Set aspect ratio on the selection element (v2.x API)
+              const selection = this.cropper.getCropperSelection();
+              if (selection) {
+                selection.aspectRatio = 16 / 9;
+                selection.initialCoverage = 0.8;
+              }
+            }
+          };
         }
       };
       reader.readAsDataURL(file);
     }
+  }
+
+  private async applyCrop(): Promise<void> {
+    if (!this.cropper) return;
+
+    const { blogImageCropContainer, imagePreview, imagePreviewImg } = this.elements;
+
+    // Get cropped canvas using Cropper 2.x API
+    const selection = this.cropper.getCropperSelection();
+    if (!selection) return;
+
+    try {
+      const croppedCanvas = await selection.$toCanvas({
+        width: 1920,
+        height: 1080,
+      });
+
+      if (croppedCanvas && imagePreview && imagePreviewImg) {
+        // Convert canvas to blob
+        croppedCanvas.toBlob((blob: Blob | null) => {
+          if (blob) {
+            this.croppedImageBlob = blob;
+
+            // Show preview
+            imagePreviewImg.src = croppedCanvas.toDataURL();
+            imagePreview.classList.remove("hidden");
+
+            // Hide crop container
+            if (blogImageCropContainer) blogImageCropContainer.classList.add("hidden");
+
+            // Destroy cropper
+            if (this.cropper) {
+              this.cropper.destroy();
+              this.cropper = null;
+            }
+          }
+        }, 'image/jpeg', 0.95);
+      }
+    } catch (error) {
+      console.error('Error cropping image:', error);
+    }
+  }
+
+  private cancelCrop(): void {
+    const { postImage, blogImageCropContainer } = this.elements;
+
+    // Destroy cropper
+    if (this.cropper) {
+      this.cropper.destroy();
+      this.cropper = null;
+    }
+
+    // Hide crop container
+    if (blogImageCropContainer) blogImageCropContainer.classList.add("hidden");
+
+    // Clear file input
+    if (postImage) postImage.value = "";
+
+    // Clear cropped blob
+    this.croppedImageBlob = null;
   }
 
   private openModal(): void {
@@ -260,10 +367,21 @@ export class BlogPageController {
   }
 
   private closeModal(): void {
-    const { modal, form, imagePreview } = this.elements;
+    const { modal, form, imagePreview, blogImageCropContainer } = this.elements;
+    
+    // Destroy cropper if exists
+    if (this.cropper) {
+      this.cropper.destroy();
+      this.cropper = null;
+    }
+    
+    // Reset cropped blob
+    this.croppedImageBlob = null;
+    
     if (modal) modal.classList.add("hidden");
     if (form) form.reset();
     if (imagePreview) imagePreview.classList.add("hidden");
+    if (blogImageCropContainer) blogImageCropContainer.classList.add("hidden");
   }
 }
 
