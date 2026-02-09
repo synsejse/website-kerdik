@@ -3,10 +3,10 @@
 import { Image } from "astro:assets";
 import ArrowLeftIcon from "../icons/ArrowLeft.astro";
 import ArrowRightIcon from "../icons/ArrowRight.astro";
-import carousel01 from "../../assets/carousel/carousel-01.jpg";
-import carousel02 from "../../assets/carousel/carousel-02.jpg";
-import carousel03 from "../../assets/carousel/carousel-03.jpg";
-import carousel04 from "../../assets/carousel/carousel-04.jpg";
+import carousel01 from "../../assets/carousel/carousel-01.png";
+import carousel02 from "../../assets/carousel/carousel-02.png";
+import carousel03 from "../../assets/carousel/carousel-03.png";
+import carousel04 from "../../assets/carousel/carousel-04.png";
 
 interface Slide {
     image: any;
@@ -43,7 +43,7 @@ const slides: Slide[] = [
 ---
 
 <section
-    class="h-95 md:h-[60vh] lg:h-[70vh] max-h-175 relative overflow-hidden hero-carousel"
+    class="w-full aspect-[3/1] relative overflow-hidden hero-carousel"
 >
     <div class="relative h-full carousel-container">
         <div class="relative h-full slides-wrapper">

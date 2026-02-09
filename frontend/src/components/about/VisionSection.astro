@@ -12,19 +12,18 @@ import miroslavKerdik from "../../assets/miroslav-kerdik.png";
             </h2>
             <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-stretch">
                 <div class="space-y-4">
-                    <div class="bg-white p-6 rounded-xl shadow-sm h-full flex flex-col justify-center">
-                        <div class="text-center mb-4">
-                            <div class="w-32 h-32 mx-auto mb-4 overflow-hidden rounded-full">
-                                <Image 
-                                    src={miroslavKerdik} 
-                                    alt="Miroslav Kerdík" 
-                                    class="w-full h-full object-cover"
-                                    width={128}
-                                    height={128}
-                                />
-                            </div>
-                            <h3 class="text-xl font-bold text-gray-900">Miroslav Kerdík</h3>
-                            <p class="text-sm text-gray-600 font-medium">Konateľ spoločnosti</p>
+                    <div class="bg-white p-0 rounded-xl shadow-sm h-full relative overflow-hidden">
+                        <Image
+                            src={miroslavKerdik}
+                            alt="Miroslav Kerdík"
+                            class="absolute inset-0 w-full h-full object-cover"
+                            width={1200}
+                            height={600}
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/70"></div>
+                        <div class="relative z-10 p-6 flex flex-col justify-end items-center md:items-start h-full text-center md:text-left text-white">
+                            <h3 class="text-xl font-bold">Miroslav Kerdík</h3>
+                            <p class="text-sm font-medium">Konateľ spoločnosti</p>
                         </div>
                     </div>
                 </div>
