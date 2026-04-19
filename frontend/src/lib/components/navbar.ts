@@ -23,6 +23,38 @@ export function initNavbar(
   const toggle = menuToggle;
   const menu = navMenu;
 
+  function getActiveNavKey(pathname: string): string {
+    if (pathname === "/") return "home";
+    if (pathname.startsWith("/about")) return "about";
+    if (pathname.startsWith("/offer")) return "offer";
+    if (pathname.startsWith("/cennik")) return "cennik";
+    if (pathname.startsWith("/blog")) return "blog";
+    if (pathname.startsWith("/contact")) return "contact";
+    if (pathname.startsWith("/admin")) return "admin";
+    return "";
+  }
+
+  function updateActiveState(): void {
+    const activeKey = getActiveNavKey(window.location.pathname);
+
+    menu.querySelectorAll<HTMLElement>("[data-nav-key]").forEach((link) => {
+      const isActive = link.dataset.navKey === activeKey;
+      const indicator = link.querySelector<HTMLElement>(".nav-link-indicator");
+
+      link.classList.toggle("text-[#60a5fa]", isActive);
+      link.classList.toggle("bg-white/5", isActive);
+      if (isActive) {
+        link.setAttribute("aria-current", "page");
+      } else {
+        link.removeAttribute("aria-current");
+      }
+
+      if (indicator) {
+        indicator.classList.toggle("w-[80%]", isActive);
+      }
+    });
+  }
+
   function setMenu(open: boolean): void {
     toggle.setAttribute("aria-expanded", String(open));
     if (open) {
@@ -69,4 +101,6 @@ export function initNavbar(
       setMenu(false);
     }
   });
+
+  updateActiveState();
 }

@@ -18,6 +18,8 @@ import ChevronRight from "../components/icons/ChevronRight.astro";
         Naše príspevky
       </h2>
 
+      <div id="featured-post" class="hidden mb-10"></div>
+
       <div id="loading-posts" class="hidden">
         <Loading text="Načítavam príspevky..." />
       </div>
@@ -46,6 +48,7 @@ import ChevronRight from "../components/icons/ChevronRight.astro";
       const loading = document.getElementById("loading-posts");
       const error = document.getElementById("error-message");
       const noPosts = document.getElementById("no-posts");
+      const featured = document.getElementById("featured-post");
       const container = document.getElementById("posts-container");
 
       if (!container) return;
@@ -58,7 +61,33 @@ import ChevronRight from "../components/icons/ChevronRight.astro";
         if (posts.length === 0) {
           if (noPosts) noPosts.classList.remove("hidden");
         } else {
-          container.innerHTML = posts.map((post) => {
+          const [latestPost, ...otherPosts] = posts;
+
+          if (featured && latestPost) {
+            const featuredExcerpt = latestPost.excerpt
+              ? `<div class="text-sm md:text-base text-gray-600 mb-6 prose prose-sm md:prose-base max-w-none">${markdownToHtml(latestPost.excerpt)}</div>`
+              : "";
+
+            featured.innerHTML = `
+              <article class="grid gap-0 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+                ${latestPost.image_mime ? `<img src="${api.blog.getBlogPostImageUrl(latestPost.id)}" alt="${latestPost.title}" class="h-full min-h-80 w-full object-cover">` : "<div class=\"bg-linear-to-br from-primary/10 to-blue-100 min-h-80\"></div>"}
+                <div class="p-8 md:p-10">
+                  <p class="m-0 mb-3 text-xs font-black uppercase tracking-[0.15em] text-primary">Najnovší príspevok</p>
+                  <h3 class="m-0 mb-4 text-2xl md:text-3xl font-black text-gray-900 tracking-tight leading-tight">
+                    <a href="/blog/${encodeURIComponent(latestPost.slug)}" class="no-underline text-inherit hover:text-primary transition-colors">${latestPost.title}</a>
+                  </h3>
+                  ${featuredExcerpt}
+                  <a href="/blog/${encodeURIComponent(latestPost.slug)}" class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-blue-600 transition-colors no-underline">
+                    Čítať príspevok
+                    <span class="icon-chevron-right"></span>
+                  </a>
+                </div>
+              </article>
+            `;
+            featured.classList.remove("hidden");
+          }
+
+          container.innerHTML = otherPosts.map((post) => {
             const date = new Date(post.created_at);
             const formattedDate = date.toLocaleDateString("sk-SK", {
               year: "numeric",
@@ -71,7 +100,7 @@ import ChevronRight from "../components/icons/ChevronRight.astro";
                 ${post.image_mime ? `<img src="${api.blog.getBlogPostImageUrl(post.id)}" alt="${post.title}" class="w-full h-48 object-cover">` : ''}
                 <div class="p-6">
                   <h3 class="m-0 mb-3 text-xl font-bold text-gray-900 leading-tight break-words">
-                    <a href="/blog/post?slug=${post.slug}" class="no-underline text-inherit hover:text-primary transition-colors">
+                    <a href="/blog/${encodeURIComponent(post.slug)}" class="no-underline text-inherit hover:text-primary transition-colors">
                       ${post.title}
                     </a>
                   </h3>
@@ -80,7 +109,7 @@ import ChevronRight from "../components/icons/ChevronRight.astro";
                     <time class="text-xs text-gray-400" datetime="${post.created_at}">
                       ${formattedDate}
                     </time>
-                    <a href="/blog/post?slug=${post.slug}" class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-blue-600 transition-colors no-underline">
+                    <a href="/blog/${encodeURIComponent(post.slug)}" class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-blue-600 transition-colors no-underline">
                       Čítať viac
                       <span class="icon-chevron-right"></span>
                     </a>
@@ -92,8 +121,8 @@ import ChevronRight from "../components/icons/ChevronRight.astro";
 
           // Replace icon placeholders with cloned templates
           const chevronTemplate = document.getElementById('icon-chevron-right') as HTMLTemplateElement;
-          if (chevronTemplate && container) {
-            container.querySelectorAll('.icon-chevron-right').forEach((placeholder) => {
+          if (chevronTemplate) {
+            document.querySelectorAll('.icon-chevron-right').forEach((placeholder) => {
               placeholder.replaceWith(chevronTemplate.content.cloneNode(true));
             });
           }

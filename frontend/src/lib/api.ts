@@ -58,7 +58,7 @@ export interface BlogPost {
   updated_at: string;
 }
 
-import { apiClient, ApiError } from "./api-client";
+import { apiClient } from "./api-client";
 
 class AdminApi {
   async login(password: string): Promise<void> {
@@ -156,6 +156,10 @@ class PublicApi {
     return apiClient.get<OfferSummary[]>("/api/offers");
   }
 
+  async getOfferBySlug(slug: string): Promise<OfferSummary> {
+    return apiClient.get<OfferSummary>(`/api/offers/${encodeURIComponent(slug)}`);
+  }
+
   getOfferImageUrl(id: number): string {
     return `/api/offers/${id}/image`;
   }
@@ -165,7 +169,7 @@ class PublicApi {
   }
 
   async getBlogPostBySlug(slug: string): Promise<BlogPost> {
-    return apiClient.get<BlogPost>(`/api/blog/${slug}`);
+    return apiClient.get<BlogPost>(`/api/blog/${encodeURIComponent(slug)}`);
   }
 
   getBlogPostImageUrl(id: number): string {

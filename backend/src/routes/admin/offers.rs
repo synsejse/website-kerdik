@@ -201,6 +201,34 @@ pub async fn list_offers(mut db: Connection<MessagesDB>) -> AppResult<Json<Vec<O
     Ok(Json(dtos))
 }
 
+#[get("/api/offers/<slug>")]
+pub async fn get_offer_by_slug(
+    mut db: Connection<MessagesDB>,
+    slug: String,
+) -> AppResult<Json<OfferDto>> {
+    let offer: Offer = offers::table
+        .filter(offers::slug.eq(&slug))
+        .select(Offer::as_select())
+        .first(&mut db)
+        .await
+        .map_err(|e| {
+            error!("Error fetching offer by slug '{}': {}", slug, e);
+            AppError::NotFound
+        })?;
+
+    Ok(Json(OfferDto {
+        id: offer.id,
+        title: offer.title,
+        slug: offer.slug,
+        description: offer.description,
+        link: offer.link,
+        image_mime: offer.image_mime,
+        created_at: offer.created_at,
+        latitude: offer.latitude,
+        longitude: offer.longitude,
+    }))
+}
+
 #[get("/api/offers/<id>/image")]
 pub async fn get_offer_image(
     mut db: Connection<MessagesDB>,

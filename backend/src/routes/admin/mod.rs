@@ -14,4 +14,6 @@ pub use blog::{
     list_all_blog_posts, list_blog_posts, update_blog_post,
 };
 pub use messages::{archive_message, delete_message, get_messages};
-pub use offers::{create_offer, delete_offer, get_offer_image, list_offers, update_offer};
+pub use offers::{
+    create_offer, delete_offer, get_offer_by_slug, get_offer_image, list_offers, update_offer,
+};

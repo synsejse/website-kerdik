@@ -76,6 +76,7 @@ fn rocket() -> _ {
                 admin::get_archived_messages,
                 admin::permanently_delete_archived_message,
                 admin::list_offers,
+                admin::get_offer_by_slug,
                 admin::get_offer_image,
                 admin::create_offer,
                 admin::delete_offer,

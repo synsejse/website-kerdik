@@ -64,6 +64,8 @@ function initMap(offers: OfferSummary[]) {
       offersWithCoords.forEach((offer) => {
         if (offer.latitude == null || offer.longitude == null || !map) return;
 
+        const detailUrl = `/offer/${encodeURIComponent(offer.slug)}`;
+
         const marker = L.marker([offer.latitude, offer.longitude]).addTo(map);
 
         // Create popup content
@@ -71,7 +73,8 @@ function initMap(offers: OfferSummary[]) {
           <div style="max-width: 200px;">
             <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold;">${offer.title || "Objekt"}</h3>
             <div style="margin: 0; font-size: 12px; color: #666;">${offer.description ? markdownToHtml(offer.description) : ""}</div>
-            ${offer.link ? `<a href="${offer.link}" style="display: inline-block; margin-top: 8px; color: #0f62fe; font-size: 12px; font-weight: 600;">Zistiť viac →</a>` : ""}
+            <a href="${detailUrl}" style="display: inline-block; margin-top: 8px; color: #0f62fe; font-size: 12px; font-weight: 600;">Detail ponuky →</a>
+            ${offer.link ? `<a href="${offer.link}" target="_blank" rel="noopener noreferrer" style="display: inline-block; margin-top: 8px; margin-left: 12px; color: #4b5563; font-size: 12px; font-weight: 600;">Externý odkaz</a>` : ""}
           </div>
         `;
 
@@ -99,6 +102,7 @@ export function initOfferSection(): void {
   const container = document.getElementById("offers-list");
 
   function createOfferElement(offer: OfferSummary) {
+    const detailUrl = `/offer/${encodeURIComponent(offer.slug)}`;
     const article = document.createElement("article");
     article.setAttribute("role", "article");
     article.className = "bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/20 hover:-translate-y-1 flex flex-col";
@@ -118,7 +122,11 @@ export function initOfferSection(): void {
       figure.remove();
     };
 
-    figure.appendChild(img);
+    const imageLink = document.createElement("a");
+    imageLink.href = detailUrl;
+    imageLink.className = "block no-underline";
+    imageLink.appendChild(img);
+    figure.appendChild(imageLink);
     article.appendChild(figure);
 
     // Content
@@ -126,8 +134,12 @@ export function initOfferSection(): void {
     content.className = "p-6 flex flex-col flex-1";
 
     const h3 = document.createElement("h3");
-    h3.className = "m-0 mb-3 text-xl font-bold text-gray-900 leading-tight hover:text-primary transition-colors cursor-pointer";
-    h3.textContent = offer.title || "";
+    h3.className = "m-0 mb-3 text-xl font-bold text-gray-900 leading-tight";
+    const titleLink = document.createElement("a");
+    titleLink.href = detailUrl;
+    titleLink.className = "text-inherit no-underline hover:text-primary transition-colors";
+    titleLink.textContent = offer.title || "";
+    h3.appendChild(titleLink);
 
     // Description with expandable functionality
     const descContainer = document.createElement("div");
@@ -167,16 +179,11 @@ export function initOfferSection(): void {
 
     // Footer with link
     const footer = document.createElement("div");
-    footer.className = "mt-auto pt-4";
+    footer.className = "mt-auto pt-4 flex flex-wrap gap-3 items-center";
 
     const a = document.createElement("a");
     a.className = "inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-blue-600 transition-colors no-underline";
-    if (offer && typeof offer.link === "string" && offer.link.trim() !== "") {
-      a.href = offer.link;
-    } else {
-      a.href = "#";
-      a.addEventListener("click", (e) => e.preventDefault());
-    }
+    a.href = detailUrl;
     
     a.innerHTML = `
       Viac informácií
@@ -193,6 +200,16 @@ export function initOfferSection(): void {
     }
 
     footer.appendChild(a);
+
+    if (offer.link && offer.link.trim() !== "") {
+      const externalLink = document.createElement("a");
+      externalLink.href = offer.link;
+      externalLink.target = "_blank";
+      externalLink.rel = "noopener noreferrer";
+      externalLink.className = "inline-flex items-center gap-2 text-sm font-bold text-gray-600 hover:text-gray-900 transition-colors no-underline";
+      externalLink.textContent = "Externý odkaz";
+      footer.appendChild(externalLink);
+    }
 
     content.appendChild(h3);
     content.appendChild(descContainer);
