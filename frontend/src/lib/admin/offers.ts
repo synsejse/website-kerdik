@@ -182,12 +182,12 @@ export class OffersPageController {
     const desc = escapeHtml(offer.description ?? "");
 
     return `
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/20 hover:-translate-y-1">
+      <div class="h-full bg-white border border-gray-200 rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/20 hover:-translate-y-1 flex flex-col">
         ${offer.image_mime ? `<img src="${imageUrl}" alt="${title}" class="w-full h-48 object-cover rounded-lg mb-4">` : ''}
         <h3 class="m-0 text-lg font-bold text-gray-900 leading-tight mb-3 break-words">${title}</h3>
         <p class="text-sm text-gray-500 mb-4"><strong>Slug:</strong> <code class="bg-gray-100 px-2 py-1 rounded text-xs break-all">${slug}</code></p>
         ${desc ? `<p class="text-sm text-gray-600 mb-4 line-clamp-3 break-words">${desc}</p>` : ''}
-        <div class="flex gap-2">
+        <div class="mt-auto pt-4 flex gap-2">
           <button onclick="window.editOffer && window.editOffer(${offer.id})" class="flex-1 px-3 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center justify-center gap-2">
             <span class="icon-edit"></span>
             Upraviť

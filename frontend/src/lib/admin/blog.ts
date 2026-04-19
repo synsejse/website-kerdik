@@ -152,20 +152,25 @@ export class BlogPageController {
   private renderPostCard(post: BlogPost): string {
     const createdAt = new Date(post.created_at).toLocaleDateString("sk-SK");
     const statusBadge = post.published
-      ? '<span class="px-2 py-1 text-xs font-bold uppercase tracking-wider bg-green-100 text-green-700 rounded">Publikované</span>'
+      ? '<span class="absolute top-3 right-3 z-10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] bg-green-600 text-white rounded-full shadow-lg">Publikované</span>'
       : '<span class="px-2 py-1 text-xs font-bold uppercase tracking-wider bg-yellow-100 text-yellow-700 rounded">Koncept</span>';
 
     return `
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/20 hover:-translate-y-1">
-        ${post.image_mime ? `<img src="${api.blog.getBlogPostImageUrl(post.id)}" alt="${escapeHtml(post.title)}" class="w-full h-48 object-cover rounded-lg mb-4">` : ''}
+      <div class="h-full bg-white border border-gray-200 rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/20 hover:-translate-y-1 flex flex-col">
+        ${post.image_mime ? `
+          <div class="relative mb-4 overflow-hidden rounded-lg">
+            <img src="${api.blog.getBlogPostImageUrl(post.id)}" alt="${escapeHtml(post.title)}" class="w-full h-48 object-cover">
+            ${post.published ? statusBadge : ""}
+          </div>
+        ` : ''}
         <div class="flex items-start justify-between gap-4 mb-3">
           <h3 class="m-0 text-lg font-bold text-gray-900 leading-tight break-words">${escapeHtml(post.title)}</h3>
-          ${statusBadge}
+          ${post.image_mime && post.published ? "" : statusBadge}
         </div>
         <p class="text-sm text-gray-500 mb-2"><strong>Slug:</strong> <code class="bg-gray-100 px-2 py-1 rounded text-xs break-all">${escapeHtml(post.slug)}</code></p>
         ${post.excerpt ? `<p class="text-sm text-gray-600 mb-4 line-clamp-2 break-words">${escapeHtml(post.excerpt)}</p>` : ''}
         <div class="text-xs text-gray-400 mb-4">Vytvorené: ${createdAt}</div>
-        <div class="flex gap-2">
+        <div class="mt-auto pt-4 flex gap-2">
           <button onclick="window.editBlogPost && window.editBlogPost(${post.id})" class="flex-1 px-3 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center justify-center gap-2">
             <span class="icon-edit"></span>
             Upraviť
