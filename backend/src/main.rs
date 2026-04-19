@@ -88,6 +88,8 @@ fn rocket() -> _ {
                 admin::create_blog_post,
                 admin::update_blog_post,
                 admin::delete_blog_post,
+                routes::offer_detail_page,
+                routes::blog_detail_page,
             ],
         )
         .mount("/", FileServer::from(&static_dir))
