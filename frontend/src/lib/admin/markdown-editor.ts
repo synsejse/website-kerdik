@@ -59,6 +59,53 @@ function applyEditorStyling(editor: EasyMDE, textarea: HTMLTextAreaElement): voi
   }
 }
 
+function syncPreviewVisibility(editor: EasyMDE): void {
+  const wrapper = editor.codemirror.getWrapperElement();
+  const container = wrapper.parentElement;
+  const statusBar = container?.querySelector(".editor-statusbar") as HTMLElement | null;
+  const preview = container?.querySelector(".editor-preview") as HTMLElement | null;
+  const previewSide = container?.querySelector(".editor-preview-side") as HTMLElement | null;
+
+  if (!container || !preview) {
+    return;
+  }
+
+  const isSideBySide = previewSide?.classList.contains("editor-preview-active-side") ?? false;
+  const isPreviewOnly = preview.classList.contains("editor-preview-active") && !isSideBySide;
+
+  wrapper.style.display = isPreviewOnly ? "none" : "";
+  if (statusBar) {
+    statusBar.style.display = isPreviewOnly ? "none" : "";
+  }
+
+  if (!isPreviewOnly) {
+    editor.codemirror.refresh();
+  }
+}
+
+function observePreviewMode(editor: EasyMDE): void {
+  const wrapper = editor.codemirror.getWrapperElement();
+  const container = wrapper.parentElement;
+  const preview = container?.querySelector(".editor-preview") as HTMLElement | null;
+  const previewSide = container?.querySelector(".editor-preview-side") as HTMLElement | null;
+
+  if (!preview) {
+    return;
+  }
+
+  const observer = new MutationObserver(() => {
+    syncPreviewVisibility(editor);
+  });
+
+  observer.observe(preview, { attributes: true, attributeFilter: ["class"] });
+
+  if (previewSide) {
+    observer.observe(previewSide, { attributes: true, attributeFilter: ["class"] });
+  }
+
+  syncPreviewVisibility(editor);
+}
+
 function initializeEditor(textarea: HTMLTextAreaElement): void {
   if (!textarea.id || editors.has(textarea.id)) {
     return;
@@ -80,6 +127,7 @@ function initializeEditor(textarea: HTMLTextAreaElement): void {
   });
 
   applyEditorStyling(editor, textarea);
+  observePreviewMode(editor);
   editors.set(textarea.id, editor);
 }
 
