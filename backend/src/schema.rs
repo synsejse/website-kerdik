@@ -1,17 +1,6 @@
 // Database schema definition for diesel ORM
 
 diesel::table! {
-    admin_sessions (session_token) {
-        #[max_length = 36]
-        session_token -> Varchar,
-        created_at -> Nullable<Timestamp>,
-        expires_at -> Nullable<Timestamp>,
-        #[max_length = 45]
-        ip_address -> Nullable<Varchar>,
-    }
-}
-
-diesel::table! {
     blog_posts (id) {
         id -> BigInt,
         title -> Text,
@@ -103,4 +92,4 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(admin_sessions, admin_user_invites, admin_users, blog_posts, emergency_banners, messages, messages_archive, offers,);
+diesel::allow_tables_to_appear_in_same_query!(admin_user_invites, admin_users, blog_posts, emergency_banners, messages, messages_archive, offers,);
