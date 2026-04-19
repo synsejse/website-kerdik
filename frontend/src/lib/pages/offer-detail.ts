@@ -46,6 +46,7 @@ export async function initOfferDetailPage(): Promise<void> {
   try {
     const offer = await api.offers.getOfferBySlug(slug);
     document.title = `${offer.title} | MK-SBD`;
+    const detailBody = offer.content || offer.excerpt || "";
 
     content.innerHTML = `
       <div class="grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)] items-start">
@@ -67,8 +68,16 @@ export async function initOfferDetailPage(): Promise<void> {
             </div>
           ` : ""}
 
+          ${offer.excerpt ? `
+            <div class="mb-8 p-6 bg-blue-50 border-l-4 border-primary rounded-r-lg">
+              <div class="text-lg text-gray-700 italic m-0 prose max-w-none">
+                ${markdownToHtml(offer.excerpt)}
+              </div>
+            </div>
+          ` : ""}
+
           <div class="prose prose-lg max-w-none text-gray-700">
-            ${offer.description ? markdownToHtml(offer.description) : "<p>Detail ponuky bude doplnený čoskoro.</p>"}
+            ${detailBody ? markdownToHtml(detailBody) : "<p>Detail ponuky bude doplnený čoskoro.</p>"}
           </div>
         </article>
 

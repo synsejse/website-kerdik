@@ -72,7 +72,7 @@ function initMap(offers: OfferSummary[]) {
         const popupContent = `
           <div style="max-width: 200px;">
             <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold;">${offer.title || "Objekt"}</h3>
-            <div style="margin: 0; font-size: 12px; color: #666;">${offer.description ? markdownToHtml(offer.description) : ""}</div>
+            <div style="margin: 0; font-size: 12px; color: #666;">${offer.excerpt ? markdownToHtml(offer.excerpt) : offer.content ? markdownToHtml(offer.content) : ""}</div>
             <a href="${detailUrl}" style="display: inline-block; margin-top: 8px; color: #0f62fe; font-size: 12px; font-weight: 600;">Detail ponuky →</a>
             ${offer.link ? `<a href="${offer.link}" target="_blank" rel="noopener noreferrer" style="display: inline-block; margin-top: 8px; margin-left: 12px; color: #4b5563; font-size: 12px; font-weight: 600;">Externý odkaz</a>` : ""}
           </div>
@@ -144,15 +144,16 @@ export function initOfferSection(): void {
     // Description with expandable functionality
     const descContainer = document.createElement("div");
     descContainer.className = "mb-4";
+    const previewText = offer.excerpt ?? offer.content ?? "";
     
     const descId = `desc-${offer.id}`;
     const descDiv = document.createElement("div");
     descDiv.id = descId;
     descDiv.className = "m-0 text-sm text-gray-600 leading-relaxed line-clamp-3 transition-all duration-300 prose prose-sm max-w-none";
-    descDiv.innerHTML = offer.description ? markdownToHtml(offer.description) : "";
+    descDiv.innerHTML = previewText ? markdownToHtml(previewText) : "";
 
-    // Check if description is long enough to need expansion
-    const needsExpansion = (offer.description || "").length > 200;
+    // Check if preview text is long enough to need expansion
+    const needsExpansion = previewText.length > 200;
 
     if (needsExpansion) {
       const expandBtn = document.createElement("button");

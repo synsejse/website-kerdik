@@ -1,0 +1,2 @@
+ALTER TABLE offers
+ADD COLUMN excerpt TEXT NULL AFTER slug;

@@ -38,7 +38,8 @@ export interface OfferSummary {
   id: number;
   title: string;
   slug: string;
-  description: string | null;
+  excerpt: string | null;
+  content: string | null;
   link: string | null;
   image_mime: string | null;
   created_at: string;

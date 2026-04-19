@@ -168,7 +168,8 @@ pub struct Offer {
     pub id: i64,
     pub title: String,
     pub slug: String,
-    pub description: Option<String>,
+    pub excerpt: Option<String>,
+    pub content: Option<String>,
     pub link: Option<String>,
     pub image: Option<Vec<u8>>,
     pub image_mime: Option<String>,
@@ -182,7 +183,8 @@ pub struct Offer {
 pub struct NewOffer {
     pub title: String,
     pub slug: String,
-    pub description: Option<String>,
+    pub excerpt: Option<String>,
+    pub content: Option<String>,
     pub link: Option<String>,
     pub image: Option<Vec<u8>>,
     pub image_mime: Option<String>,
@@ -199,7 +201,8 @@ pub struct OfferDto {
     pub id: i64,
     pub title: String,
     pub slug: String,
-    pub description: Option<String>,
+    pub excerpt: Option<String>,
+    pub content: Option<String>,
     pub link: Option<String>,
     pub image_mime: Option<String>,
     pub created_at: NaiveDateTime,
@@ -211,7 +214,8 @@ pub struct OfferDto {
 pub struct AdminCreateOfferMultipart<'r> {
     pub title: String,
     pub slug: String,
-    pub description: Option<String>,
+    pub excerpt: Option<String>,
+    pub content: Option<String>,
     pub link: Option<String>,
     /// Image uploaded as file instead of base64
     #[field(name = "image")]
@@ -224,7 +228,8 @@ pub struct AdminCreateOfferMultipart<'r> {
 pub struct AdminUpdateOfferMultipart<'r> {
     pub title: String,
     pub slug: String,
-    pub description: Option<String>,
+    pub excerpt: Option<String>,
+    pub content: Option<String>,
     pub link: Option<String>,
     /// Optional: Only provided if the user uploaded a new image
     #[field(name = "image")]

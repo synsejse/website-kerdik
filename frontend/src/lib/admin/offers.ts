@@ -35,7 +35,8 @@ export interface OffersPageElements {
   offerId: HTMLInputElement | null;
   offerTitle: HTMLInputElement | null;
   offerSlug: HTMLInputElement | null;
-  offerDesc: HTMLTextAreaElement | null;
+  offerExcerpt: HTMLTextAreaElement | null;
+  offerContent: HTMLTextAreaElement | null;
   offerLink: HTMLInputElement | null;
   offerLatitude: HTMLInputElement | null;
   offerLongitude: HTMLInputElement | null;
@@ -53,7 +54,8 @@ export interface OfferFormData {
   id?: string;
   title: string;
   slug: string;
-  description: string;
+  excerpt: string;
+  content: string;
   link: string;
   latitude?: string;
   longitude?: string;
@@ -179,14 +181,14 @@ export class OffersPageController {
     const imageUrl = api.offers.getOfferImageUrl(offer.id);
     const title = escapeHtml(offer.title);
     const slug = escapeHtml(offer.slug);
-    const desc = escapeHtml(offer.description ?? "");
+    const excerpt = escapeHtml(offer.excerpt ?? offer.content ?? "");
 
     return `
       <div class="h-full bg-white border border-gray-200 rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/20 hover:-translate-y-1 flex flex-col">
         ${offer.image_mime ? `<img src="${imageUrl}" alt="${title}" class="w-full h-48 object-cover rounded-lg mb-4">` : ''}
         <h3 class="m-0 text-lg font-bold text-gray-900 leading-tight mb-3 break-words">${title}</h3>
         <p class="text-sm text-gray-500 mb-4"><strong>Slug:</strong> <code class="bg-gray-100 px-2 py-1 rounded text-xs break-all">${slug}</code></p>
-        ${desc ? `<p class="text-sm text-gray-600 mb-4 line-clamp-3 break-words">${desc}</p>` : ''}
+        ${excerpt ? `<p class="text-sm text-gray-600 mb-4 line-clamp-3 break-words">${excerpt}</p>` : ''}
         <div class="mt-auto pt-4 flex gap-2">
           <button onclick="window.editOffer && window.editOffer(${offer.id})" class="flex-1 px-3 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center justify-center gap-2">
             <span class="icon-edit"></span>
@@ -208,14 +210,15 @@ export class OffersPageController {
   }
 
   private getFormData(): OfferFormData {
-    const { offerId, offerTitle, offerSlug, offerDesc, offerLink, offerLatitude, offerLongitude, offerImage } =
+    const { offerId, offerTitle, offerSlug, offerExcerpt, offerContent, offerLink, offerLatitude, offerLongitude, offerImage } =
       this.elements;
 
     return {
       id: offerId?.value,
       title: offerTitle?.value || "",
       slug: offerSlug?.value || "",
-      description: offerDesc?.value || "",
+      excerpt: offerExcerpt?.value || "",
+      content: offerContent?.value || "",
       link: offerLink?.value || "",
       latitude: offerLatitude?.value || "",
       longitude: offerLongitude?.value || "",
@@ -228,8 +231,10 @@ export class OffersPageController {
       const data = new FormData();
       data.append("title", formData.title);
       data.append("slug", formData.slug);
-      if (formData.description)
-        data.append("description", formData.description);
+      if (formData.excerpt)
+        data.append("excerpt", formData.excerpt);
+      if (formData.content)
+        data.append("content", formData.content);
       if (formData.link) data.append("link", formData.link);
       if (formData.latitude) data.append("latitude", formData.latitude);
       if (formData.longitude) data.append("longitude", formData.longitude);
@@ -267,7 +272,8 @@ export class OffersPageController {
       offerId,
       offerTitle,
       offerSlug,
-      offerDesc,
+      offerExcerpt,
+      offerContent,
       offerLink,
       offerLatitude,
       offerLongitude,
@@ -279,7 +285,8 @@ export class OffersPageController {
     if (offerId) offerId.value = String(offer.id);
     if (offerTitle) offerTitle.value = offer.title;
     if (offerSlug) offerSlug.value = offer.slug;
-    if (offerDesc) offerDesc.value = offer.description || "";
+    if (offerExcerpt) offerExcerpt.value = offer.excerpt || "";
+    if (offerContent) offerContent.value = offer.content || "";
     if (offerLink) offerLink.value = offer.link || "";
     if (offerLatitude) offerLatitude.value = offer.latitude ? String(offer.latitude) : "";
     if (offerLongitude) offerLongitude.value = offer.longitude ? String(offer.longitude) : "";
