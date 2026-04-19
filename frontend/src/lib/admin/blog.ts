@@ -1,6 +1,7 @@
 import { api, type BlogPost } from "../../lib/api";
 import { escapeHtml, showConfirmDialog } from "./utils";
 import Cropper from "cropperjs";
+import { refreshMarkdownEditors, setMarkdownEditorValue } from "./markdown-editor";
 
 // Extend window with admin actions
 declare global {
@@ -259,14 +260,15 @@ export class BlogPageController {
     if (postId) postId.value = String(post.id);
     if (postTitle) postTitle.value = post.title;
     if (postSlug) postSlug.value = post.slug;
-    if (postExcerpt) postExcerpt.value = post.excerpt || "";
-    if (postContent) postContent.value = post.content;
+    if (postExcerpt) setMarkdownEditorValue(postExcerpt.id, post.excerpt || "");
+    if (postContent) setMarkdownEditorValue(postContent.id, post.content);
     if (postPublished) postPublished.checked = post.published;
     if (imagePreview && imagePreviewImg && post.image_mime) {
       imagePreview.classList.remove("hidden");
       imagePreviewImg.src = api.blog.getBlogPostImageUrl(post.id);
     }
     if (modal) modal.classList.remove("hidden");
+    requestAnimationFrame(() => refreshMarkdownEditors([postExcerpt?.id || "", postContent?.id || ""].filter(Boolean)));
   }
 
   private handleImageChange(): void {
@@ -376,15 +378,18 @@ export class BlogPageController {
   }
 
   private openModal(): void {
-    const { modal, postId, form, postPublished } = this.elements;
+    const { modal, postId, form, postPublished, postExcerpt, postContent } = this.elements;
     if (postId) postId.value = "";
     if (postPublished) postPublished.checked = false;
     if (form) form.reset();
     if (modal) modal.classList.remove("hidden");
+    if (postExcerpt) setMarkdownEditorValue(postExcerpt.id, "");
+    if (postContent) setMarkdownEditorValue(postContent.id, "");
+    requestAnimationFrame(() => refreshMarkdownEditors([postExcerpt?.id || "", postContent?.id || ""].filter(Boolean)));
   }
 
   private closeModal(): void {
-    const { modal, form, imagePreview, blogImageCropContainer } = this.elements;
+    const { modal, form, imagePreview, blogImageCropContainer, postExcerpt, postContent } = this.elements;
     
     // Destroy cropper if exists
     if (this.cropper) {
@@ -397,6 +402,8 @@ export class BlogPageController {
     
     if (modal) modal.classList.add("hidden");
     if (form) form.reset();
+    if (postExcerpt) setMarkdownEditorValue(postExcerpt.id, "");
+    if (postContent) setMarkdownEditorValue(postContent.id, "");
     if (imagePreview) imagePreview.classList.add("hidden");
     if (blogImageCropContainer) blogImageCropContainer.classList.add("hidden");
   }

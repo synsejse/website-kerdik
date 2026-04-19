@@ -2,6 +2,7 @@ import { api, type OfferSummary } from "../../lib/api";
 import { escapeHtml, showConfirmDialog } from "./utils";
 import L from "leaflet";
 import Cropper from "cropperjs";
+import { refreshMarkdownEditors, setMarkdownEditorValue } from "./markdown-editor";
 import markerIcon from "leaflet/dist/images/marker-icon.png?url";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png?url";
 import markerShadow from "leaflet/dist/images/marker-shadow.png?url";
@@ -285,8 +286,8 @@ export class OffersPageController {
     if (offerId) offerId.value = String(offer.id);
     if (offerTitle) offerTitle.value = offer.title;
     if (offerSlug) offerSlug.value = offer.slug;
-    if (offerExcerpt) offerExcerpt.value = offer.excerpt || "";
-    if (offerContent) offerContent.value = offer.content || "";
+    if (offerExcerpt) setMarkdownEditorValue(offerExcerpt.id, offer.excerpt || "");
+    if (offerContent) setMarkdownEditorValue(offerContent.id, offer.content || "");
     if (offerLink) offerLink.value = offer.link || "";
     if (offerLatitude) offerLatitude.value = offer.latitude ? String(offer.latitude) : "";
     if (offerLongitude) offerLongitude.value = offer.longitude ? String(offer.longitude) : "";
@@ -297,7 +298,10 @@ export class OffersPageController {
     if (modal) modal.classList.remove("hidden");
     
     // Initialize map after modal is visible
-    setTimeout(() => this.initializeMap(), 100);
+    setTimeout(() => {
+      this.initializeMap();
+      refreshMarkdownEditors([offerExcerpt?.id || "", offerContent?.id || ""].filter(Boolean));
+    }, 100);
   }
 
   private handleImageChange(): void {
@@ -407,16 +411,22 @@ export class OffersPageController {
   }
 
   private openModal(): void {
-    const { modal, offerId } = this.elements;
+    const { modal, offerId, form, offerExcerpt, offerContent } = this.elements;
     if (offerId) offerId.value = "";
+    if (form) form.reset();
     if (modal) modal.classList.remove("hidden");
+    if (offerExcerpt) setMarkdownEditorValue(offerExcerpt.id, "");
+    if (offerContent) setMarkdownEditorValue(offerContent.id, "");
     
     // Initialize map after modal is visible
-    setTimeout(() => this.initializeMap(), 100);
+    setTimeout(() => {
+      this.initializeMap();
+      refreshMarkdownEditors([offerExcerpt?.id || "", offerContent?.id || ""].filter(Boolean));
+    }, 100);
   }
 
   private closeModal(): void {
-    const { modal, form, imagePreview, imageCropContainer } = this.elements;
+    const { modal, form, imagePreview, imageCropContainer, offerExcerpt, offerContent } = this.elements;
     
     // Destroy cropper if exists
     if (this.cropper) {
@@ -429,6 +439,8 @@ export class OffersPageController {
     
     if (modal) modal.classList.add("hidden");
     if (form) form.reset();
+    if (offerExcerpt) setMarkdownEditorValue(offerExcerpt.id, "");
+    if (offerContent) setMarkdownEditorValue(offerContent.id, "");
     if (imagePreview) imagePreview.classList.add("hidden");
     if (imageCropContainer) imageCropContainer.classList.add("hidden");
   }
