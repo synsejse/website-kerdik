@@ -49,10 +49,10 @@ export function initAdminNavbar(): void {
     if (!logoutBtnMobile) return;
 
     try {
-      const resp = await fetch("/admin/check", { credentials: "same-origin" });
+      const resp = await fetch("/admin/status", { credentials: "same-origin" });
       if (resp.ok) {
-        const isAuth = await resp.json();
-        if (!isAuth) {
+        const status = await resp.json();
+        if (!status.authenticated) {
           logoutBtnMobile.classList.add("hidden");
         }
       }

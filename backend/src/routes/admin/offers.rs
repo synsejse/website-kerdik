@@ -1,6 +1,7 @@
 // Offer management endpoints (admin and public)
 
 use rocket::form::Form;
+use rocket::State;
 use rocket::http::{ContentType, CookieJar, Status};
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
@@ -20,11 +21,12 @@ use crate::utils::process_image_upload;
 #[post("/admin/api/offers", data = "<offer_form>")]
 pub async fn create_offer(
     mut db: Connection<MessagesDB>,
+    redis: &State<redis::Client>,
     cookies: &CookieJar<'_>,
     remote_addr: Option<SocketAddr>,
     offer_form: Form<AdminCreateOfferMultipart<'_>>,
 ) -> AppResult<Json<OfferDto>> {
-    if !is_admin_authenticated(cookies, &mut db, remote_addr).await? {
+    if !is_admin_authenticated(cookies, &mut db, redis, remote_addr).await? {
         return Err(AppError::Unauthorized);
     }
 
@@ -89,12 +91,13 @@ pub async fn create_offer(
 #[put("/admin/api/offers/<id>", data = "<update_form>")]
 pub async fn update_offer(
     mut db: Connection<MessagesDB>,
+    redis: &State<redis::Client>,
     cookies: &CookieJar<'_>,
     remote_addr: Option<SocketAddr>,
     id: i64,
     update_form: Form<AdminUpdateOfferMultipart<'_>>,
 ) -> AppResult<Status> {
-    if !is_admin_authenticated(cookies, &mut db, remote_addr).await? {
+    if !is_admin_authenticated(cookies, &mut db, redis, remote_addr).await? {
         return Err(AppError::Unauthorized);
     }
 
@@ -154,11 +157,12 @@ pub async fn update_offer(
 #[delete("/admin/api/offers/<id>")]
 pub async fn delete_offer(
     mut db: Connection<MessagesDB>,
+    redis: &State<redis::Client>,
     cookies: &CookieJar<'_>,
     remote_addr: Option<SocketAddr>,
     id: i64,
 ) -> AppResult<Status> {
-    if !is_admin_authenticated(cookies, &mut db, remote_addr).await? {
+    if !is_admin_authenticated(cookies, &mut db, redis, remote_addr).await? {
         return Err(AppError::Unauthorized);
     }
 

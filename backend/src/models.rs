@@ -6,7 +6,7 @@ use rocket::fs::TempFile;
 use rocket::serde::{Deserialize, Serialize};
 use rocket_db_pools::diesel::prelude::*;
 
-use crate::schema::{admin_sessions, blog_posts, messages, messages_archive, offers};
+use crate::schema::{admin_users, blog_posts, messages, messages_archive, offers};
 
 /// Form data received from the contact form
 #[derive(Debug, Clone, Deserialize, Serialize, FromForm)]
@@ -121,32 +121,41 @@ impl Message {
     }
 }
 
-#[derive(Debug, Clone, Insertable)]
-#[diesel(table_name = admin_sessions)]
-pub struct NewAdminSession {
-    pub session_token: String,
-    pub expires_at: Option<NaiveDateTime>,
-    pub ip_address: Option<String>,
+#[derive(Debug, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct AdminLoginRequest {
+    pub username: String,
+    pub password: String,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(crate = "rocket::serde")]
-pub struct AdminLoginRequest {
+pub struct AdminSetupRequest {
+    pub username: String,
     pub password: String,
 }
 
-pub struct AppState {
-    pub admin_password_hash: String,
+#[derive(Debug, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct AdminCreateUserRequest {
+    pub username: String,
+    pub password: String,
 }
 
-#[derive(Debug, Clone, Queryable, Selectable)]
-#[diesel(table_name = admin_sessions)]
-#[allow(dead_code)]
-pub struct AdminSession {
-    pub session_token: String,
-    pub created_at: Option<NaiveDateTime>,
-    pub expires_at: Option<NaiveDateTime>,
-    pub ip_address: Option<String>,
+#[derive(Debug, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct AdminUpdateUserRequest {
+    pub username: String,
+    pub password: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct AdminStatusResponse {
+    pub authenticated: bool,
+    pub setup_required: bool,
+    pub current_user_id: Option<i64>,
+    pub current_username: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -161,6 +170,32 @@ pub struct PaginatedMessages {
 //
 // Offers - DB models and DTOs
 //
+
+#[derive(Debug, Clone, Queryable, Selectable)]
+#[diesel(table_name = admin_users)]
+pub struct AdminUser {
+    pub id: i64,
+    pub username: String,
+    pub password_hash: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Clone, Insertable)]
+#[diesel(table_name = admin_users)]
+pub struct NewAdminUser {
+    pub username: String,
+    pub password_hash: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct AdminUserDto {
+    pub id: i64,
+    pub username: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
 
 #[derive(Debug, Clone, Queryable, Selectable)]
 #[diesel(table_name = offers)]

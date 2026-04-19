@@ -1,6 +1,7 @@
 // Active message management endpoints
 
 use rocket::http::{CookieJar, Status};
+use rocket::State;
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
 use rocket_db_pools::diesel::prelude::*;
@@ -18,12 +19,13 @@ use crate::schema::{messages, messages_archive};
 #[get("/admin/api/messages?<page>&<limit>")]
 pub async fn get_messages(
     mut db: Connection<MessagesDB>,
+    redis: &State<redis::Client>,
     cookies: &CookieJar<'_>,
     remote_addr: Option<SocketAddr>,
     page: Option<i64>,
     limit: Option<i64>,
 ) -> AppResult<Json<PaginatedMessages>> {
-    if !is_admin_authenticated(cookies, &mut db, remote_addr).await? {
+    if !is_admin_authenticated(cookies, &mut db, redis, remote_addr).await? {
         return Err(AppError::Unauthorized);
     }
 
@@ -74,12 +76,13 @@ pub async fn get_messages(
 )]
 pub async fn archive_message(
     mut db: Connection<MessagesDB>,
+    redis: &State<redis::Client>,
     cookies: &CookieJar<'_>,
     remote_addr: Option<SocketAddr>,
     id: i64,
     request: Json<ArchiveRequest>,
 ) -> AppResult<Status> {
-    if !is_admin_authenticated(cookies, &mut db, remote_addr).await? {
+    if !is_admin_authenticated(cookies, &mut db, redis, remote_addr).await? {
         return Err(AppError::Unauthorized);
     }
 
@@ -186,6 +189,7 @@ pub async fn archive_message(
 #[delete("/admin/api/messages/<id>")]
 pub async fn delete_message(
     db: Connection<MessagesDB>,
+    redis: &State<redis::Client>,
     cookies: &CookieJar<'_>,
     remote_addr: Option<SocketAddr>,
     id: i64,
@@ -196,5 +200,5 @@ pub async fn delete_message(
         action: "archive".to_string(),
     });
 
-    archive_message(db, cookies, remote_addr, id, archive_request).await
+    archive_message(db, redis, cookies, remote_addr, id, archive_request).await
 }

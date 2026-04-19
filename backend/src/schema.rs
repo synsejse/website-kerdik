@@ -68,4 +68,14 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(admin_sessions, blog_posts, messages, messages_archive, offers,);
+diesel::table! {
+    admin_users (id) {
+        id -> BigInt,
+        username -> Varchar,
+        password_hash -> Varchar,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::allow_tables_to_appear_in_same_query!(admin_sessions, admin_users, blog_posts, messages, messages_archive, offers,);

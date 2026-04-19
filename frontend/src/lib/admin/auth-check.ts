@@ -3,19 +3,40 @@
  */
 export async function checkAdminAuth(): Promise<void> {
     try {
-        const resp = await fetch("/admin/check", { credentials: "same-origin" });
-        const isAuth: boolean = resp.ok ? Boolean(await resp.json()) : false;
+        const resp = await fetch("/admin/status", { credentials: "same-origin" });
+        if (!resp.ok) {
+            throw new Error("Failed to load admin status");
+        }
+
+        const status = await resp.json() as {
+            authenticated: boolean;
+            setup_required: boolean;
+        };
+
         const path = window.location.pathname.replace(/\/+$/, "");
         const onLogin = path === "/admin/login";
+        const onSetup = path === "/admin/setup";
 
-        if (!isAuth && !onLogin) {
+        if (status.setup_required) {
+            if (!onSetup) {
+                window.location.href = "/admin/setup";
+            }
+            return;
+        }
+
+        if (onSetup) {
+            window.location.href = status.authenticated ? "/admin/messages" : "/admin/login";
+            return;
+        }
+
+        if (!status.authenticated && !onLogin) {
             window.location.href = "/admin/login";
-        } else if (isAuth && onLogin) {
+        } else if (status.authenticated && onLogin) {
             window.location.href = "/admin/messages";
         }
     } catch (e) {
         const path = window.location.pathname.replace(/\/+$/, "");
-        if (path !== "/admin/login") {
+        if (path !== "/admin/login" && path !== "/admin/setup") {
             window.location.href = "/admin/login";
         }
     }

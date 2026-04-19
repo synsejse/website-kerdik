@@ -59,16 +59,37 @@ export interface BlogPost {
   updated_at: string;
 }
 
+export interface AdminStatus {
+  authenticated: boolean;
+  setup_required: boolean;
+  current_user_id: number | null;
+  current_username: string | null;
+}
+
+export interface AdminUser {
+  id: number;
+  username: string;
+  created_at: string;
+  updated_at: string;
+}
+
 import { apiClient } from "./api-client";
 
 class AdminApi {
-  async login(password: string): Promise<void> {
-    const res = await fetch("/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
+  async getStatus(): Promise<AdminStatus> {
+    return apiClient.get<AdminStatus>("/admin/status");
+  }
+
+  async login(username: string, password: string): Promise<void> {
+    await apiClient.post<void>("/admin/login", {
+      body: JSON.stringify({ username, password }),
     });
-    if (!res.ok) throw new Error("Nesprávne heslo");
+  }
+
+  async setupFirstUser(username: string, password: string): Promise<AdminUser> {
+    return apiClient.post<AdminUser>("/admin/setup", {
+      body: JSON.stringify({ username, password }),
+    });
   }
 
   async logout(): Promise<void> {
@@ -76,8 +97,8 @@ class AdminApi {
   }
 
   async checkAuth(): Promise<boolean> {
-    const res = await fetch("/admin/check");
-    return res.ok;
+    const status = await this.getStatus();
+    return status.authenticated;
   }
 
   async getMessages(
@@ -125,6 +146,26 @@ class AdminApi {
 
   async createOffer(formData: FormData): Promise<OfferSummary> {
     return apiClient.postMultipart<OfferSummary>("/admin/api/offers", formData);
+  }
+
+  async getUsers(): Promise<AdminUser[]> {
+    return apiClient.get<AdminUser[]>("/admin/api/users");
+  }
+
+  async createUser(username: string, password: string): Promise<AdminUser> {
+    return apiClient.post<AdminUser>("/admin/api/users", {
+      body: JSON.stringify({ username, password }),
+    });
+  }
+
+  async updateUser(id: number, username: string, password?: string): Promise<void> {
+    return apiClient.put<void>(`/admin/api/users/${id}`, {
+      body: JSON.stringify({ username, password: password || null }),
+    });
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    return apiClient.delete<void>(`/admin/api/users/${id}`);
   }
 
   async updateOffer(id: number, formData: FormData): Promise<void> {

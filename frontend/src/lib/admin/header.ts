@@ -7,10 +7,10 @@ export async function initAdminHeader(): Promise<void> {
     if (!btn || !container) return;
 
     try {
-        const res = await fetch("/admin/check", { credentials: "same-origin" });
+        const res = await fetch("/admin/status", { credentials: "same-origin" });
         if (res.ok) {
-            const isAuth = await res.json();
-            if (isAuth) {
+            const status = await res.json();
+            if (status.authenticated) {
                 btn.classList.remove("hidden");
                 container.classList.remove("hidden");
             } else {

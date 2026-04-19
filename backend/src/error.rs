@@ -12,6 +12,15 @@ pub enum AppError {
     #[error("Database error: {0}")]
     Database(#[from] diesel::result::Error),
 
+    #[error("Redis error: {0}")]
+    Redis(#[from] redis::RedisError),
+
+    #[error("Serialization error: {0}")]
+    Serialization(#[from] serde_json::Error),
+
+    #[error("Password hashing error: {0}")]
+    PasswordHash(#[from] bcrypt::BcryptError),
+
     #[error("Database pool error: {0}")]
     DatabasePool(#[from] rocket::tokio::task::JoinError),
 
@@ -36,6 +45,9 @@ impl AppError {
     pub fn status(&self) -> Status {
         match self {
             AppError::Database(_) => Status::InternalServerError,
+            AppError::Redis(_) => Status::InternalServerError,
+            AppError::Serialization(_) => Status::InternalServerError,
+            AppError::PasswordHash(_) => Status::InternalServerError,
             AppError::DatabasePool(_) => Status::InternalServerError,
             AppError::InvalidInput(_) => Status::BadRequest,
             AppError::Unauthorized => Status::Unauthorized,
@@ -49,7 +61,12 @@ impl AppError {
     pub fn should_log_as_error(&self) -> bool {
         matches!(
             self,
-            AppError::Database(_) | AppError::DatabasePool(_) | AppError::Io(_)
+            AppError::Database(_)
+                | AppError::Redis(_)
+                | AppError::Serialization(_)
+                | AppError::PasswordHash(_)
+                | AppError::DatabasePool(_)
+                | AppError::Io(_)
         )
     }
 }
@@ -75,9 +92,3 @@ impl<'r> Responder<'r, 'r> for AppError {
 
 /// Result type alias for the application
 pub type AppResult<T> = Result<T, AppError>;
-
-impl From<bcrypt::BcryptError> for AppError {
-    fn from(_: bcrypt::BcryptError) -> Self {
-        AppError::Unauthorized
-    }
-}

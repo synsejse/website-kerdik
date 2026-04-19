@@ -1,0 +1,96 @@
+---
+import AdminLayout from "../../layouts/admin/Layout.astro";
+import Edit from "../../components/icons/Edit.astro";
+import Trash from "../../components/icons/Trash.astro";
+import Loading from "../../components/admin/common/Loading.astro";
+import EmptyState from "../../components/admin/common/EmptyState.astro";
+import Modal from "../../components/admin/common/Modal.astro";
+---
+
+<AdminLayout title="Admin - Používatelia" showFooter={false}>
+  <div class="min-h-screen bg-gray-50 flex flex-col font-sans">
+    <main class="grow py-8 md:py-12 px-4">
+      <div class="max-w-275 mx-auto">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10 md:mb-12">
+          <div>
+            <h1 class="m-0 text-3xl md:text-4xl font-black text-gray-900 tracking-tight relative inline-block pb-3 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-2 after:w-2/3 after:bg-linear-to-r after:from-primary after:to-blue-400 after:rounded-full">
+              Používatelia
+            </h1>
+            <p class="mt-4 text-xs text-gray-500 font-bold uppercase tracking-widest italic">
+              Správa administrátorských účtov
+            </p>
+          </div>
+          <button id="add-user-btn" class="px-6 py-3 bg-primary hover:bg-[#0353e9] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-95">
+            + Pridať používateľa
+          </button>
+        </div>
+
+        <div id="loading" class="hidden">
+          <Loading text="Načítavam používateľov..." />
+        </div>
+
+        <div id="users-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+        <div id="no-users" class="hidden">
+          <EmptyState title="Zatiaľ nie sú vytvorení žiadni ďalší používatelia." subtitle="Pridajte prvý dodatočný účet." />
+        </div>
+      </div>
+    </main>
+
+    <template id="icon-edit">
+      <Edit class="h-4 w-4" />
+    </template>
+    <template id="icon-trash">
+      <Trash class="h-4 w-4" />
+    </template>
+
+    <Modal id="user-modal-overlay" title="Používateľ">
+      <form id="user-form" class="space-y-4">
+        <input type="hidden" id="user-id" />
+
+        <div>
+          <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1" for="user-username">
+            Používateľské meno
+          </label>
+          <input type="text" id="user-username" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm font-bold" placeholder="admin" />
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1" for="user-password">
+            Heslo
+          </label>
+          <input type="password" id="user-password" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm" placeholder="Pri úprave nechajte prázdne pre zachovanie" />
+        </div>
+
+        <p class="m-0 text-xs text-gray-500 italic">Pri úprave používateľa môžete pole hesla nechať prázdne a heslo sa nezmení.</p>
+
+        <div class="pt-4 flex justify-end gap-3 border-t border-gray-100 mt-6">
+          <button type="button" id="user-modal-cancel" class="px-4 py-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-gray-700 transition-colors">
+            Zrušiť
+          </button>
+          <button type="submit" class="px-6 py-2.5 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-[#0353e9] transition-all shadow-lg hover:shadow-xl active:scale-95">
+            Uložiť
+          </button>
+        </div>
+      </form>
+    </Modal>
+  </div>
+
+  <script>
+    import { initializeUsersPage } from "../../lib/admin/users";
+
+    initializeUsersPage({
+      container: document.getElementById("users-container") as HTMLElement | null,
+      loading: document.getElementById("loading") as HTMLElement | null,
+      noUsers: document.getElementById("no-users") as HTMLElement | null,
+      addUserBtn: document.getElementById("add-user-btn") as HTMLButtonElement | null,
+      modal: document.getElementById("user-modal-overlay") as HTMLElement | null,
+      modalClose: document.getElementById("user-modal-overlay-close") as HTMLButtonElement | null,
+      modalCancel: document.getElementById("user-modal-cancel") as HTMLButtonElement | null,
+      form: document.getElementById("user-form") as HTMLFormElement | null,
+      userId: document.getElementById("user-id") as HTMLInputElement | null,
+      username: document.getElementById("user-username") as HTMLInputElement | null,
+      password: document.getElementById("user-password") as HTMLInputElement | null,
+    });
+  </script>
+</AdminLayout>

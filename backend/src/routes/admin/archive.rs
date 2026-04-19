@@ -1,6 +1,7 @@
 // Archived message management endpoints
 
 use rocket::http::{CookieJar, Status};
+use rocket::State;
 use rocket::serde::json::Json;
 use rocket::serde::{Deserialize, Serialize};
 use rocket_db_pools::Connection;
@@ -26,12 +27,13 @@ pub struct PaginatedArchivedMessages {
 #[get("/admin/api/archived/messages?<page>&<limit>")]
 pub async fn get_archived_messages(
     mut db: Connection<MessagesDB>,
+    redis: &State<redis::Client>,
     cookies: &CookieJar<'_>,
     remote_addr: Option<SocketAddr>,
     page: Option<i64>,
     limit: Option<i64>,
 ) -> AppResult<Json<PaginatedArchivedMessages>> {
-    if !is_admin_authenticated(cookies, &mut db, remote_addr).await? {
+    if !is_admin_authenticated(cookies, &mut db, redis, remote_addr).await? {
         return Err(AppError::Unauthorized);
     }
 
@@ -78,11 +80,12 @@ pub async fn get_archived_messages(
 #[delete("/admin/api/archived/messages/<id>")]
 pub async fn permanently_delete_archived_message(
     mut db: Connection<MessagesDB>,
+    redis: &State<redis::Client>,
     cookies: &CookieJar<'_>,
     remote_addr: Option<SocketAddr>,
     id: i64,
 ) -> AppResult<Status> {
-    if !is_admin_authenticated(cookies, &mut db, remote_addr).await? {
+    if !is_admin_authenticated(cookies, &mut db, redis, remote_addr).await? {
         return Err(AppError::Unauthorized);
     }
 

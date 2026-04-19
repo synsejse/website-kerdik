@@ -1,6 +1,7 @@
 // Blog post management endpoints (admin and public)
 
 use rocket::form::Form;
+use rocket::State;
 use rocket::http::{ContentType, CookieJar, Status};
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
@@ -20,11 +21,12 @@ use crate::utils::process_image_upload;
 #[post("/admin/api/blog", data = "<post_form>")]
 pub async fn create_blog_post(
     mut db: Connection<MessagesDB>,
+    redis: &State<redis::Client>,
     cookies: &CookieJar<'_>,
     remote_addr: Option<SocketAddr>,
     post_form: Form<AdminCreateBlogPostMultipart<'_>>,
 ) -> AppResult<Json<BlogPostDto>> {
-    if !is_admin_authenticated(cookies, &mut db, remote_addr).await? {
+    if !is_admin_authenticated(cookies, &mut db, redis, remote_addr).await? {
         return Err(AppError::Unauthorized);
     }
 
@@ -86,12 +88,13 @@ pub async fn create_blog_post(
 #[put("/admin/api/blog/<id>", data = "<update_form>")]
 pub async fn update_blog_post(
     mut db: Connection<MessagesDB>,
+    redis: &State<redis::Client>,
     cookies: &CookieJar<'_>,
     remote_addr: Option<SocketAddr>,
     id: i64,
     update_form: Form<AdminUpdateBlogPostMultipart<'_>>,
 ) -> AppResult<Status> {
-    if !is_admin_authenticated(cookies, &mut db, remote_addr).await? {
+    if !is_admin_authenticated(cookies, &mut db, redis, remote_addr).await? {
         return Err(AppError::Unauthorized);
     }
 
@@ -149,11 +152,12 @@ pub async fn update_blog_post(
 #[delete("/admin/api/blog/<id>")]
 pub async fn delete_blog_post(
     mut db: Connection<MessagesDB>,
+    redis: &State<redis::Client>,
     cookies: &CookieJar<'_>,
     remote_addr: Option<SocketAddr>,
     id: i64,
 ) -> AppResult<Status> {
-    if !is_admin_authenticated(cookies, &mut db, remote_addr).await? {
+    if !is_admin_authenticated(cookies, &mut db, redis, remote_addr).await? {
         return Err(AppError::Unauthorized);
     }
 
@@ -204,10 +208,11 @@ pub async fn list_blog_posts(mut db: Connection<MessagesDB>) -> AppResult<Json<V
 #[get("/admin/api/blog")]
 pub async fn list_all_blog_posts(
     mut db: Connection<MessagesDB>,
+    redis: &State<redis::Client>,
     cookies: &CookieJar<'_>,
     remote_addr: Option<SocketAddr>,
 ) -> AppResult<Json<Vec<BlogPostDto>>> {
-    if !is_admin_authenticated(cookies, &mut db, remote_addr).await? {
+    if !is_admin_authenticated(cookies, &mut db, redis, remote_addr).await? {
         return Err(AppError::Unauthorized);
     }
 

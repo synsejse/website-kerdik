@@ -17,7 +17,6 @@ use rocket_db_pools::Database;
 
 use config::AppConfig;
 use db::MessagesDB;
-use models::AppState;
 use routes::{admin, contact};
 
 #[rocket::launch]
@@ -31,12 +30,8 @@ fn rocket() -> _ {
         .init();
 
     let app_config = AppConfig::load();
-
-    if app_config.admin_password_hash.is_empty() {
-        tracing::warn!("ADMIN_PASSWORD_HASH is not set. Admin login will be disabled.");
-    } else {
-        tracing::info!("Admin authentication is enabled");
-    }
+    let redis_client =
+        redis::Client::open(app_config.redis_url.clone()).expect("Invalid REDIS_URL configuration");
 
     let figment = rocket::Config::figment()
         .merge(("port", app_config.rocket_port))
@@ -58,9 +53,7 @@ fn rocket() -> _ {
     let static_dir = app_config.static_dir.clone();
 
     rocket::custom(figment)
-        .manage(AppState {
-            admin_password_hash: app_config.admin_password_hash,
-        })
+        .manage(redis_client)
         .attach(MessagesDB::init())
         .attach(AdHoc::on_ignite("Database Migrations", db::run_migrations))
         .mount("/", routes![contact::submit_message])
@@ -70,6 +63,8 @@ fn rocket() -> _ {
                 admin::admin_login,
                 admin::admin_logout,
                 admin::admin_check,
+                admin::admin_status,
+                admin::admin_setup,
                 admin::get_messages,
                 admin::delete_message,
                 admin::archive_message,
@@ -88,6 +83,10 @@ fn rocket() -> _ {
                 admin::create_blog_post,
                 admin::update_blog_post,
                 admin::delete_blog_post,
+                admin::list_admin_users,
+                admin::create_admin_user,
+                admin::update_admin_user,
+                admin::delete_admin_user,
                 routes::offer_detail_page,
                 routes::blog_detail_page,
             ],
