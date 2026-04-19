@@ -63,8 +63,10 @@ function syncPreviewVisibility(editor: EasyMDE): void {
   const wrapper = editor.codemirror.getWrapperElement();
   const container = wrapper.parentElement;
   const statusBar = container?.querySelector(".editor-statusbar") as HTMLElement | null;
-  const preview = container?.querySelector(".editor-preview") as HTMLElement | null;
+  const preview = container?.querySelector(".editor-preview-full") as HTMLElement | null;
   const previewSide = container?.querySelector(".editor-preview-side") as HTMLElement | null;
+  const scroll = wrapper.querySelector(".CodeMirror-scroll") as HTMLElement | null;
+  const gutters = wrapper.querySelector(".CodeMirror-gutters") as HTMLElement | null;
 
   if (!container || !preview) {
     return;
@@ -73,7 +75,15 @@ function syncPreviewVisibility(editor: EasyMDE): void {
   const isSideBySide = previewSide?.classList.contains("editor-preview-active-side") ?? false;
   const isPreviewOnly = preview.classList.contains("editor-preview-active") && !isSideBySide;
 
-  wrapper.style.display = isPreviewOnly ? "none" : "";
+  if (scroll) {
+    scroll.style.visibility = isPreviewOnly ? "hidden" : "";
+    scroll.style.pointerEvents = isPreviewOnly ? "none" : "";
+  }
+
+  if (gutters) {
+    gutters.style.visibility = isPreviewOnly ? "hidden" : "";
+  }
+
   if (statusBar) {
     statusBar.style.display = isPreviewOnly ? "none" : "";
   }
@@ -86,7 +96,7 @@ function syncPreviewVisibility(editor: EasyMDE): void {
 function observePreviewMode(editor: EasyMDE): void {
   const wrapper = editor.codemirror.getWrapperElement();
   const container = wrapper.parentElement;
-  const preview = container?.querySelector(".editor-preview") as HTMLElement | null;
+  const preview = container?.querySelector(".editor-preview-full") as HTMLElement | null;
   const previewSide = container?.querySelector(".editor-preview-side") as HTMLElement | null;
 
   if (!preview) {
@@ -119,7 +129,7 @@ function initializeEditor(textarea: HTMLTextAreaElement): void {
     status: ["lines", "words"],
     toolbar: createToolbar(),
     promptURLs: true,
-    previewClass: ["prose", "prose-sm", "sm:prose-base", "max-w-none", "p-4"],
+    previewClass: ["editor-preview", "prose", "prose-sm", "sm:prose-base", "max-w-none", "p-4", "bg-white"],
     sideBySideFullscreen: false,
     inputStyle: "contenteditable",
     nativeSpellcheck: false,
