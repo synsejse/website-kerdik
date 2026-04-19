@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import Header from "../components/layout/Header.astro";
 import Navbar from "../components/layout/Navbar.astro";
+import EmergencyBanner from "../components/shared/EmergencyBanner.astro";
 import Footer from "../components/layout/Footer.astro";
 import ScrollTop from "../components/shared/ScrollTop.astro";
 
@@ -38,6 +39,7 @@ const pageTitle = title === "Úvod" ? "MK-SBD s.r.o." : `MK-SBD - ${title}`;
             className,
         ]}
     >
+        <EmergencyBanner />
         {
             showHeader && (
                 <div class="sticky top-0 z-50 bg-white shadow-md">

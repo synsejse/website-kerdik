@@ -17,12 +17,17 @@ import Modal from "../../components/admin/common/Modal.astro";
               Používatelia
             </h1>
             <p class="mt-4 text-xs text-gray-500 font-bold uppercase tracking-widest italic">
-              Správa administrátorských účtov
+              Správa administrátorských účtov a pozvánok
             </p>
           </div>
-          <button id="add-user-btn" class="px-6 py-3 bg-primary hover:bg-[#0353e9] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-95">
-            + Pridať používateľa
-          </button>
+          <div class="flex flex-wrap gap-3">
+            <button id="invite-user-btn" class="px-6 py-3 bg-white border border-primary/20 hover:border-primary/40 text-primary font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95">
+              + Vytvoriť pozvánku
+            </button>
+            <button id="add-user-btn" class="px-6 py-3 bg-primary hover:bg-[#0353e9] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-95">
+              + Pridať používateľa
+            </button>
+          </div>
         </div>
 
         <div id="loading" class="hidden">
@@ -34,6 +39,21 @@ import Modal from "../../components/admin/common/Modal.astro";
         <div id="no-users" class="hidden">
           <EmptyState title="Zatiaľ nie sú vytvorení žiadni ďalší používatelia." subtitle="Pridajte prvý dodatočný účet." />
         </div>
+
+        <section class="mt-14">
+          <div class="mb-6">
+            <h2 class="m-0 text-2xl font-black text-gray-900 tracking-tight">Aktívne pozvánky</h2>
+            <p class="mt-3 text-xs text-gray-500 font-bold uppercase tracking-widest italic">
+              Nový používateľ si účet dokončí cez jednorazový odkaz
+            </p>
+          </div>
+
+          <div id="invites-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+          <div id="no-invites" class="hidden">
+            <EmptyState title="Momentálne nie sú vytvorené žiadne pozvánky." subtitle="Vytvorte pozvánku pre nového administrátora." />
+          </div>
+        </section>
       </div>
     </main>
 
@@ -74,6 +94,28 @@ import Modal from "../../components/admin/common/Modal.astro";
         </div>
       </form>
     </Modal>
+
+    <Modal id="invite-modal-overlay" title="Pozvať používateľa">
+      <form id="invite-form" class="space-y-4">
+        <div>
+          <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1" for="invite-username">
+            Používateľské meno
+          </label>
+          <input type="text" id="invite-username" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm font-bold" placeholder="novy-admin" />
+        </div>
+
+        <p class="m-0 text-xs text-gray-500 italic">Pozvánka je platná 72 hodín. Nový používateľ si po otvorení odkazu nastaví vlastné heslo.</p>
+
+        <div class="pt-4 flex justify-end gap-3 border-t border-gray-100 mt-6">
+          <button type="button" id="invite-modal-cancel" class="px-4 py-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-gray-700 transition-colors">
+            Zrušiť
+          </button>
+          <button type="submit" class="px-6 py-2.5 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-[#0353e9] transition-all shadow-lg hover:shadow-xl active:scale-95">
+            Vytvoriť pozvánku
+          </button>
+        </div>
+      </form>
+    </Modal>
   </div>
 
   <script>
@@ -83,7 +125,10 @@ import Modal from "../../components/admin/common/Modal.astro";
       container: document.getElementById("users-container") as HTMLElement | null,
       loading: document.getElementById("loading") as HTMLElement | null,
       noUsers: document.getElementById("no-users") as HTMLElement | null,
+      invitesContainer: document.getElementById("invites-container") as HTMLElement | null,
+      noInvites: document.getElementById("no-invites") as HTMLElement | null,
       addUserBtn: document.getElementById("add-user-btn") as HTMLButtonElement | null,
+      inviteUserBtn: document.getElementById("invite-user-btn") as HTMLButtonElement | null,
       modal: document.getElementById("user-modal-overlay") as HTMLElement | null,
       modalClose: document.getElementById("user-modal-overlay-close") as HTMLButtonElement | null,
       modalCancel: document.getElementById("user-modal-cancel") as HTMLButtonElement | null,
@@ -91,6 +136,11 @@ import Modal from "../../components/admin/common/Modal.astro";
       userId: document.getElementById("user-id") as HTMLInputElement | null,
       username: document.getElementById("user-username") as HTMLInputElement | null,
       password: document.getElementById("user-password") as HTMLInputElement | null,
+      inviteModal: document.getElementById("invite-modal-overlay") as HTMLElement | null,
+      inviteModalClose: document.getElementById("invite-modal-overlay-close") as HTMLButtonElement | null,
+      inviteModalCancel: document.getElementById("invite-modal-cancel") as HTMLButtonElement | null,
+      inviteForm: document.getElementById("invite-form") as HTMLFormElement | null,
+      inviteUsername: document.getElementById("invite-username") as HTMLInputElement | null,
     });
   </script>
 </AdminLayout>

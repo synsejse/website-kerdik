@@ -78,4 +78,29 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(admin_sessions, admin_users, blog_posts, messages, messages_archive, offers,);
+diesel::table! {
+    admin_user_invites (id) {
+        id -> BigInt,
+        username -> Varchar,
+        token -> Varchar,
+        expires_at -> Timestamp,
+        created_at -> Timestamp,
+        created_by -> Nullable<BigInt>,
+    }
+}
+
+diesel::table! {
+    emergency_banners (id) {
+        id -> BigInt,
+        title -> Varchar,
+        message -> Text,
+        tone -> Varchar,
+        link_label -> Nullable<Varchar>,
+        link_url -> Nullable<Text>,
+        is_active -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::allow_tables_to_appear_in_same_query!(admin_sessions, admin_user_invites, admin_users, blog_posts, emergency_banners, messages, messages_archive, offers,);

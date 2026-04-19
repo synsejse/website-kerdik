@@ -73,6 +73,27 @@ export interface AdminUser {
   updated_at: string;
 }
 
+export interface AdminUserInvite {
+  id: number;
+  username: string;
+  token: string;
+  invite_path: string;
+  expires_at: string;
+  created_at: string;
+}
+
+export interface EmergencyBanner {
+  id: number;
+  title: string;
+  message: string;
+  tone: "critical" | "warning" | "info" | string;
+  link_label: string | null;
+  link_url: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 import { apiClient } from "./api-client";
 
 class AdminApi {
@@ -89,6 +110,18 @@ class AdminApi {
   async setupFirstUser(username: string, password: string): Promise<AdminUser> {
     return apiClient.post<AdminUser>("/admin/setup", {
       body: JSON.stringify({ username, password }),
+    });
+  }
+
+  async getInviteStatus(token: string): Promise<AdminUserInvite> {
+    return apiClient.get<AdminUserInvite>("/admin/invite/status", {
+      params: { token },
+    });
+  }
+
+  async acceptInvite(token: string, password: string): Promise<AdminUser> {
+    return apiClient.post<AdminUser>("/admin/invite/accept", {
+      body: JSON.stringify({ token, password }),
     });
   }
 
@@ -152,6 +185,41 @@ class AdminApi {
     return apiClient.get<AdminUser[]>("/admin/api/users");
   }
 
+  async getInvites(): Promise<AdminUserInvite[]> {
+    return apiClient.get<AdminUserInvite[]>("/admin/api/users/invites");
+  }
+
+  async createInvite(username: string): Promise<AdminUserInvite> {
+    return apiClient.post<AdminUserInvite>("/admin/api/users/invites", {
+      body: JSON.stringify({ username }),
+    });
+  }
+
+  async deleteInvite(id: number): Promise<void> {
+    return apiClient.delete<void>(`/admin/api/users/invites/${id}`);
+  }
+
+  async getEmergencyBanner(): Promise<EmergencyBanner | null> {
+    return apiClient.get<EmergencyBanner | null>("/admin/api/emergency-banner");
+  }
+
+  async saveEmergencyBanner(payload: {
+    title: string;
+    message: string;
+    tone: string;
+    link_label: string;
+    link_url: string;
+    is_active: boolean;
+  }): Promise<EmergencyBanner> {
+    return apiClient.put<EmergencyBanner>("/admin/api/emergency-banner", {
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async deleteEmergencyBanner(): Promise<void> {
+    return apiClient.delete<void>("/admin/api/emergency-banner");
+  }
+
   async createUser(username: string, password: string): Promise<AdminUser> {
     return apiClient.post<AdminUser>("/admin/api/users", {
       body: JSON.stringify({ username, password }),
@@ -208,6 +276,10 @@ class PublicApi {
 
   async getBlogPosts(): Promise<BlogPost[]> {
     return apiClient.get<BlogPost[]>("/api/blog");
+  }
+
+  async getEmergencyBanner(): Promise<EmergencyBanner | null> {
+    return apiClient.get<EmergencyBanner | null>("/api/emergency-banner");
   }
 
   async getBlogPostBySlug(slug: string): Promise<BlogPost> {

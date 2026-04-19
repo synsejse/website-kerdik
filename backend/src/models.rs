@@ -6,7 +6,10 @@ use rocket::fs::TempFile;
 use rocket::serde::{Deserialize, Serialize};
 use rocket_db_pools::diesel::prelude::*;
 
-use crate::schema::{admin_users, blog_posts, messages, messages_archive, offers};
+use crate::schema::{
+    admin_user_invites, admin_users, blog_posts, emergency_banners, messages,
+    messages_archive, offers,
+};
 
 /// Form data received from the contact form
 #[derive(Debug, Clone, Deserialize, Serialize, FromForm)]
@@ -149,6 +152,30 @@ pub struct AdminUpdateUserRequest {
     pub password: Option<String>,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct AdminCreateInviteRequest {
+    pub username: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct AdminAcceptInviteRequest {
+    pub token: String,
+    pub password: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct AdminUpsertEmergencyBannerRequest {
+    pub title: String,
+    pub message: String,
+    pub tone: String,
+    pub link_label: Option<String>,
+    pub link_url: Option<String>,
+    pub is_active: bool,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct AdminStatusResponse {
@@ -193,6 +220,77 @@ pub struct NewAdminUser {
 pub struct AdminUserDto {
     pub id: i64,
     pub username: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Clone, Queryable, Selectable)]
+#[diesel(table_name = admin_user_invites)]
+#[allow(dead_code)]
+pub struct AdminUserInvite {
+    pub id: i64,
+    pub username: String,
+    pub token: String,
+    pub expires_at: NaiveDateTime,
+    pub created_at: NaiveDateTime,
+    pub created_by: Option<i64>,
+}
+
+#[derive(Debug, Clone, Insertable)]
+#[diesel(table_name = admin_user_invites)]
+pub struct NewAdminUserInvite {
+    pub username: String,
+    pub token: String,
+    pub expires_at: NaiveDateTime,
+    pub created_by: Option<i64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct AdminUserInviteDto {
+    pub id: i64,
+    pub username: String,
+    pub token: String,
+    pub invite_path: String,
+    pub expires_at: NaiveDateTime,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Clone, Queryable, Selectable)]
+#[diesel(table_name = emergency_banners)]
+pub struct EmergencyBanner {
+    pub id: i64,
+    pub title: String,
+    pub message: String,
+    pub tone: String,
+    pub link_label: Option<String>,
+    pub link_url: Option<String>,
+    pub is_active: bool,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Clone, Insertable)]
+#[diesel(table_name = emergency_banners)]
+pub struct NewEmergencyBanner {
+    pub title: String,
+    pub message: String,
+    pub tone: String,
+    pub link_label: Option<String>,
+    pub link_url: Option<String>,
+    pub is_active: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct EmergencyBannerDto {
+    pub id: i64,
+    pub title: String,
+    pub message: String,
+    pub tone: String,
+    pub link_label: Option<String>,
+    pub link_url: Option<String>,
+    pub is_active: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }

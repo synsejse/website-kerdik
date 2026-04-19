@@ -6,17 +6,21 @@ use rocket_db_pools::Connection;
 use rocket_db_pools::diesel::prelude::*;
 use std::net::SocketAddr;
 use tracing::{error, info};
+use uuid::Uuid;
 
 use crate::db::MessagesDB;
 use crate::error::{AppError, AppResult};
 use crate::models::{
-    AdminCreateUserRequest, AdminSetupRequest, AdminUpdateUserRequest, AdminUser, AdminUserDto,
-    NewAdminUser,
+    AdminAcceptInviteRequest, AdminCreateInviteRequest, AdminCreateUserRequest,
+    AdminSetupRequest, AdminUpdateUserRequest, AdminUser, AdminUserDto, AdminUserInvite,
+    AdminUserInviteDto, NewAdminUser, NewAdminUserInvite,
 };
 use crate::routes::admin::auth::{
     get_authenticated_user_id, has_admin_users, is_admin_authenticated, start_admin_session,
 };
-use crate::schema::admin_users;
+use crate::schema::{admin_user_invites, admin_users};
+
+const INVITE_TTL_HOURS: i64 = 72;
 
 fn to_user_dto(user: AdminUser) -> AdminUserDto {
     AdminUserDto {
@@ -46,6 +50,26 @@ fn validate_password(password: &str) -> AppResult<()> {
             "Password must be at least 8 characters long.".to_string(),
         ));
     }
+    Ok(())
+}
+
+fn to_invite_dto(invite: AdminUserInvite) -> AdminUserInviteDto {
+    AdminUserInviteDto {
+        id: invite.id,
+        username: invite.username,
+        token: invite.token.clone(),
+        invite_path: format!("/admin/invite?token={}", invite.token),
+        expires_at: invite.expires_at,
+        created_at: invite.created_at,
+    }
+}
+
+async fn delete_expired_invites(db: &mut Connection<MessagesDB>) -> AppResult<()> {
+    diesel::delete(
+        admin_user_invites::table.filter(admin_user_invites::expires_at.lt(chrono::Utc::now().naive_utc())),
+    )
+    .execute(db)
+    .await?;
     Ok(())
 }
 
@@ -96,6 +120,165 @@ pub async fn admin_setup(
     start_admin_session(redis, cookies, created_user.id, remote_addr).await?;
     info!("Initial admin user '{}' created", created_user.username);
 
+    Ok(Json(to_user_dto(created_user)))
+}
+
+#[get("/admin/api/users/invites")]
+pub async fn list_admin_invites(
+    mut db: Connection<MessagesDB>,
+    redis: &State<redis::Client>,
+    cookies: &CookieJar<'_>,
+    remote_addr: Option<SocketAddr>,
+) -> AppResult<Json<Vec<AdminUserInviteDto>>> {
+    if !is_admin_authenticated(cookies, &mut db, redis, remote_addr).await? {
+        return Err(AppError::Unauthorized);
+    }
+
+    delete_expired_invites(&mut db).await?;
+
+    let invites = admin_user_invites::table
+        .order(admin_user_invites::created_at.desc())
+        .select(AdminUserInvite::as_select())
+        .load::<AdminUserInvite>(&mut db)
+        .await?;
+
+    Ok(Json(invites.into_iter().map(to_invite_dto).collect()))
+}
+
+#[post("/admin/api/users/invites", format = "json", data = "<request>")]
+pub async fn create_admin_invite(
+    mut db: Connection<MessagesDB>,
+    redis: &State<redis::Client>,
+    cookies: &CookieJar<'_>,
+    remote_addr: Option<SocketAddr>,
+    request: Json<AdminCreateInviteRequest>,
+) -> AppResult<Json<AdminUserInviteDto>> {
+    let current_user_id = get_authenticated_user_id(cookies, &mut db, redis, remote_addr).await?;
+    let Some(current_user_id) = current_user_id else {
+        return Err(AppError::Unauthorized);
+    };
+
+    let username = normalize_username(&request.username)?;
+    delete_expired_invites(&mut db).await?;
+
+    let existing_user: Option<i64> = admin_users::table
+        .filter(admin_users::username.eq(&username))
+        .select(admin_users::id)
+        .first(&mut db)
+        .await
+        .optional()?;
+    if existing_user.is_some() {
+        return Err(AppError::InvalidInput(
+            "A user with this username already exists.".to_string(),
+        ));
+    }
+
+    let token = Uuid::new_v4().simple().to_string();
+    let invite = NewAdminUserInvite {
+        username: username.clone(),
+        token: token.clone(),
+        expires_at: chrono::Utc::now().naive_utc() + chrono::Duration::hours(INVITE_TTL_HOURS),
+        created_by: Some(current_user_id),
+    };
+
+    diesel::insert_into(admin_user_invites::table)
+        .values(&invite)
+        .execute(&mut db)
+        .await
+        .map_err(map_user_write_error)?;
+
+    let created_invite = admin_user_invites::table
+        .filter(admin_user_invites::token.eq(&token))
+        .select(AdminUserInvite::as_select())
+        .first(&mut db)
+        .await?;
+
+    Ok(Json(to_invite_dto(created_invite)))
+}
+
+#[delete("/admin/api/users/invites/<id>")]
+pub async fn delete_admin_invite(
+    mut db: Connection<MessagesDB>,
+    redis: &State<redis::Client>,
+    cookies: &CookieJar<'_>,
+    remote_addr: Option<SocketAddr>,
+    id: i64,
+) -> AppResult<Status> {
+    if !is_admin_authenticated(cookies, &mut db, redis, remote_addr).await? {
+        return Err(AppError::Unauthorized);
+    }
+
+    diesel::delete(admin_user_invites::table.find(id))
+        .execute(&mut db)
+        .await?;
+
+    Ok(Status::Ok)
+}
+
+#[get("/admin/invite/status?<token>")]
+pub async fn get_admin_invite_status(
+    mut db: Connection<MessagesDB>,
+    token: &str,
+) -> AppResult<Json<AdminUserInviteDto>> {
+    delete_expired_invites(&mut db).await?;
+
+    let invite = admin_user_invites::table
+        .filter(admin_user_invites::token.eq(token))
+        .select(AdminUserInvite::as_select())
+        .first(&mut db)
+        .await
+        .map_err(|_| AppError::NotFound)?;
+
+    Ok(Json(to_invite_dto(invite)))
+}
+
+#[post("/admin/invite/accept", format = "json", data = "<request>")]
+pub async fn accept_admin_invite(
+    mut db: Connection<MessagesDB>,
+    redis: &State<redis::Client>,
+    cookies: &CookieJar<'_>,
+    remote_addr: Option<SocketAddr>,
+    request: Json<AdminAcceptInviteRequest>,
+) -> AppResult<Json<AdminUserDto>> {
+    delete_expired_invites(&mut db).await?;
+    validate_password(&request.password)?;
+
+    let invite = admin_user_invites::table
+        .filter(admin_user_invites::token.eq(request.token.trim()))
+        .select(AdminUserInvite::as_select())
+        .first(&mut db)
+        .await
+        .map_err(|_| AppError::NotFound)?;
+
+    let new_user = NewAdminUser {
+        username: invite.username.clone(),
+        password_hash: hash(&request.password, DEFAULT_COST)?,
+    };
+
+    db.transaction(|conn| {
+        Box::pin(async move {
+            diesel::insert_into(admin_users::table)
+                .values(&new_user)
+                .execute(conn)
+                .await?;
+
+            diesel::delete(admin_user_invites::table.find(invite.id))
+                .execute(conn)
+                .await?;
+
+            Ok::<_, diesel::result::Error>(())
+        })
+    })
+    .await
+    .map_err(map_user_write_error)?;
+
+    let created_user = admin_users::table
+        .filter(admin_users::username.eq(&invite.username))
+        .select(AdminUser::as_select())
+        .first(&mut db)
+        .await?;
+
+    start_admin_session(redis, cookies, created_user.id, remote_addr).await?;
     Ok(Json(to_user_dto(created_user)))
 }
 
