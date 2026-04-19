@@ -34,6 +34,7 @@ COPY backend/ ./
 RUN --mount=type=cache,id=cargo-registry,target=/usr/local/cargo/registry \
     --mount=type=cache,id=cargo-target,target=/app/backend/target \
     cargo build --release \
+    && mkdir -p /out \
     && cp target/release/backend /out/backend
 
 ##############################################
