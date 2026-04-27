@@ -1,6 +1,6 @@
 # website-kerdik
 
-Marketing website with an admin panel for contact messages, offers, blog posts, admin users, and an emergency banner. The frontend is an Astro static site; the backend is a Rocket API backed by MariaDB and Redis.
+Marketing website with an admin panel for contact messages, offers, blog posts, admin users, and a site-wide banner. The frontend is an Astro static site; the backend is a Rocket API backed by MariaDB and Redis.
 
 ## Features
 
@@ -9,8 +9,8 @@ Marketing website with an admin panel for contact messages, offers, blog posts, 
 - Admin setup flow for the first user at `/admin/setup`
 - Admin login with username + password and Redis-backed session cookies
 - Offer and blog post management with image upload, resize, and JPEG re-encoding
-- Emergency banner management for the public site
-- Public JSON APIs for offers, blog posts, and the active emergency banner
+- Banner management for the public site
+- Public JSON APIs for offers, blog posts, and the active banner
 - Static frontend build served by the backend at runtime
 
 ## Tech stack
@@ -100,7 +100,7 @@ All endpoints are served by the Rocket backend.
 - `GET /api/blog` - list published blog posts
 - `GET /api/blog/:slug` - get a single published blog post by slug
 - `GET /api/blog/:id/image` - get blog post image bytes
-- `GET /api/emergency-banner` - get the active emergency banner, or `null`
+- `GET /api/banner` - get the active banner, or `null`
 
 ### Admin auth and setup
 
@@ -144,11 +144,11 @@ Admin sessions are stored in Redis and identified by the `admin_auth` cookie.
 - `GET /admin/invite/status?token=...` - validate invite token
 - `POST /admin/invite/accept` - accept invite with JSON `{ "token": "...", "password": "..." }`
 
-### Admin emergency banner
+### Admin banner
 
-- `GET /admin/api/emergency-banner` - get the current banner row, active or not
-- `PUT /admin/api/emergency-banner` - create or update banner with JSON `{ title, message, tone, link_label, link_url, is_active }`
-- `DELETE /admin/api/emergency-banner` - delete the current banner row
+- `GET /admin/api/banner` - get the current banner row, active or not
+- `PUT /admin/api/banner` - create or update banner with JSON `{ title, message, tone, link_label, link_url, is_active }`
+- `DELETE /admin/api/banner` - delete the current banner row
 
 ## Database notes
 
@@ -161,7 +161,7 @@ Admin sessions are stored in Redis and identified by the `admin_auth` cookie.
   - `blog_posts`
   - `admin_users`
   - `admin_user_invites`
-  - `emergency_banners`
+  - `banners`
 
 ## Image handling
 

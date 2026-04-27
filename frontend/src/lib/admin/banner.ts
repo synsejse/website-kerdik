@@ -1,5 +1,17 @@
 import { api } from "../api";
 
+function toneLabel(tone: string): string {
+  switch (tone) {
+    case "warning":
+      return "Varovanie";
+    case "info":
+      return "Informácia";
+    case "critical":
+    default:
+      return "Kritické upozornenie";
+  }
+}
+
 function toneClasses(tone: string): string {
   switch (tone) {
     case "warning":
@@ -12,7 +24,7 @@ function toneClasses(tone: string): string {
   }
 }
 
-export function initEmergencyBannerAdmin(): void {
+export function initBannerAdmin(): void {
   const form = document.getElementById("banner-form") as HTMLFormElement | null;
   const active = document.getElementById("banner-active") as HTMLInputElement | null;
   const tone = document.getElementById("banner-tone") as HTMLSelectElement | null;
@@ -24,11 +36,12 @@ export function initEmergencyBannerAdmin(): void {
   const success = document.getElementById("banner-success") as HTMLDivElement | null;
   const error = document.getElementById("banner-error") as HTMLDivElement | null;
   const preview = document.getElementById("banner-preview") as HTMLDivElement | null;
+  const previewLabel = document.getElementById("banner-preview-label") as HTMLParagraphElement | null;
   const previewTitle = document.getElementById("banner-preview-title") as HTMLParagraphElement | null;
   const previewMessage = document.getElementById("banner-preview-message") as HTMLParagraphElement | null;
   const previewLink = document.getElementById("banner-preview-link") as HTMLAnchorElement | null;
 
-  if (!form || !active || !tone || !title || !message || !linkLabel || !linkUrl || !deleteBtn || !preview || !previewTitle || !previewMessage || !previewLink) {
+  if (!form || !active || !tone || !title || !message || !linkLabel || !linkUrl || !deleteBtn || !preview || !previewLabel || !previewTitle || !previewMessage || !previewLink) {
     return;
   }
 
@@ -39,13 +52,15 @@ export function initEmergencyBannerAdmin(): void {
   const linkLabelInput = linkLabel;
   const linkUrlInput = linkUrl;
   const previewCard = preview;
+  const previewLabelEl = previewLabel;
   const previewTitleEl = previewTitle;
   const previewMessageEl = previewMessage;
   const previewLinkEl = previewLink;
 
   function renderPreview(): void {
     previewCard.className = toneClasses(toneInput.value);
-    previewTitleEl.textContent = titleInput.value.trim() || "Núdzový oznam";
+    previewLabelEl.textContent = toneLabel(toneInput.value);
+    previewTitleEl.textContent = titleInput.value.trim() || "Nadpis bannera";
     previewMessageEl.textContent = messageInput.value.trim() || "Text bannera sa zobrazí tu.";
 
     if (linkLabelInput.value.trim() && linkUrlInput.value.trim()) {
@@ -60,7 +75,7 @@ export function initEmergencyBannerAdmin(): void {
 
   async function loadBanner(): Promise<void> {
     try {
-      const banner = await api.admin.getEmergencyBanner();
+      const banner = await api.admin.getBanner();
       if (banner) {
         activeInput.checked = banner.is_active;
         toneInput.value = banner.tone;
@@ -71,7 +86,7 @@ export function initEmergencyBannerAdmin(): void {
       }
       renderPreview();
     } catch (err) {
-      console.error("Failed to load emergency banner:", err);
+      console.error("Failed to load banner:", err);
       renderPreview();
     }
   }
@@ -87,7 +102,7 @@ export function initEmergencyBannerAdmin(): void {
     error?.classList.add("hidden");
 
     try {
-      await api.admin.saveEmergencyBanner({
+      await api.admin.saveBanner({
         title: titleInput.value.trim(),
         message: messageInput.value.trim(),
         tone: toneInput.value,
@@ -113,7 +128,7 @@ export function initEmergencyBannerAdmin(): void {
     error?.classList.add("hidden");
 
     try {
-      await api.admin.deleteEmergencyBanner();
+      await api.admin.deleteBanner();
       form.reset();
       renderPreview();
       if (success) {

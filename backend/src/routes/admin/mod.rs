@@ -11,10 +11,7 @@ pub mod users;
 // Re-export commonly used items for convenience
 pub use archive::{get_archived_messages, permanently_delete_archived_message};
 pub use auth::{admin_login, admin_logout, admin_status};
-pub use banner::{
-    delete_emergency_banner, get_active_emergency_banner, get_admin_emergency_banner,
-    upsert_emergency_banner,
-};
+pub use banner::{delete_banner, get_active_banner, get_admin_banner, upsert_banner};
 pub use blog::{
     create_blog_post, delete_blog_post, get_blog_post_by_slug, get_blog_post_image,
     list_all_blog_posts, list_blog_posts, update_blog_post,

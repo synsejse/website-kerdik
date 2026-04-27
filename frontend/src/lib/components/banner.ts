@@ -12,12 +12,24 @@ function classesForTone(tone: string): string {
   }
 }
 
-export async function initEmergencyBanner(): Promise<void> {
-  const container = document.getElementById("emergency-banner");
+function toneLabel(tone: string): string {
+  switch (tone) {
+    case "warning":
+      return "Varovanie";
+    case "info":
+      return "Informácia";
+    case "critical":
+    default:
+      return "Kritické upozornenie";
+  }
+}
+
+export async function initBanner(): Promise<void> {
+  const container = document.getElementById("site-banner");
   if (!container) return;
 
   try {
-    const banner = await api.offers.getEmergencyBanner();
+    const banner = await api.banner.getBanner();
     if (!banner || !banner.is_active) {
       return;
     }
@@ -26,7 +38,7 @@ export async function initEmergencyBanner(): Promise<void> {
     container.innerHTML = `
       <div class="max-w-275 mx-auto px-4 py-3 flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
         <div class="min-w-0 flex-1">
-          <p class="m-0 text-xs font-black uppercase tracking-[0.18em] text-white/80">Núdzový oznam</p>
+          <p class="m-0 text-xs font-black uppercase tracking-[0.18em] text-white/80">${toneLabel(banner.tone)}</p>
           <p class="m-0 mt-1 text-sm md:text-base font-black break-words">${banner.title}</p>
           <p class="m-0 mt-1 text-sm text-white/90 break-words">${banner.message}</p>
         </div>
@@ -39,6 +51,6 @@ export async function initEmergencyBanner(): Promise<void> {
     `;
     container.classList.remove("hidden");
   } catch (error) {
-    console.error("Failed to load emergency banner:", error);
+    console.error("Failed to load banner:", error);
   }
 }

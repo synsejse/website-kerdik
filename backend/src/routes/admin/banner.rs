@@ -7,14 +7,12 @@ use std::net::SocketAddr;
 
 use crate::db::MessagesDB;
 use crate::error::{AppError, AppResult};
-use crate::models::{
-    AdminUpsertEmergencyBannerRequest, EmergencyBanner, EmergencyBannerDto, NewEmergencyBanner,
-};
+use crate::models::{AdminUpsertBannerRequest, Banner, BannerDto, NewBanner};
 use crate::routes::admin::auth::is_admin_authenticated;
-use crate::schema::emergency_banners;
+use crate::schema::banners;
 
-fn to_banner_dto(banner: EmergencyBanner) -> EmergencyBannerDto {
-    EmergencyBannerDto {
+fn to_banner_dto(banner: Banner) -> BannerDto {
+    BannerDto {
         id: banner.id,
         title: banner.title,
         message: banner.message,
@@ -37,25 +35,23 @@ fn normalize_tone(tone: &str) -> AppResult<String> {
     }
 }
 
-async fn get_current_banner_row(
-    db: &mut Connection<MessagesDB>,
-) -> AppResult<Option<EmergencyBanner>> {
-    Ok(emergency_banners::table
-        .order(emergency_banners::updated_at.desc())
-        .select(EmergencyBanner::as_select())
+async fn get_current_banner_row(db: &mut Connection<MessagesDB>) -> AppResult<Option<Banner>> {
+    Ok(banners::table
+        .order(banners::updated_at.desc())
+        .select(Banner::as_select())
         .first(db)
         .await
         .optional()?)
 }
 
-#[get("/api/emergency-banner")]
-pub async fn get_active_emergency_banner(
+#[get("/api/banner")]
+pub async fn get_active_banner(
     mut db: Connection<MessagesDB>,
-) -> AppResult<Json<Option<EmergencyBannerDto>>> {
-    let banner = emergency_banners::table
-        .filter(emergency_banners::is_active.eq(true))
-        .order(emergency_banners::updated_at.desc())
-        .select(EmergencyBanner::as_select())
+) -> AppResult<Json<Option<BannerDto>>> {
+    let banner = banners::table
+        .filter(banners::is_active.eq(true))
+        .order(banners::updated_at.desc())
+        .select(Banner::as_select())
         .first(&mut db)
         .await
         .optional()?;
@@ -63,13 +59,13 @@ pub async fn get_active_emergency_banner(
     Ok(Json(banner.map(to_banner_dto)))
 }
 
-#[get("/admin/api/emergency-banner")]
-pub async fn get_admin_emergency_banner(
+#[get("/admin/api/banner")]
+pub async fn get_admin_banner(
     mut db: Connection<MessagesDB>,
     redis: &State<redis::Client>,
     cookies: &CookieJar<'_>,
     remote_addr: Option<SocketAddr>,
-) -> AppResult<Json<Option<EmergencyBannerDto>>> {
+) -> AppResult<Json<Option<BannerDto>>> {
     if !is_admin_authenticated(cookies, &mut db, redis, remote_addr).await? {
         return Err(AppError::Unauthorized);
     }
@@ -78,14 +74,14 @@ pub async fn get_admin_emergency_banner(
     Ok(Json(banner.map(to_banner_dto)))
 }
 
-#[put("/admin/api/emergency-banner", format = "json", data = "<request>")]
-pub async fn upsert_emergency_banner(
+#[put("/admin/api/banner", format = "json", data = "<request>")]
+pub async fn upsert_banner(
     mut db: Connection<MessagesDB>,
     redis: &State<redis::Client>,
     cookies: &CookieJar<'_>,
     remote_addr: Option<SocketAddr>,
-    request: Json<AdminUpsertEmergencyBannerRequest>,
-) -> AppResult<Json<EmergencyBannerDto>> {
+    request: Json<AdminUpsertBannerRequest>,
+) -> AppResult<Json<BannerDto>> {
     if !is_admin_authenticated(cookies, &mut db, redis, remote_addr).await? {
         return Err(AppError::Unauthorized);
     }
@@ -113,19 +109,19 @@ pub async fn upsert_emergency_banner(
         .map(str::to_string);
 
     if let Some(existing) = get_current_banner_row(&mut db).await? {
-        diesel::update(emergency_banners::table.find(existing.id))
+        diesel::update(banners::table.find(existing.id))
             .set((
-                emergency_banners::title.eq(title),
-                emergency_banners::message.eq(message),
-                emergency_banners::tone.eq(&tone),
-                emergency_banners::link_label.eq(link_label.as_deref()),
-                emergency_banners::link_url.eq(link_url.as_deref()),
-                emergency_banners::is_active.eq(request.is_active),
+                banners::title.eq(title),
+                banners::message.eq(message),
+                banners::tone.eq(&tone),
+                banners::link_label.eq(link_label.as_deref()),
+                banners::link_url.eq(link_url.as_deref()),
+                banners::is_active.eq(request.is_active),
             ))
             .execute(&mut db)
             .await?;
     } else {
-        let new_banner = NewEmergencyBanner {
+        let new_banner = NewBanner {
             title: title.to_string(),
             message: message.to_string(),
             tone: tone.clone(),
@@ -134,7 +130,7 @@ pub async fn upsert_emergency_banner(
             is_active: request.is_active,
         };
 
-        diesel::insert_into(emergency_banners::table)
+        diesel::insert_into(banners::table)
             .values(&new_banner)
             .execute(&mut db)
             .await?;
@@ -146,8 +142,8 @@ pub async fn upsert_emergency_banner(
     Ok(Json(to_banner_dto(banner)))
 }
 
-#[delete("/admin/api/emergency-banner")]
-pub async fn delete_emergency_banner(
+#[delete("/admin/api/banner")]
+pub async fn delete_banner(
     mut db: Connection<MessagesDB>,
     redis: &State<redis::Client>,
     cookies: &CookieJar<'_>,
@@ -158,7 +154,7 @@ pub async fn delete_emergency_banner(
     }
 
     if let Some(existing) = get_current_banner_row(&mut db).await? {
-        diesel::delete(emergency_banners::table.find(existing.id))
+        diesel::delete(banners::table.find(existing.id))
             .execute(&mut db)
             .await?;
     }

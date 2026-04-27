@@ -7,8 +7,7 @@ use rocket::serde::{Deserialize, Serialize};
 use rocket_db_pools::diesel::prelude::*;
 
 use crate::schema::{
-    admin_user_invites, admin_users, blog_posts, emergency_banners, messages, messages_archive,
-    offers,
+    admin_user_invites, admin_users, banners, blog_posts, messages, messages_archive, offers,
 };
 
 /// Form data received from the contact form
@@ -167,7 +166,7 @@ pub struct AdminAcceptInviteRequest {
 
 #[derive(Debug, Deserialize)]
 #[serde(crate = "rocket::serde")]
-pub struct AdminUpsertEmergencyBannerRequest {
+pub struct AdminUpsertBannerRequest {
     pub title: String,
     pub message: String,
     pub tone: String,
@@ -257,8 +256,8 @@ pub struct AdminUserInviteDto {
 }
 
 #[derive(Debug, Clone, Queryable, Selectable)]
-#[diesel(table_name = emergency_banners)]
-pub struct EmergencyBanner {
+#[diesel(table_name = banners)]
+pub struct Banner {
     pub id: i64,
     pub title: String,
     pub message: String,
@@ -271,8 +270,8 @@ pub struct EmergencyBanner {
 }
 
 #[derive(Debug, Clone, Insertable)]
-#[diesel(table_name = emergency_banners)]
-pub struct NewEmergencyBanner {
+#[diesel(table_name = banners)]
+pub struct NewBanner {
     pub title: String,
     pub message: String,
     pub tone: String,
@@ -283,7 +282,7 @@ pub struct NewEmergencyBanner {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-pub struct EmergencyBannerDto {
+pub struct BannerDto {
     pub id: i64,
     pub title: String,
     pub message: String,
