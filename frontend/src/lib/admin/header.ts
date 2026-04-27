@@ -1,3 +1,5 @@
+import { api } from "../api";
+
 /**
  * Initialize admin header logout button
  */
@@ -7,16 +9,13 @@ export async function initAdminHeader(): Promise<void> {
     if (!btn || !container) return;
 
     try {
-        const res = await fetch("/admin/status", { credentials: "same-origin" });
-        if (res.ok) {
-            const status = await res.json();
-            if (status.authenticated) {
-                btn.classList.remove("hidden");
-                container.classList.remove("hidden");
-            } else {
-                btn.classList.add("hidden");
-                container.classList.add("hidden");
-            }
+        const status = await api.admin.getStatus();
+        if (status.authenticated) {
+            btn.classList.remove("hidden");
+            container.classList.remove("hidden");
+        } else {
+            btn.classList.add("hidden");
+            container.classList.add("hidden");
         }
     } catch (e) {
         container.classList.add("hidden");
@@ -25,7 +24,7 @@ export async function initAdminHeader(): Promise<void> {
     btn.addEventListener("click", async (e) => {
         e.preventDefault();
         try {
-            await fetch("/admin/logout", { method: "POST", credentials: "same-origin" });
+            await api.admin.logout();
         } catch (err) {
             // ignore network errors
         } finally {

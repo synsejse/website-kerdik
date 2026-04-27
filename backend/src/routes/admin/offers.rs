@@ -1,7 +1,7 @@
 // Offer management endpoints (admin and public)
 
-use rocket::form::Form;
 use rocket::State;
+use rocket::form::Form;
 use rocket::http::{ContentType, CookieJar, Status};
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;

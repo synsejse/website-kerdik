@@ -7,8 +7,8 @@ use rocket::serde::{Deserialize, Serialize};
 use rocket_db_pools::diesel::prelude::*;
 
 use crate::schema::{
-    admin_user_invites, admin_users, blog_posts, emergency_banners, messages,
-    messages_archive, offers,
+    admin_user_invites, admin_users, blog_posts, emergency_banners, messages, messages_archive,
+    offers,
 };
 
 /// Form data received from the contact form

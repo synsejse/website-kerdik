@@ -11,9 +11,9 @@ use uuid::Uuid;
 use crate::db::MessagesDB;
 use crate::error::{AppError, AppResult};
 use crate::models::{
-    AdminAcceptInviteRequest, AdminCreateInviteRequest, AdminCreateUserRequest,
-    AdminSetupRequest, AdminUpdateUserRequest, AdminUser, AdminUserDto, AdminUserInvite,
-    AdminUserInviteDto, NewAdminUser, NewAdminUserInvite,
+    AdminAcceptInviteRequest, AdminCreateInviteRequest, AdminCreateUserRequest, AdminSetupRequest,
+    AdminUpdateUserRequest, AdminUser, AdminUserDto, AdminUserInvite, AdminUserInviteDto,
+    NewAdminUser, NewAdminUserInvite,
 };
 use crate::routes::admin::auth::{
     get_authenticated_user_id, has_admin_users, is_admin_authenticated, start_admin_session,
@@ -66,7 +66,8 @@ fn to_invite_dto(invite: AdminUserInvite) -> AdminUserInviteDto {
 
 async fn delete_expired_invites(db: &mut Connection<MessagesDB>) -> AppResult<()> {
     diesel::delete(
-        admin_user_invites::table.filter(admin_user_invites::expires_at.lt(chrono::Utc::now().naive_utc())),
+        admin_user_invites::table
+            .filter(admin_user_invites::expires_at.lt(chrono::Utc::now().naive_utc())),
     )
     .execute(db)
     .await?;
@@ -75,9 +76,10 @@ async fn delete_expired_invites(db: &mut Connection<MessagesDB>) -> AppResult<()
 
 fn map_user_write_error(error: diesel::result::Error) -> AppError {
     match error {
-        diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::UniqueViolation, _) => {
-            AppError::InvalidInput("A user with this username already exists.".to_string())
-        }
+        diesel::result::Error::DatabaseError(
+            diesel::result::DatabaseErrorKind::UniqueViolation,
+            _,
+        ) => AppError::InvalidInput("A user with this username already exists.".to_string()),
         other => AppError::from(other),
     }
 }

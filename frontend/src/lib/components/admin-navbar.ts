@@ -1,3 +1,5 @@
+import { api } from "../api";
+
 /**
  * Admin Navbar utilities with mobile menu and auth features
  */
@@ -49,12 +51,9 @@ export function initAdminNavbar(): void {
     if (!logoutBtnMobile) return;
 
     try {
-      const resp = await fetch("/admin/status", { credentials: "same-origin" });
-      if (resp.ok) {
-        const status = await resp.json();
-        if (!status.authenticated) {
-          logoutBtnMobile.classList.add("hidden");
-        }
+      const status = await api.admin.getStatus();
+      if (!status.authenticated) {
+        logoutBtnMobile.classList.add("hidden");
       }
     } catch (e) {
       logoutBtnMobile.classList.add("hidden");
@@ -63,10 +62,7 @@ export function initAdminNavbar(): void {
     logoutBtnMobile.addEventListener("click", async (e) => {
       e.preventDefault();
       try {
-        await fetch("/admin/logout", {
-          method: "POST",
-          credentials: "same-origin",
-        });
+        await api.admin.logout();
       } catch (err) {
         // ignore
       } finally {

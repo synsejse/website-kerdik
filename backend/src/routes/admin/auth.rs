@@ -188,11 +188,17 @@ pub async fn admin_login(
     if verify(&login.password, &user.password_hash).unwrap_or(false) {
         start_admin_session(redis, cookies, user.id, remote_addr).await?;
 
-        info!("Admin login successful for '{}' from {:?}", user.username, remote_addr);
+        info!(
+            "Admin login successful for '{}' from {:?}",
+            user.username, remote_addr
+        );
         Ok(Status::Ok)
     } else {
         cookies.remove(Cookie::from(SESSION_COOKIE));
-        warn!("Failed admin login attempt for '{}' from {:?}", user.username, remote_addr);
+        warn!(
+            "Failed admin login attempt for '{}' from {:?}",
+            user.username, remote_addr
+        );
         Err(AppError::Unauthorized)
     }
 }
@@ -210,18 +216,6 @@ pub async fn admin_logout(
         debug!("Logout attempted without session cookie");
     }
     Ok(Status::Ok)
-}
-
-#[get("/admin/check")]
-pub async fn admin_check(
-    mut db: Connection<MessagesDB>,
-    redis: &State<redis::Client>,
-    cookies: &CookieJar<'_>,
-    remote_addr: Option<SocketAddr>,
-) -> AppResult<Json<bool>> {
-    let authenticated = is_admin_authenticated(cookies, &mut db, redis, remote_addr).await?;
-    debug!("Admin check: authenticated={}", authenticated);
-    Ok(Json(authenticated))
 }
 
 #[get("/admin/status")]

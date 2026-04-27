@@ -1,8 +1,8 @@
 // Utility functions for common operations
 
+use image::{GenericImageView, ImageFormat, ImageReader, imageops::FilterType};
 use rocket::tokio::io::AsyncReadExt;
 use rocket::{fs::TempFile, http::ContentType};
-use image::{GenericImageView, ImageFormat, ImageReader, imageops::FilterType};
 use std::io::Cursor;
 
 use crate::error::{AppError, AppResult};
@@ -85,13 +85,25 @@ fn compress_image(buffer: Vec<u8>, content_type: &ContentType) -> AppResult<(Vec
     let img = if width > MAX_IMAGE_DIMENSION || height > MAX_IMAGE_DIMENSION {
         let (new_width, new_height) = if width > height {
             let ratio = height as f32 / width as f32;
-            (MAX_IMAGE_DIMENSION, (MAX_IMAGE_DIMENSION as f32 * ratio) as u32)
+            (
+                MAX_IMAGE_DIMENSION,
+                (MAX_IMAGE_DIMENSION as f32 * ratio) as u32,
+            )
         } else {
             let ratio = width as f32 / height as f32;
-            ((MAX_IMAGE_DIMENSION as f32 * ratio) as u32, MAX_IMAGE_DIMENSION)
+            (
+                (MAX_IMAGE_DIMENSION as f32 * ratio) as u32,
+                MAX_IMAGE_DIMENSION,
+            )
         };
 
-        tracing::info!("Resizing image from {}x{} to {}x{}", width, height, new_width, new_height);
+        tracing::info!(
+            "Resizing image from {}x{} to {}x{}",
+            width,
+            height,
+            new_width,
+            new_height
+        );
         img.resize(new_width, new_height, FilterType::Lanczos3)
     } else {
         img

@@ -1,17 +1,11 @@
+import { api } from "../api";
+
 /**
  * Check admin authentication and redirect if needed
  */
 export async function checkAdminAuth(): Promise<void> {
     try {
-        const resp = await fetch("/admin/status", { credentials: "same-origin" });
-        if (!resp.ok) {
-            throw new Error("Failed to load admin status");
-        }
-
-        const status = await resp.json() as {
-            authenticated: boolean;
-            setup_required: boolean;
-        };
+        const status = await api.admin.getStatus();
 
         const path = window.location.pathname.replace(/\/+$/, "");
         const onLogin = path === "/admin/login";

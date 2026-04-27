@@ -126,12 +126,7 @@ class AdminApi {
   }
 
   async logout(): Promise<void> {
-    await fetch("/admin/logout", { method: "POST" });
-  }
-
-  async checkAuth(): Promise<boolean> {
-    const status = await this.getStatus();
-    return status.authenticated;
+    await apiClient.post<void>("/admin/logout");
   }
 
   async getMessages(
@@ -141,10 +136,6 @@ class AdminApi {
     return apiClient.get<PaginatedMessages>("/admin/api/messages", {
       params: { page, limit },
     });
-  }
-
-  async deleteMessage(id: number): Promise<void> {
-    return apiClient.delete<void>(`/admin/api/messages/${id}`);
   }
 
   async archiveMessage(id: number): Promise<void> {

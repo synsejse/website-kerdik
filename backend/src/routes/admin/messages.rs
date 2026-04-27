@@ -1,7 +1,7 @@
 // Active message management endpoints
 
-use rocket::http::{CookieJar, Status};
 use rocket::State;
+use rocket::http::{CookieJar, Status};
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
 use rocket_db_pools::diesel::prelude::*;

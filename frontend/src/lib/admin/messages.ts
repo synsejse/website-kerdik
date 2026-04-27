@@ -7,15 +7,13 @@ import {
   showLoading,
   hideLoading,
   updatePaginationControls,
-  switchTab,
 } from "./utils";
-import type { PaginationState, TabConfig } from "./types";
+import type { PaginationState } from "./types";
 
 // Extend window with admin actions
 declare global {
   interface Window {
     archiveMessage?: (id: number) => Promise<void>;
-    deleteMessage?: (id: number) => Promise<void>;
     restoreMessage?: (id: number) => Promise<void>;
     permanentlyDeleteArchivedMessage?: (id: number) => Promise<void>;
   }
@@ -43,15 +41,10 @@ export class MessagesPageController {
   private currentPage = 1;
   private activeTotal = 0;
   private archivedTotal = 0;
-  private tabs: TabConfig[];
   private elements: MessagesPageElements;
 
   constructor(elements: MessagesPageElements) {
     this.elements = elements;
-    this.tabs = [
-      { id: "active", label: "Aktívne správy" },
-      { id: "archived", label: "Archív správ" },
-    ];
     this.initialize();
   }
 
@@ -99,22 +92,6 @@ export class MessagesPageController {
           alert("Nepodarilo sa archivovať správu.");
         }
       });
-    };
-
-    window.deleteMessage = async (id: number) => {
-      showConfirmDialog(
-        "Naozaj chcete natrvalo zmazať túto správu? Táto akcia je nezvratná!",
-        async () => {
-          try {
-            await api.admin.deleteMessage(id);
-            await this.loadAllCounts();
-            await this.loadCurrentView();
-          } catch (error) {
-            console.error("Failed to delete message:", error);
-            alert("Nepodarilo sa zmazať správu.");
-          }
-        },
-      );
     };
 
     window.restoreMessage = async (id: number) => {
@@ -360,14 +337,6 @@ export class MessagesPageController {
             >
               <span class="icon-archive"></span>
               Archivovať
-            </button>
-            <button
-              onclick="window.deleteMessage && window.deleteMessage(${msg.id})"
-              class="px-5 py-2.5 bg-gray-50 border border-gray-200 text-gray-400 hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all duration-300 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest rounded-xl"
-              title="Zmazať správu natrvalo"
-            >
-              <span class="icon-trash"></span>
-              Zmazať
             </button>
           </div>
         </div>

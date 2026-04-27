@@ -62,7 +62,6 @@ fn rocket() -> _ {
             routes![
                 admin::admin_login,
                 admin::admin_logout,
-                admin::admin_check,
                 admin::admin_status,
                 admin::admin_setup,
                 admin::get_admin_invite_status,

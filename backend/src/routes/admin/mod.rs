@@ -10,7 +10,7 @@ pub mod users;
 
 // Re-export commonly used items for convenience
 pub use archive::{get_archived_messages, permanently_delete_archived_message};
-pub use auth::{admin_check, admin_login, admin_logout, admin_status};
+pub use auth::{admin_login, admin_logout, admin_status};
 pub use banner::{
     delete_emergency_banner, get_active_emergency_banner, get_admin_emergency_banner,
     upsert_emergency_banner,
@@ -24,7 +24,7 @@ pub use offers::{
     create_offer, delete_offer, get_offer_by_slug, get_offer_image, list_offers, update_offer,
 };
 pub use users::{
-    accept_admin_invite, admin_setup, create_admin_invite, create_admin_user,
-    delete_admin_invite, delete_admin_user, get_admin_invite_status, list_admin_invites,
-    list_admin_users, update_admin_user,
+    accept_admin_invite, admin_setup, create_admin_invite, create_admin_user, delete_admin_invite,
+    delete_admin_user, get_admin_invite_status, list_admin_invites, list_admin_users,
+    update_admin_user,
 };

@@ -92,4 +92,12 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(admin_user_invites, admin_users, blog_posts, emergency_banners, messages, messages_archive, offers,);
+diesel::allow_tables_to_appear_in_same_query!(
+    admin_user_invites,
+    admin_users,
+    blog_posts,
+    emergency_banners,
+    messages,
+    messages_archive,
+    offers,
+);

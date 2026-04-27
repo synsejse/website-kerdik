@@ -1,7 +1,7 @@
 // Archived message management endpoints
 
-use rocket::http::{CookieJar, Status};
 use rocket::State;
+use rocket::http::{CookieJar, Status};
 use rocket::serde::json::Json;
 use rocket::serde::{Deserialize, Serialize};
 use rocket_db_pools::Connection;

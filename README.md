@@ -50,8 +50,11 @@ Notes:
 
 ## Local verification
 
+- Install frontend deps: `cd frontend && npm ci`
 - Frontend build: `cd frontend && npm run build`
-- Frontend type/content checks: `cd frontend && npx astro check`
+- Frontend type/content checks: `cd frontend && npm run check`
+- Backend format check: `cd backend && cargo fmt --check`
+- Backend compile check: `cd backend && cargo check`
 - Backend tests: `cd backend && cargo test`
 - Full-stack changes involving auth, DB, or runtime routing: `docker compose up --build`
 
@@ -104,7 +107,6 @@ All endpoints are served by the Rocket backend.
 - `POST /admin/setup` - create the first admin user with JSON `{ "username": "...", "password": "..." }`
 - `POST /admin/login` - sign in with JSON `{ "username": "...", "password": "..." }`
 - `POST /admin/logout` - clear the session
-- `GET /admin/check` - legacy boolean auth check
 - `GET /admin/status` - auth + setup status `{ authenticated, setup_required, current_user_id, current_username }`
 
 Admin sessions are stored in Redis and identified by the `admin_auth` cookie.

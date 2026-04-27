@@ -1,7 +1,7 @@
 // Blog post management endpoints (admin and public)
 
-use rocket::form::Form;
 use rocket::State;
+use rocket::form::Form;
 use rocket::http::{ContentType, CookieJar, Status};
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
@@ -102,10 +102,15 @@ pub async fn update_blog_post(
     let target = blog_posts::table.find(id);
 
     // Check if blog post exists
-    let _existing_post: BlogPost = blog_posts::table.find(id).first(&mut db).await.map_err(|e| {
-        error!("Error checking for existing blog post {}: {}", id, e);
-        AppError::NotFound
-    })?;
+    let _existing_post: BlogPost =
+        blog_posts::table
+            .find(id)
+            .first(&mut db)
+            .await
+            .map_err(|e| {
+                error!("Error checking for existing blog post {}: {}", id, e);
+                AppError::NotFound
+            })?;
 
     let published = update_data.published.unwrap_or(false);
 
@@ -281,10 +286,14 @@ pub async fn get_blog_post_image(
     mut db: Connection<MessagesDB>,
     id: i64,
 ) -> AppResult<(ContentType, Vec<u8>)> {
-    let post: BlogPost = blog_posts::table.find(id).first(&mut db).await.map_err(|e| {
-        error!("Error fetching blog post {} for image: {}", id, e);
-        AppError::NotFound
-    })?;
+    let post: BlogPost = blog_posts::table
+        .find(id)
+        .first(&mut db)
+        .await
+        .map_err(|e| {
+            error!("Error fetching blog post {} for image: {}", id, e);
+            AppError::NotFound
+        })?;
 
     if let Some(image_bytes) = post.image {
         let content_type = post
