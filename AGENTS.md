@@ -1,25 +1,22 @@
 # AGENTS.md
 
-## Repo Shape
-- `frontend/` is an Astro site with `output: "static"`; `backend/` is the Rocket app that mounts the API and serves the built frontend from `STATIC_DIR`.
-- `bcrypt-gen/` is only for generating `ADMIN_PASSWORD_HASH`: `cargo run --manifest-path bcrypt-gen/Cargo.toml -- "your-password"`.
-
-## Commands
-- Full stack: `docker compose up --build`
-- Frontend (`frontend/`): `npm install`, `npm exec astro check`, `npm run build`
-- Backend (`backend/`): `cargo check`
-- Local end-to-end run order: build `frontend/dist` first, then run the backend with `STATIC_DIR=../frontend/dist DATABASE_URL=... ADMIN_PASSWORD_HASH=... cargo run`
-
-## Gotchas
-- Use `npm` for agent work here. `frontend/` has both `bun.lock` and `package-lock.json`, but the Docker build uses `package-lock.json` and runs `npm install`.
-- `.env` is a Docker Compose input, not a local Rust dev env loader. `backend/src/config.rs` only reads process env vars or `Config.toml` / `../Config.toml`.
-- Backend startup runs embedded Diesel migrations automatically; it will fail fast if MariaDB is unavailable or `DATABASE_URL` is wrong.
-- If `ADMIN_PASSWORD_HASH` is empty, the backend still starts but admin login is effectively disabled.
-- Browser API calls use same-origin URLs (`frontend/src/lib/api-client.ts`). `astro dev` alone will send admin/public API requests to the Astro dev server, not Rocket, unless you add a proxy.
-- No repo CI, task runner, lint config, or pre-commit config was found at the root; use the package-native commands above instead of guessing wrapper commands.
-
-## Code Map
-- `backend/src/main.rs`: app wiring, DB init, migration hook, route mounts, static file serving.
-- `backend/src/routes/admin/`: admin APIs for messages, offers, and blog.
-- `frontend/src/pages/admin/*.astro` plus `frontend/src/lib/admin/*`: admin UI shells plus client-side behavior.
-- `frontend/src/lib/api.ts`: typed API surface used by the frontend.
+- This repo has no root workspace or task runner. Run commands inside `frontend/` or `backend/`.
+- In `frontend/`, prefer `npm`, not `bun`: the checked-in build path is `npm ci` + `npm run build` from `frontend/package-lock.json` (`Dockerfile`), even though `bun.lock` is present.
+- Full-stack runtime requires both MariaDB and Redis. The fastest end-to-end path is `docker compose up --build`; the backend will not boot without both `DATABASE_URL` and `REDIS_URL`.
+- Backend config is loaded from env or `Config.toml` in either `backend/` or the repo root (`backend/src/config.rs`).
+- Rocket auto-runs embedded Diesel migrations on startup (`backend/src/db.rs`). If you change the DB schema, update both `backend/migrations/` and the checked-in `backend/src/schema.rs`.
+- The README is stale for admin auth/setup. Source of truth is `backend/src/routes/admin/{auth,users}.rs`, `.env.example`, and `docker-compose.yml`.
+- Real admin flow: first user is created through `/admin/setup`; login is username + password; sessions are stored in Redis-backed `admin_auth` cookies. Do not rely on `ADMIN_PASSWORD_HASH` or the old `admin_sessions` table described in `README.md`.
+- Astro is built as a static site (`frontend/astro.config.mjs`), but Rocket owns the real runtime routing.
+- Do not treat offer/blog detail pages as Astro dynamic routes without changing backend routing too. Rocket serves `/offer/<slug>` as `offer-detail/index.html` and `/blog/<slug>` as `blog/post/index.html` (`backend/src/routes/mod.rs`).
+- Those detail pages resolve the slug client-side from `window.location.pathname` and then fetch `/api/offers/<slug>` or `/api/blog/<slug>` (`frontend/src/lib/pages/offer-detail.ts`, `frontend/src/lib/pages/blog-post.ts`).
+- Running the frontend by itself only gives you the static shells; admin and data-driven pages use same-origin `fetch` calls to the backend (`frontend/src/lib/api.ts`, `frontend/src/lib/admin/auth-check.ts`).
+- Frontend pages are mostly Astro shells; page behavior lives in `frontend/src/lib/**`. Check the matching `src/lib/...` module before editing a page that looks static.
+- Offer/blog image uploads are normalized server-side: accepted uploads are resized to max 1920px and re-encoded to JPEG (`backend/src/utils.rs`). Preserve that behavior when touching upload flows.
+- There is no checked-in frontend test runner, repo CI workflow, lint config, or pre-commit config. Do not assume a repo-wide lint/test command exists.
+- Useful verification commands:
+- `frontend/`: `npm run build`
+- `frontend/`: `npx astro check` (installed, but not scripted)
+- `backend/`: `cargo test`
+- Full-stack/auth/DB changes: `docker compose up --build`
+- Current backend tests are only small unit tests in `backend/src/models.rs` and `backend/src/utils.rs`; there are no checked-in integration tests.
