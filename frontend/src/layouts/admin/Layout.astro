@@ -6,56 +6,56 @@ import Footer from "../../components/layout/Footer.astro";
 import ScrollTop from "../../components/shared/ScrollTop.astro";
 
 export interface Props {
-  title?: string;
-  showHeader?: boolean;
-  showFooter?: boolean;
-  showScrollTop?: boolean;
-  className?: string;
+    title?: string;
+    showHeader?: boolean;
+    showFooter?: boolean;
+    showScrollTop?: boolean;
+    className?: string;
 }
 
 const {
-  title = "Admin",
-  showHeader = true,
-  showFooter = false,
-  showScrollTop = false,
-  className = "",
+    title = "Admin",
+    showHeader = true,
+    showFooter = false,
+    showScrollTop = false,
+    className = "",
 } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="sk">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <title>{title}</title>
-    <slot name="head" />
-  </head>
-  <body
-    class:list={[
-      "flex flex-col min-h-screen bg-white text-[#111111] leading-relaxed font-sans",
-      className,
-    ]}
-  >
-    {
-      showHeader && (
-        <div class="sticky top-0 z-50 bg-white shadow-md">
-          <Header title={title} />
-          <Navbar />
-        </div>
-      )
-    }
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <title>{title}</title>
+        <slot name="head" />
+    </head>
+    <body
+        class:list={[
+            "flex flex-col min-h-screen bg-white text-[#111111] leading-relaxed font-sans",
+            className,
+        ]}
+    >
+        {
+            showHeader && (
+                <div class="sticky top-0 z-50 bg-white shadow-md">
+                    <Header title={title} />
+                    <Navbar />
+                </div>
+            )
+        }
 
-    <main class="w-full grow">
-      <slot />
-    </main>
+        <main class="w-full grow">
+            <slot />
+        </main>
 
-    {showFooter && <Footer />}
-    {showScrollTop && <ScrollTop />}
+        {showFooter && <Footer />}
+        {showScrollTop && <ScrollTop />}
 
-    <script>
-      import { checkAdminAuth } from "../../lib/admin/auth-check";
-      checkAdminAuth();
-    </script>
-  </body>
+        <script>
+            import { checkAdminAuth } from "../../lib/admin/auth-check";
+            checkAdminAuth();
+        </script>
+    </body>
 </html>

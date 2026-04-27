@@ -51,8 +51,7 @@ import ArrowUpIcon from "../icons/ArrowUp.astro";
             r={(size - 6) / 2}
             stroke="rgba(255,255,255,0.2)"
             stroke-width="3"
-            fill="none"
-        />
+            fill="none"></circle>
         <circle
             id="scrollProgress"
             cx={size / 2}
@@ -64,7 +63,7 @@ import ArrowUpIcon from "../icons/ArrowUp.astro";
             stroke-linecap="round"
             style={`stroke-dasharray: ${Math.PI * (size - 6)}; stroke-dashoffset: ${Math.PI * (size - 6)};`}
             class="transition-[stroke-dashoffset] duration-100 ease-out"
-        />
+        ></circle>
     </svg>
     <ArrowUpIcon
         width={Math.round(size * 0.6)}

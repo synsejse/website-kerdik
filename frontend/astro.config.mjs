@@ -5,18 +5,18 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://astro.build/config
 export default defineConfig({
-  output: 'static',
-  
-  i18n: {
-    locales: ["sk"],
-    defaultLocale: "sk",
-  },
+    output: "static",
 
-  experimental: {
-    svgo: true,
-  },
+    i18n: {
+        locales: ["sk"],
+        defaultLocale: "sk",
+    },
 
-  vite: {
-    plugins: [/** @type {any} */ (tailwindcss())],
-  },
+    experimental: {
+        svgo: true,
+    },
+
+    vite: {
+        plugins: [/** @type {any} */ (tailwindcss())],
+    },
 });

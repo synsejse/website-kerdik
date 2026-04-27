@@ -15,149 +15,196 @@ import Pagination from "../../components/admin/common/Pagination.astro";
 ---
 
 <AdminLayout title="Admin - Správy" showFooter={false}>
-  <div class="min-h-screen bg-gray-50 flex flex-col font-sans">
-    <main class="grow py-8 md:py-12 px-4">
-      <div class="max-w-275 mx-auto">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
-          <div>
-            <h1
-              class="m-0 text-3xl md:text-4xl font-black text-gray-900 tracking-tight relative inline-block pb-3 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-2 after:w-2/3 after:bg-linear-to-r after:from-primary after:to-blue-400 after:rounded-full"
-            >
-              Správy
-            </h1>
-            <p class="mt-4 text-xs text-gray-500 font-bold uppercase tracking-widest italic">
-              Prehľad doručených kontaktov
-            </p>
-          </div>
-          <div class="flex gap-4">
-            <button
-              id="refresh-btn"
-              class="px-6 py-3 bg-primary hover:bg-[#0353e9] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 flex items-center gap-2 group"
-            >
-              <ArrowsRotate class="h-4 w-4 transition-transform duration-500 group-hover:rotate-180" />
-              Obnoviť zoznam
-            </button>
-          </div>
-        </div>
+    <div class="min-h-screen bg-gray-50 flex flex-col font-sans">
+        <main class="grow py-8 md:py-12 px-4">
+            <div class="max-w-275 mx-auto">
+                <div
+                    class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8"
+                >
+                    <div>
+                        <h1
+                            class="m-0 text-3xl md:text-4xl font-black text-gray-900 tracking-tight relative inline-block pb-3 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-2 after:w-2/3 after:bg-linear-to-r after:from-primary after:to-blue-400 after:rounded-full"
+                        >
+                            Správy
+                        </h1>
+                        <p
+                            class="mt-4 text-xs text-gray-500 font-bold uppercase tracking-widest italic"
+                        >
+                            Prehľad doručených kontaktov
+                        </p>
+                    </div>
+                    <div class="flex gap-4">
+                        <button
+                            id="refresh-btn"
+                            class="px-6 py-3 bg-primary hover:bg-[#0353e9] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 flex items-center gap-2 group"
+                        >
+                            <ArrowsRotate
+                                class="h-4 w-4 transition-transform duration-500 group-hover:rotate-180"
+                            />
+                            Obnoviť zoznam
+                        </button>
+                    </div>
+                </div>
 
-        <!-- Tabs -->
-        <div class="mb-8 border-b border-gray-200">
-          <div class="flex space-x-8">
-            <button
-              id="active-tab"
-              class="pb-4 px-1 text-sm font-black uppercase tracking-widest border-b-2 border-primary text-primary transition-colors relative group"
-            >
-              Aktívne správy
-              <span id="active-count" class="ml-2 px-2 py-1 text-xs bg-primary text-white rounded-full">0</span>
-            </button>
-            <button
-              id="archived-tab"
-              class="pb-4 px-1 text-sm font-black uppercase tracking-widest text-gray-400 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 transition-colors relative group flex items-center gap-2"
-            >
-              <ArchiveBox class="h-4 w-4" />
-              Archív správ
-              <span id="archived-count" class="ml-2 px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded-full">0</span>
-            </button>
-          </div>
-        </div>
+                <!-- Tabs -->
+                <div class="mb-8 border-b border-gray-200">
+                    <div class="flex space-x-8">
+                        <button
+                            id="active-tab"
+                            class="pb-4 px-1 text-sm font-black uppercase tracking-widest border-b-2 border-primary text-primary transition-colors relative group"
+                        >
+                            Aktívne správy
+                            <span
+                                id="active-count"
+                                class="ml-2 px-2 py-1 text-xs bg-primary text-white rounded-full"
+                                >0</span
+                            >
+                        </button>
+                        <button
+                            id="archived-tab"
+                            class="pb-4 px-1 text-sm font-black uppercase tracking-widest text-gray-400 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 transition-colors relative group flex items-center gap-2"
+                        >
+                            <ArchiveBox class="h-4 w-4" />
+                            Archív správ
+                            <span
+                                id="archived-count"
+                                class="ml-2 px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded-full"
+                                >0</span
+                            >
+                        </button>
+                    </div>
+                </div>
 
-        <!-- Loading -->
-        <div id="loading" class="hidden">
-          <Loading text="Načítavam dáta..." />
-        </div>
+                <!-- Loading -->
+                <div id="loading" class="hidden">
+                    <Loading text="Načítavam dáta..." />
+                </div>
 
-        <!-- Active Messages Container -->
-        <div id="active-container" class="space-y-6 md:space-y-8">
-          <!-- Active messages will be loaded here -->
-        </div>
+                <!-- Active Messages Container -->
+                <div id="active-container" class="space-y-6 md:space-y-8">
+                    <!-- Active messages will be loaded here -->
+                </div>
 
-        <!-- Archived Messages Container -->
-        <div id="archived-container" class="space-y-6 md:space-y-8 hidden">
-          <!-- Archived messages will be loaded here -->
-        </div>
+                <!-- Archived Messages Container -->
+                <div
+                    id="archived-container"
+                    class="space-y-6 md:space-y-8 hidden"
+                >
+                    <!-- Archived messages will be loaded here -->
+                </div>
 
-        <!-- Pagination Controls -->
-        <Pagination show={true} currentPage={1} />
+                <!-- Pagination Controls -->
+                <Pagination show={true} currentPage={1} />
 
-        <!-- Empty States -->
-        <div id="no-active-messages" class="hidden">
-          <EmptyState
-            title="Momentálne nemáte žiadne aktívne správy."
-            subtitle="Nové správy sa zobrazia tu."
-          >
-            <Envelope slot="icon" class="h-20 w-20" />
-          </EmptyState>
-        </div>
+                <!-- Empty States -->
+                <div id="no-active-messages" class="hidden">
+                    <EmptyState
+                        title="Momentálne nemáte žiadne aktívne správy."
+                        subtitle="Nové správy sa zobrazia tu."
+                    >
+                        <Envelope slot="icon" class="h-20 w-20" />
+                    </EmptyState>
+                </div>
 
-        <div id="no-archived-messages" class="hidden">
-          <EmptyState
-            title="Archív správ je prázdny."
-            subtitle="Archivované správy sa zobrazia tu."
-          >
-            <ArchiveBox slot="icon" class="h-20 w-20" />
-          </EmptyState>
-        </div>
-      </div>
-    </main>
+                <div id="no-archived-messages" class="hidden">
+                    <EmptyState
+                        title="Archív správ je prázdny."
+                        subtitle="Archivované správy sa zobrazia tu."
+                    >
+                        <ArchiveBox slot="icon" class="h-20 w-20" />
+                    </EmptyState>
+                </div>
+            </div>
+        </main>
 
-    <!-- Icon Templates -->
-    <template id="icon-calendar">
-      <Calendar class="h-4 w-4" />
-    </template>
-    <template id="icon-calendar-small">
-      <Calendar class="h-3 w-3" />
-    </template>
-    <template id="icon-user">
-      <User class="h-3 w-3" />
-    </template>
-    <template id="icon-envelope">
-      <Envelope class="h-4 w-4" />
-    </template>
-    <template id="icon-phone">
-      <Phone class="h-4 w-4" />
-    </template>
-    <template id="icon-archive">
-      <ArchiveBox class="h-4 w-4 group-hover:scale-110 transition-transform" />
-    </template>
-    <template id="icon-trash">
-      <Trash class="h-4 w-4" />
-    </template>
-    <template id="icon-clock">
-      <Clock class="h-4 w-4" />
-    </template>
-    <template id="icon-undo">
-      <Undo class="h-4 w-4 group-hover:scale-110 transition-transform" />
-    </template>
+        <!-- Icon Templates -->
+        <template id="icon-calendar">
+            <Calendar class="h-4 w-4" />
+        </template>
+        <template id="icon-calendar-small">
+            <Calendar class="h-3 w-3" />
+        </template>
+        <template id="icon-user">
+            <User class="h-3 w-3" />
+        </template>
+        <template id="icon-envelope">
+            <Envelope class="h-4 w-4" />
+        </template>
+        <template id="icon-phone">
+            <Phone class="h-4 w-4" />
+        </template>
+        <template id="icon-archive">
+            <ArchiveBox
+                class="h-4 w-4 group-hover:scale-110 transition-transform"
+            />
+        </template>
+        <template id="icon-trash">
+            <Trash class="h-4 w-4" />
+        </template>
+        <template id="icon-clock">
+            <Clock class="h-4 w-4" />
+        </template>
+        <template id="icon-undo">
+            <Undo class="h-4 w-4 group-hover:scale-110 transition-transform" />
+        </template>
 
-    <footer class="bg-white border-t border-gray-100 py-10">
-      <div class="max-w-300 mx-auto px-4 text-center">
-        <p class="text-gray-400 font-bold text-[10px] uppercase tracking-widest">
-          &copy; {new Date().getFullYear()} MK-SBD - Administračný Panel
-        </p>
-      </div>
-    </footer>
-  </div>
+        <footer class="bg-white border-t border-gray-100 py-10">
+            <div class="max-w-300 mx-auto px-4 text-center">
+                <p
+                    class="text-gray-400 font-bold text-[10px] uppercase tracking-widest"
+                >
+                    &copy; {new Date().getFullYear()} MK-SBD - Administračný Panel
+                </p>
+            </div>
+        </footer>
+    </div>
 
-  <script>
-    import { initializeMessagesPage } from "../../lib/admin/messages";
+    <script>
+        import { initializeMessagesPage } from "../../lib/admin/messages";
 
-    const elements = {
-      activeTab: document.getElementById("active-tab") as HTMLButtonElement | null,
-      archivedTab: document.getElementById("archived-tab") as HTMLButtonElement | null,
-      activeContainer: document.getElementById("active-container") as HTMLElement | null,
-      archivedContainer: document.getElementById("archived-container") as HTMLElement | null,
-      loading: document.getElementById("loading") as HTMLElement | null,
-      noActiveMessages: document.getElementById("no-active-messages") as HTMLElement | null,
-      noArchivedMessages: document.getElementById("no-archived-messages") as HTMLElement | null,
-      paginationControls: document.getElementById("pagination-controls") as HTMLElement | null,
-      prevPageBtn: document.getElementById("prev-page") as HTMLButtonElement | null,
-      nextPageBtn: document.getElementById("next-page") as HTMLButtonElement | null,
-      currentPageNum: document.getElementById("current-page-num") as HTMLElement | null,
-      refreshBtn: document.getElementById("refresh-btn") as HTMLButtonElement | null,
-      activeCount: document.getElementById("active-count") as HTMLElement | null,
-      archivedCount: document.getElementById("archived-count") as HTMLElement | null,
-    };
+        const elements = {
+            activeTab: document.getElementById(
+                "active-tab",
+            ) as HTMLButtonElement | null,
+            archivedTab: document.getElementById(
+                "archived-tab",
+            ) as HTMLButtonElement | null,
+            activeContainer: document.getElementById(
+                "active-container",
+            ) as HTMLElement | null,
+            archivedContainer: document.getElementById(
+                "archived-container",
+            ) as HTMLElement | null,
+            loading: document.getElementById("loading") as HTMLElement | null,
+            noActiveMessages: document.getElementById(
+                "no-active-messages",
+            ) as HTMLElement | null,
+            noArchivedMessages: document.getElementById(
+                "no-archived-messages",
+            ) as HTMLElement | null,
+            paginationControls: document.getElementById(
+                "pagination-controls",
+            ) as HTMLElement | null,
+            prevPageBtn: document.getElementById(
+                "prev-page",
+            ) as HTMLButtonElement | null,
+            nextPageBtn: document.getElementById(
+                "next-page",
+            ) as HTMLButtonElement | null,
+            currentPageNum: document.getElementById(
+                "current-page-num",
+            ) as HTMLElement | null,
+            refreshBtn: document.getElementById(
+                "refresh-btn",
+            ) as HTMLButtonElement | null,
+            activeCount: document.getElementById(
+                "active-count",
+            ) as HTMLElement | null,
+            archivedCount: document.getElementById(
+                "archived-count",
+            ) as HTMLElement | null,
+        };
 
-    initializeMessagesPage(elements);
-  </script>
+        initializeMessagesPage(elements);
+    </script>
 </AdminLayout>

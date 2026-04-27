@@ -12,9 +12,15 @@ import ArrowLeft from "../../components/icons/ArrowLeft.astro";
     showScrollTop={false}
     showHeader={false}
 >
-    <main class="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 relative overflow-hidden font-sans">
-        <div class="w-full max-w-lg relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <div class="bg-white shadow-xl p-8 sm:p-10 border border-gray-100 rounded-2xl">
+    <main
+        class="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 relative overflow-hidden font-sans"
+    >
+        <div
+            class="w-full max-w-lg relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700"
+        >
+            <div
+                class="bg-white shadow-xl p-8 sm:p-10 border border-gray-100 rounded-2xl"
+            >
                 <div class="text-center mb-8">
                     <div class="flex justify-center mb-6">
                         <Image
@@ -25,19 +31,31 @@ import ArrowLeft from "../../components/icons/ArrowLeft.astro";
                             height={80}
                         />
                     </div>
-                    <h1 class="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tight">
+                    <h1
+                        class="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tight"
+                    >
                         Prvé spustenie
                     </h1>
-                    <p class="text-xs text-gray-500 font-bold uppercase tracking-widest italic">
+                    <p
+                        class="text-xs text-gray-500 font-bold uppercase tracking-widest italic"
+                    >
                         Vytvorte prvého administrátora systému
                     </p>
                 </div>
 
-                <div id="error-message" class="hidden bg-red-50 text-red-700 border border-red-100 rounded-xl py-3 px-4 mb-6 text-center text-sm font-bold"></div>
+                <div
+                    id="error-message"
+                    class="hidden bg-red-50 text-red-700 border border-red-100 rounded-xl py-3 px-4 mb-6 text-center text-sm font-bold"
+                >
+                </div>
 
                 <form id="setup-form" class="space-y-6">
                     <div class="space-y-2">
-                        <label for="username" class="block font-bold text-gray-700 text-xs uppercase tracking-widest pl-1">Používateľské meno</label>
+                        <label
+                            for="username"
+                            class="block font-bold text-gray-700 text-xs uppercase tracking-widest pl-1"
+                            >Používateľské meno</label
+                        >
                         <input
                             type="text"
                             id="username"
@@ -50,7 +68,11 @@ import ArrowLeft from "../../components/icons/ArrowLeft.astro";
                     </div>
 
                     <div class="space-y-2">
-                        <label for="password" class="block font-bold text-gray-700 text-xs uppercase tracking-widest pl-1">Heslo</label>
+                        <label
+                            for="password"
+                            class="block font-bold text-gray-700 text-xs uppercase tracking-widest pl-1"
+                            >Heslo</label
+                        >
                         <input
                             type="password"
                             id="password"
@@ -62,7 +84,11 @@ import ArrowLeft from "../../components/icons/ArrowLeft.astro";
                     </div>
 
                     <div class="space-y-2">
-                        <label for="confirm-password" class="block font-bold text-gray-700 text-xs uppercase tracking-widest pl-1">Potvrdiť heslo</label>
+                        <label
+                            for="confirm-password"
+                            class="block font-bold text-gray-700 text-xs uppercase tracking-widest pl-1"
+                            >Potvrdiť heslo</label
+                        >
                         <input
                             type="password"
                             id="confirm-password"
@@ -80,13 +106,18 @@ import ArrowLeft from "../../components/icons/ArrowLeft.astro";
                     >
                         <span class="inline-flex items-center gap-2">
                             Vytvoriť prvého používateľa
-                            <ArrowRight class="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                            <ArrowRight
+                                class="h-4 w-4 transition-transform group-hover:translate-x-1"
+                            />
                         </span>
                     </button>
                 </form>
 
                 <div class="text-center mt-8 pt-6 border-t border-gray-50">
-                    <a href="/" class="inline-flex items-center text-gray-400 font-bold text-xs uppercase tracking-widest hover:text-primary transition-colors gap-2 justify-center">
+                    <a
+                        href="/"
+                        class="inline-flex items-center text-gray-400 font-bold text-xs uppercase tracking-widest hover:text-primary transition-colors gap-2 justify-center"
+                    >
                         <ArrowLeft class="h-3 w-3" />
                         Späť na webovú stránku
                     </a>

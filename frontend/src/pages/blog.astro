@@ -7,70 +7,74 @@ import ChevronRight from "../components/icons/ChevronRight.astro";
 ---
 
 <Layout title="Blog">
-  <PageHero title="Blog" />
+    <PageHero title="Blog" />
 
-  <section class="bg-gray-50" aria-labelledby="blog-title">
-    <Container>
-      <h2
-        id="blog-title"
-        class="m-0 mb-8 text-2xl md:text-3xl lg:text-4xl font-bold leading-tight relative pb-2 inline-block tracking-tight after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-1.5 md:after:h-2 after:w-[58%] lg:after:w-[46%] after:bg-linear-to-r after:from-primary after:to-[#67a8ff] after:rounded-full after:shadow-[0_2px_6px_rgba(15,98,254,0.35)]"
-      >
-        Naše príspevky
-      </h2>
+    <section class="bg-gray-50" aria-labelledby="blog-title">
+        <Container>
+            <h2
+                id="blog-title"
+                class="m-0 mb-8 text-2xl md:text-3xl lg:text-4xl font-bold leading-tight relative pb-2 inline-block tracking-tight after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-1.5 md:after:h-2 after:w-[58%] lg:after:w-[46%] after:bg-linear-to-r after:from-primary after:to-[#67a8ff] after:rounded-full after:shadow-[0_2px_6px_rgba(15,98,254,0.35)]"
+            >
+                Naše príspevky
+            </h2>
 
-      <div id="featured-post" class="hidden mb-10"></div>
+            <div id="featured-post" class="hidden mb-10"></div>
 
-      <div id="loading-posts" class="hidden">
-        <Loading text="Načítavam príspevky..." />
-      </div>
+            <div id="loading-posts" class="hidden">
+                <Loading text="Načítavam príspevky..." />
+            </div>
 
-      <div id="error-message" class="hidden text-center py-12">
-        <p class="text-gray-600">Nepodarilo sa načítať príspevky.</p>
-      </div>
+            <div id="error-message" class="hidden text-center py-12">
+                <p class="text-gray-600">Nepodarilo sa načítať príspevky.</p>
+            </div>
 
-      <div id="no-posts" class="hidden text-center py-12">
-        <p class="text-gray-600">Zatiaľ žiadne príspevky.</p>
-      </div>
+            <div id="no-posts" class="hidden text-center py-12">
+                <p class="text-gray-600">Zatiaľ žiadne príspevky.</p>
+            </div>
 
-      <div id="posts-container" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
-    </Container>
-  </section>
+            <div
+                id="posts-container"
+                class="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
+            >
+            </div>
+        </Container>
+    </section>
 
-  <template id="icon-chevron-right">
-    <ChevronRight class="h-4 w-4" />
-  </template>
+    <template id="icon-chevron-right">
+        <ChevronRight class="h-4 w-4" />
+    </template>
 
-  <script>
-    import { api } from "../lib/api";
-    import { markdownToHtml } from "../utils/markdown";
+    <script>
+        import { api } from "../lib/api";
+        import { markdownToHtml } from "../utils/markdown";
 
-    async function loadBlogPosts() {
-      const loading = document.getElementById("loading-posts");
-      const error = document.getElementById("error-message");
-      const noPosts = document.getElementById("no-posts");
-      const featured = document.getElementById("featured-post");
-      const container = document.getElementById("posts-container");
+        async function loadBlogPosts() {
+            const loading = document.getElementById("loading-posts");
+            const error = document.getElementById("error-message");
+            const noPosts = document.getElementById("no-posts");
+            const featured = document.getElementById("featured-post");
+            const container = document.getElementById("posts-container");
 
-      if (!container) return;
+            if (!container) return;
 
-      if (loading) loading.classList.remove("hidden");
+            if (loading) loading.classList.remove("hidden");
 
-      try {
-        const posts = await api.blog.getBlogPosts();
+            try {
+                const posts = await api.blog.getBlogPosts();
 
-        if (posts.length === 0) {
-          if (noPosts) noPosts.classList.remove("hidden");
-        } else {
-          const [latestPost, ...otherPosts] = posts;
+                if (posts.length === 0) {
+                    if (noPosts) noPosts.classList.remove("hidden");
+                } else {
+                    const [latestPost, ...otherPosts] = posts;
 
-          if (featured && latestPost) {
-            const featuredExcerpt = latestPost.excerpt
-              ? `<div class="text-sm md:text-base text-gray-600 mb-6 prose prose-sm md:prose-base max-w-none">${markdownToHtml(latestPost.excerpt)}</div>`
-              : "";
+                    if (featured && latestPost) {
+                        const featuredExcerpt = latestPost.excerpt
+                            ? `<div class="text-sm md:text-base text-gray-600 mb-6 prose prose-sm md:prose-base max-w-none">${markdownToHtml(latestPost.excerpt)}</div>`
+                            : "";
 
-            featured.innerHTML = `
+                        featured.innerHTML = `
               <article class="grid gap-0 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
-                ${latestPost.image_mime ? `<img src="${api.blog.getBlogPostImageUrl(latestPost.id)}" alt="${latestPost.title}" class="h-full min-h-80 w-full object-cover">` : "<div class=\"bg-linear-to-br from-primary/10 to-blue-100 min-h-80\"></div>"}
+                ${latestPost.image_mime ? `<img src="${api.blog.getBlogPostImageUrl(latestPost.id)}" alt="${latestPost.title}" class="h-full min-h-80 w-full object-cover">` : '<div class="bg-linear-to-br from-primary/10 to-blue-100 min-h-80"></div>'}
                 <div class="p-8 md:p-10">
                   <p class="m-0 mb-3 text-xs font-black uppercase tracking-[0.15em] text-primary">Najnovší príspevok</p>
                   <h3 class="m-0 mb-4 text-2xl md:text-3xl font-black text-gray-900 tracking-tight leading-tight">
@@ -84,27 +88,31 @@ import ChevronRight from "../components/icons/ChevronRight.astro";
                 </div>
               </article>
             `;
-            featured.classList.remove("hidden");
-          }
+                        featured.classList.remove("hidden");
+                    }
 
-          container.innerHTML = otherPosts.map((post) => {
-            const date = new Date(post.created_at);
-            const formattedDate = date.toLocaleDateString("sk-SK", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            });
+                    container.innerHTML = otherPosts
+                        .map((post) => {
+                            const date = new Date(post.created_at);
+                            const formattedDate = date.toLocaleDateString(
+                                "sk-SK",
+                                {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                },
+                            );
 
-            return `
+                            return `
               <article class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/20 hover:-translate-y-1">
-                ${post.image_mime ? `<img src="${api.blog.getBlogPostImageUrl(post.id)}" alt="${post.title}" class="w-full h-48 object-cover">` : ''}
+                ${post.image_mime ? `<img src="${api.blog.getBlogPostImageUrl(post.id)}" alt="${post.title}" class="w-full h-48 object-cover">` : ""}
                 <div class="p-6">
                   <h3 class="m-0 mb-3 text-xl font-bold text-gray-900 leading-tight break-words">
                     <a href="/blog/${encodeURIComponent(post.slug)}" class="no-underline text-inherit hover:text-primary transition-colors">
                       ${post.title}
                     </a>
                   </h3>
-                  ${post.excerpt ? `<div class="text-sm text-gray-600 mb-4 line-clamp-3 break-words prose prose-sm max-w-none">${markdownToHtml(post.excerpt)}</div>` : ''}
+                  ${post.excerpt ? `<div class="text-sm text-gray-600 mb-4 line-clamp-3 break-words prose prose-sm max-w-none">${markdownToHtml(post.excerpt)}</div>` : ""}
                   <div class="flex items-center justify-between">
                     <time class="text-xs text-gray-400" datetime="${post.created_at}">
                       ${formattedDate}
@@ -117,24 +125,31 @@ import ChevronRight from "../components/icons/ChevronRight.astro";
                 </div>
               </article>
             `;
-          }).join("");
+                        })
+                        .join("");
 
-          // Replace icon placeholders with cloned templates
-          const chevronTemplate = document.getElementById('icon-chevron-right') as HTMLTemplateElement;
-          if (chevronTemplate) {
-            document.querySelectorAll('.icon-chevron-right').forEach((placeholder) => {
-              placeholder.replaceWith(chevronTemplate.content.cloneNode(true));
-            });
-          }
+                    // Replace icon placeholders with cloned templates
+                    const chevronTemplate = document.getElementById(
+                        "icon-chevron-right",
+                    ) as HTMLTemplateElement;
+                    if (chevronTemplate) {
+                        document
+                            .querySelectorAll(".icon-chevron-right")
+                            .forEach((placeholder) => {
+                                placeholder.replaceWith(
+                                    chevronTemplate.content.cloneNode(true),
+                                );
+                            });
+                    }
+                }
+            } catch (e) {
+                console.error("Error loading blog posts:", e);
+                if (error) error.classList.remove("hidden");
+            } finally {
+                if (loading) loading.classList.add("hidden");
+            }
         }
-      } catch (e) {
-        console.error("Error loading blog posts:", e);
-        if (error) error.classList.remove("hidden");
-      } finally {
-        if (loading) loading.classList.add("hidden");
-      }
-    }
 
-    loadBlogPosts();
-  </script>
+        loadBlogPosts();
+    </script>
 </Layout>

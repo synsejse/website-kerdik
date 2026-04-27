@@ -1,11 +1,11 @@
-import { marked } from 'marked';
+import { marked } from "marked";
 
 /**
  * Configure marked with safe defaults
  */
 marked.setOptions({
-  gfm: true, // GitHub Flavored Markdown
-  breaks: true, // Convert \n to <br>
+    gfm: true, // GitHub Flavored Markdown
+    breaks: true, // Convert \n to <br>
 });
 
 /**
@@ -14,5 +14,5 @@ marked.setOptions({
  * @returns HTML string
  */
 export function markdownToHtml(markdown: string): string {
-  return marked.parse(markdown) as string;
+    return marked.parse(markdown) as string;
 }

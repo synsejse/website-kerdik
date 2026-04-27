@@ -3,85 +3,187 @@ import AdminLayout from "../../layouts/admin/Layout.astro";
 ---
 
 <AdminLayout title="Admin - Banner" showFooter={false}>
-  <div class="min-h-screen bg-gray-50 flex flex-col font-sans">
-    <main class="grow py-8 md:py-12 px-4">
-      <div class="max-w-220 mx-auto">
-        <div class="mb-10 md:mb-12">
-          <h1 class="m-0 text-3xl md:text-4xl font-black text-gray-900 tracking-tight relative inline-block pb-3 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-2 after:w-2/3 after:bg-linear-to-r after:from-primary after:to-blue-400 after:rounded-full">
-            Banner
-          </h1>
-          <p class="mt-4 text-xs text-gray-500 font-bold uppercase tracking-widest italic">
-            Globálne upozornenie zobrazované na celej verejnej stránke
-          </p>
-        </div>
+    <div class="min-h-screen bg-gray-50 flex flex-col font-sans">
+        <main class="grow py-8 md:py-12 px-4">
+            <div class="max-w-220 mx-auto">
+                <div class="mb-10 md:mb-12">
+                    <h1
+                        class="m-0 text-3xl md:text-4xl font-black text-gray-900 tracking-tight relative inline-block pb-3 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-2 after:w-2/3 after:bg-linear-to-r after:from-primary after:to-blue-400 after:rounded-full"
+                    >
+                        Banner
+                    </h1>
+                    <p
+                        class="mt-4 text-xs text-gray-500 font-bold uppercase tracking-widest italic"
+                    >
+                        Globálne upozornenie zobrazované na celej verejnej
+                        stránke
+                    </p>
+                </div>
 
-        <div id="banner-success" class="hidden mb-6 bg-green-50 text-green-700 border border-green-100 rounded-xl py-3 px-4 text-sm font-bold"></div>
-        <div id="banner-error" class="hidden mb-6 bg-red-50 text-red-700 border border-red-100 rounded-xl py-3 px-4 text-sm font-bold"></div>
+                <div
+                    id="banner-success"
+                    class="hidden mb-6 bg-green-50 text-green-700 border border-green-100 rounded-xl py-3 px-4 text-sm font-bold"
+                >
+                </div>
+                <div
+                    id="banner-error"
+                    class="hidden mb-6 bg-red-50 text-red-700 border border-red-100 rounded-xl py-3 px-4 text-sm font-bold"
+                >
+                </div>
 
-        <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)] items-start">
-          <form id="banner-form" class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm space-y-5">
-            <label class="flex items-center gap-3">
-              <input id="banner-active" type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary" />
-              <span class="text-sm font-bold text-gray-700">Banner je aktívny</span>
-            </label>
+                <div
+                    class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)] items-start"
+                >
+                    <form
+                        id="banner-form"
+                        class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm space-y-5"
+                    >
+                        <label class="flex items-center gap-3">
+                            <input
+                                id="banner-active"
+                                type="checkbox"
+                                class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                            />
+                            <span class="text-sm font-bold text-gray-700"
+                                >Banner je aktívny</span
+                            >
+                        </label>
 
-            <div>
-              <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1" for="banner-tone">Typ</label>
-              <select id="banner-tone" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm font-bold">
-                <option value="critical">Kritický</option>
-                <option value="warning">Varovanie</option>
-                <option value="info">Informácia</option>
-              </select>
+                        <div>
+                            <label
+                                class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1"
+                                for="banner-tone">Typ</label
+                            >
+                            <select
+                                id="banner-tone"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm font-bold"
+                            >
+                                <option value="critical">Kritický</option>
+                                <option value="warning">Varovanie</option>
+                                <option value="info">Informácia</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1"
+                                for="banner-title">Nadpis</label
+                            >
+                            <input
+                                id="banner-title"
+                                type="text"
+                                required
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm font-bold"
+                                placeholder="Plánovaná odstávka vody"
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1"
+                                for="banner-message">Správa</label
+                            >
+                            <textarea
+                                id="banner-message"
+                                rows="5"
+                                required
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm resize-y"
+                                placeholder="Napíšte stručné, ale jasné oznámenie pre návštevníkov..."
+                            ></textarea>
+                        </div>
+
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label
+                                    class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1"
+                                    for="banner-link-label">Text odkazu</label
+                                >
+                                <input
+                                    id="banner-link-label"
+                                    type="text"
+                                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm"
+                                    placeholder="Viac informácií"
+                                />
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1"
+                                    for="banner-link-url">URL odkazu</label
+                                >
+                                <input
+                                    id="banner-link-url"
+                                    type="url"
+                                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm"
+                                    placeholder="https://..."
+                                />
+                            </div>
+                        </div>
+
+                        <div
+                            class="pt-4 flex flex-wrap justify-end gap-3 border-t border-gray-100 mt-6"
+                        >
+                            <button
+                                type="button"
+                                id="banner-delete"
+                                class="px-4 py-2 text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-700 transition-colors"
+                            >
+                                Vymazať banner
+                            </button>
+                            <button
+                                type="submit"
+                                class="px-6 py-2.5 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-[#0353e9] transition-all shadow-lg hover:shadow-xl active:scale-95"
+                            >
+                                Uložiť banner
+                            </button>
+                        </div>
+                    </form>
+
+                    <aside
+                        class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm"
+                    >
+                        <p
+                            class="m-0 mb-4 text-xs font-black uppercase tracking-[0.15em] text-primary"
+                        >
+                            Náhľad
+                        </p>
+                        <div
+                            id="banner-preview"
+                            class="rounded-2xl p-5 text-white bg-red-600"
+                        >
+                            <p
+                                id="banner-preview-label"
+                                class="m-0 text-xs font-black uppercase tracking-[0.18em] text-white/80"
+                            >
+                                Kritické upozornenie
+                            </p>
+                            <p
+                                id="banner-preview-title"
+                                class="m-0 mt-1 mb-2 text-lg font-black"
+                            >
+                                Nadpis bannera
+                            </p>
+                            <p
+                                id="banner-preview-message"
+                                class="m-0 text-sm leading-relaxed"
+                            >
+                                Text bannera sa zobrazí tu.
+                            </p>
+                            <a
+                                id="banner-preview-link"
+                                href="#"
+                                class="hidden mt-4 inline-flex items-center gap-2 text-sm font-black text-white/95 hover:text-white no-underline"
+                                >Otvoriť odkaz</a
+                            >
+                        </div>
+                    </aside>
+                </div>
             </div>
+        </main>
+    </div>
 
-            <div>
-              <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1" for="banner-title">Nadpis</label>
-              <input id="banner-title" type="text" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm font-bold" placeholder="Plánovaná odstávka vody" />
-            </div>
-
-            <div>
-              <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1" for="banner-message">Správa</label>
-              <textarea id="banner-message" rows="5" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm resize-y" placeholder="Napíšte stručné, ale jasné oznámenie pre návštevníkov..."></textarea>
-            </div>
-
-            <div class="grid gap-4 md:grid-cols-2">
-              <div>
-                <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1" for="banner-link-label">Text odkazu</label>
-                <input id="banner-link-label" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm" placeholder="Viac informácií" />
-              </div>
-
-              <div>
-                <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1" for="banner-link-url">URL odkazu</label>
-                <input id="banner-link-url" type="url" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm" placeholder="https://..." />
-              </div>
-            </div>
-
-            <div class="pt-4 flex flex-wrap justify-end gap-3 border-t border-gray-100 mt-6">
-              <button type="button" id="banner-delete" class="px-4 py-2 text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-700 transition-colors">
-                Vymazať banner
-              </button>
-              <button type="submit" class="px-6 py-2.5 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-[#0353e9] transition-all shadow-lg hover:shadow-xl active:scale-95">
-                Uložiť banner
-              </button>
-            </div>
-          </form>
-
-          <aside class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
-            <p class="m-0 mb-4 text-xs font-black uppercase tracking-[0.15em] text-primary">Náhľad</p>
-            <div id="banner-preview" class="rounded-2xl p-5 text-white bg-red-600">
-              <p id="banner-preview-label" class="m-0 text-xs font-black uppercase tracking-[0.18em] text-white/80">Kritické upozornenie</p>
-              <p id="banner-preview-title" class="m-0 mt-1 mb-2 text-lg font-black">Nadpis bannera</p>
-              <p id="banner-preview-message" class="m-0 text-sm leading-relaxed">Text bannera sa zobrazí tu.</p>
-              <a id="banner-preview-link" href="#" class="hidden mt-4 inline-flex items-center gap-2 text-sm font-black text-white/95 hover:text-white no-underline">Otvoriť odkaz</a>
-            </div>
-          </aside>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <script>
-    import { initBannerAdmin } from "../../lib/admin/banner";
-    initBannerAdmin();
-  </script>
+    <script>
+        import { initBannerAdmin } from "../../lib/admin/banner";
+        initBannerAdmin();
+    </script>
 </AdminLayout>

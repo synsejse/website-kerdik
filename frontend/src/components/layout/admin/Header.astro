@@ -3,52 +3,82 @@ import { Image } from "astro:assets";
 import logo from "../../../assets/brand/logo.png";
 
 export interface Props {
-  title?: string;
+    title?: string;
 }
 
-const {
-  title = "Administrácia",
-} = Astro.props;
+const { title = "Administrácia" } = Astro.props;
 ---
 
 <header class="bg-white border-b border-gray-200 py-3 lg:py-5">
-  <div class="max-w-275 mx-auto px-4 flex flex-col lg:flex-row justify-between items-center gap-5 lg:gap-6">
-    <div class="flex items-center">
-      <a href="/" class="flex items-center no-underline text-inherit">
-        <Image src={logo} alt="MK-SBD" class="h-16 md:h-18 lg:h-20 w-auto aspect-square bg-white p-1.5 rounded-md shadow-sm transition-[height] duration-250 ease-in-out" width={80} height={80} />
-      </a>
+    <div
+        class="max-w-275 mx-auto px-4 flex flex-col lg:flex-row justify-between items-center gap-5 lg:gap-6"
+    >
+        <div class="flex items-center">
+            <a href="/" class="flex items-center no-underline text-inherit">
+                <Image
+                    src={logo}
+                    alt="MK-SBD"
+                    class="h-16 md:h-18 lg:h-20 w-auto aspect-square bg-white p-1.5 rounded-md shadow-sm transition-[height] duration-250 ease-in-out"
+                    width={80}
+                    height={80}
+                />
+            </a>
+        </div>
+
+        <div
+            class="hidden md:grid lg:flex flex-wrap items-center gap-4 lg:gap-8 grid-cols-[repeat(auto-fit,minmax(180px,1fr))] w-full lg:w-auto"
+        >
+            <!-- Admin title replaces contact info -->
+            <div
+                class="flex items-center gap-2.5 text-[0.8125rem] text-gray-600 leading-tight"
+            >
+                <div class="flex flex-col gap-0.5">
+                    <div
+                        class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider"
+                    >
+                        Režim
+                    </div>
+                    <span class="font-medium text-gray-900">{title}</span>
+                </div>
+            </div>
+
+            <div
+                class="flex items-center gap-2.5 text-[0.8125rem] text-gray-600 leading-tight"
+            >
+                <div class="flex flex-col gap-0.5">
+                    <div
+                        class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider"
+                    >
+                        Panel
+                    </div>
+                    <span class="font-medium text-gray-900">Administrátor</span>
+                </div>
+            </div>
+
+            <!-- Logout button positioned like a contact item -->
+            <div
+                class="flex items-center gap-2.5 text-[0.8125rem] leading-tight"
+                id="admin-logout-container"
+            >
+                <div class="flex flex-col gap-0.5 w-full">
+                    <div
+                        class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider"
+                    >
+                        Akcia
+                    </div>
+                    <button
+                        id="admin-logout-btn"
+                        class="hidden px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-black uppercase rounded-xl transition-colors"
+                    >
+                        Odhlásiť
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="hidden md:grid lg:flex flex-wrap items-center gap-4 lg:gap-8 grid-cols-[repeat(auto-fit,minmax(180px,1fr))] w-full lg:w-auto">
-      <!-- Admin title replaces contact info -->
-      <div class="flex items-center gap-2.5 text-[0.8125rem] text-gray-600 leading-tight">
-        <div class="flex flex-col gap-0.5">
-          <div class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider">Režim</div>
-          <span class="font-medium text-gray-900">{title}</span>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2.5 text-[0.8125rem] text-gray-600 leading-tight">
-        <div class="flex flex-col gap-0.5">
-          <div class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider">Panel</div>
-          <span class="font-medium text-gray-900">Administrátor</span>
-        </div>
-      </div>
-
-      <!-- Logout button positioned like a contact item -->
-      <div class="flex items-center gap-2.5 text-[0.8125rem] leading-tight" id="admin-logout-container">
-        <div class="flex flex-col gap-0.5 w-full">
-          <div class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider">Akcia</div>
-          <button id="admin-logout-btn" class="hidden px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-black uppercase rounded-xl transition-colors">
-            Odhlásiť
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
 </header>
 
 <script>
-  import { initAdminHeader } from "../../../lib/admin/header";
-  initAdminHeader();
+    import { initAdminHeader } from "../../../lib/admin/header";
+    initAdminHeader();
 </script>

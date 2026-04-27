@@ -20,7 +20,9 @@ export async function checkAdminAuth(): Promise<void> {
         }
 
         if (onSetup) {
-            window.location.href = status.authenticated ? "/admin/messages" : "/admin/login";
+            window.location.href = status.authenticated
+                ? "/admin/messages"
+                : "/admin/login";
             return;
         }
 
@@ -35,7 +37,11 @@ export async function checkAdminAuth(): Promise<void> {
         }
     } catch (e) {
         const path = window.location.pathname.replace(/\/+$/, "");
-        if (path !== "/admin/login" && path !== "/admin/setup" && path !== "/admin/invite") {
+        if (
+            path !== "/admin/login" &&
+            path !== "/admin/setup" &&
+            path !== "/admin/invite"
+        ) {
             window.location.href = "/admin/login";
         }
     }

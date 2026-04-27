@@ -11,223 +11,338 @@ import "leaflet/dist/leaflet.css";
 ---
 
 <AdminLayout title="Admin - Ponuky" showFooter={false}>
-  <div class="min-h-screen bg-gray-50 flex flex-col font-sans">
-    <main class="grow py-8 md:py-12 px-4">
-      <div class="max-w-275 mx-auto">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10 md:mb-12">
-          <div>
-            <h1 class="m-0 text-3xl md:text-4xl font-black text-gray-900 tracking-tight relative inline-block pb-3 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-2 after:w-2/3 after:bg-linear-to-r after:from-primary after:to-blue-400 after:rounded-full">
-              Zoznam ponúk
-            </h1>
-            <p class="mt-4 text-xs text-gray-500 font-bold uppercase tracking-widest italic">
-              Prehľad ponúk
-            </p>
-          </div>
-          <div class="flex gap-3 items-center">
-            <button id="refresh-btn" class="px-6 py-3 bg-primary hover:bg-[#0353e9] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 flex items-center gap-2 group">
-              <ArrowsRotate class="h-4 w-4 transition-transform duration-500 group-hover:rotate-180" />
-              Obnoviť zoznam
-            </button>
-            <button id="add-offer-btn" class="px-6 py-3 bg-primary hover:bg-[#0353e9] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-95">
-              + Pridať ponuku
-            </button>
-          </div>
-        </div>
-
-        <div id="loading" class="hidden">
-          <Loading text="Načítavam dáta..." />
-        </div>
-
-        <div id="offers-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-
-        <div id="no-offers" class="hidden">
-          <EmptyState
-            title="Zatiaľ žiadne ponuky."
-            subtitle=""
-          />
-        </div>
-      </div>
-    </main>
-
-    <!-- Icon Templates -->
-    <template id="icon-edit">
-      <Edit class="h-4 w-4" />
-    </template>
-    <template id="icon-trash">
-      <Trash class="h-4 w-4" />
-    </template>
-
-    <Modal id="modal-overlay" title="Nová Ponuka">
-      <form id="offer-form">
-        <input type="hidden" id="offer-id" />
-        
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          <!-- Left Column: Form Fields -->
-          <div class="space-y-3 sm:space-y-4">
-            <input
-              type="text"
-              id="offer-title"
-              required
-              class="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none font-bold break-words text-sm sm:text-base"
-              placeholder="Názov ponuky"
-            />
-            <input
-              type="text"
-              id="offer-slug"
-              required
-              class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none font-mono text-sm break-all"
-              placeholder="slug-adresy"
-            />
-            <div>
-              <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                Krátky popis (markdown)
-              </label>
-              <MarkdownToolbar targetId="offer-excerpt" />
-              <textarea
-                id="offer-excerpt"
-                rows="3"
-                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 border-t-0 rounded-b-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-words resize-none"
-                placeholder="Krátky popis pre karty a mapu..."
-              ></textarea>
-            </div>
-
-            <div>
-              <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                Detailný popis (markdown)
-              </label>
-              <MarkdownToolbar targetId="offer-content" />
-              <textarea
-                id="offer-content"
-                rows="6"
-                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 border-t-0 rounded-b-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-words resize-none"
-                placeholder="Detailný obsah ponuky s markdown formátovaním..."
-              ></textarea>
-            </div>
-
-            <div>
-              <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                Externý odkaz (voliteľné)
-              </label>
-              <input
-                type="url"
-                id="offer-link"
-                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-all"
-                placeholder="https://example.com"
-              />
-            </div>
-          </div>
-
-          <!-- Right Column: Location & Image -->
-          <div class="space-y-3 sm:space-y-4">
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                  Zem. šírka
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  id="offer-latitude"
-                  class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm"
-                  placeholder="49.0742"
-                />
-              </div>
-
-              <div>
-                <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                  Zem. dĺžka
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  id="offer-longitude"
-                  class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm"
-                  placeholder="19.3056"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
-                Vyberte polohu na mape
-              </label>
-              <div id="map-picker" class="h-64 rounded-xl border border-gray-200 overflow-hidden" style="z-index: 0;"></div>
-              <p class="text-xs text-gray-500 mt-2 italic">Kliknite na mapu alebo zadajte súradnice</p>
-            </div>
-
-            <div>
-              <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                Obrázok (PNG/JPG)
-              </label>
-              <input
-                type="file"
-                id="offer-image"
-                accept="image/*"
-                class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-primary"
-              />
-              <div id="image-crop-container" class="mt-3 hidden">
-                <div class="grid grid-rows-[minmax(250px,600px)] rounded-lg border border-gray-200 bg-gray-100 overflow-hidden">
-                  <img id="image-crop-preview" src="" alt="Obrázok na orezanie" class="w-full h-full object-contain" />
+    <div class="min-h-screen bg-gray-50 flex flex-col font-sans">
+        <main class="grow py-8 md:py-12 px-4">
+            <div class="max-w-275 mx-auto">
+                <div
+                    class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10 md:mb-12"
+                >
+                    <div>
+                        <h1
+                            class="m-0 text-3xl md:text-4xl font-black text-gray-900 tracking-tight relative inline-block pb-3 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-2 after:w-2/3 after:bg-linear-to-r after:from-primary after:to-blue-400 after:rounded-full"
+                        >
+                            Zoznam ponúk
+                        </h1>
+                        <p
+                            class="mt-4 text-xs text-gray-500 font-bold uppercase tracking-widest italic"
+                        >
+                            Prehľad ponúk
+                        </p>
+                    </div>
+                    <div class="flex gap-3 items-center">
+                        <button
+                            id="refresh-btn"
+                            class="px-6 py-3 bg-primary hover:bg-[#0353e9] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 flex items-center gap-2 group"
+                        >
+                            <ArrowsRotate
+                                class="h-4 w-4 transition-transform duration-500 group-hover:rotate-180"
+                            />
+                            Obnoviť zoznam
+                        </button>
+                        <button
+                            id="add-offer-btn"
+                            class="px-6 py-3 bg-primary hover:bg-[#0353e9] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-95"
+                        >
+                            + Pridať ponuku
+                        </button>
+                    </div>
                 </div>
-                <div class="mt-2 flex justify-end gap-2">
-                  <button type="button" id="crop-cancel" class="px-3 py-1.5 text-xs font-bold text-gray-500 hover:text-gray-700 transition-colors">
-                    Zrušiť
-                  </button>
-                  <button type="button" id="crop-apply" class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:bg-blue-600 transition-colors">
-                    Použiť orezanie
-                  </button>
+
+                <div id="loading" class="hidden">
+                    <Loading text="Načítavam dáta..." />
                 </div>
-              </div>
-              <div id="image-preview" class="mt-3 hidden rounded-lg overflow-hidden border border-gray-200">
-                <img src="" class="w-full h-80 object-cover" alt="Náhľad obrázka" />
-              </div>
+
+                <div
+                    id="offers-container"
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                >
+                </div>
+
+                <div id="no-offers" class="hidden">
+                    <EmptyState title="Zatiaľ žiadne ponuky." subtitle="" />
+                </div>
             </div>
-          </div>
-        </div>
+        </main>
 
-        <div class="pt-4 sm:pt-6 flex justify-end gap-2 sm:gap-3 border-t border-gray-100 mt-4 sm:mt-6">
-          <button type="button" id="modal-cancel" class="px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-gray-700 transition-colors">
-            Zrušiť
-          </button>
-          <button type="submit" class="px-4 sm:px-6 py-2 sm:py-2.5 bg-primary text-white text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl hover:bg-[#0353e9] transition-all shadow-lg hover:shadow-xl active:scale-95">
-            Uložiť
-          </button>
-        </div>
-      </form>
-    </Modal>
-  </div>
+        <!-- Icon Templates -->
+        <template id="icon-edit">
+            <Edit class="h-4 w-4" />
+        </template>
+        <template id="icon-trash">
+            <Trash class="h-4 w-4" />
+        </template>
 
-  <script>
-    import { initializeOffersPage } from "../../lib/admin/offers";
+        <Modal id="modal-overlay" title="Nová Ponuka">
+            <form id="offer-form">
+                <input type="hidden" id="offer-id" />
 
-    const elements = {
-      container: document.getElementById("offers-container") as HTMLElement | null,
-      loading: document.getElementById("loading") as HTMLElement | null,
-      noOffers: document.getElementById("no-offers") as HTMLElement | null,
-      form: document.getElementById("offer-form") as HTMLFormElement | null,
-      modal: document.getElementById("modal-overlay") as HTMLElement | null,
-      refreshBtn: document.getElementById("refresh-btn") as HTMLElement | null,
-      addOfferBtn: document.getElementById("add-offer-btn") as HTMLElement | null,
-      modalClose: document.getElementById("modal-overlay-close") as HTMLElement | null,
-      modalCancel: document.getElementById("modal-cancel") as HTMLElement | null,
-      offerId: document.getElementById("offer-id") as HTMLInputElement | null,
-      offerTitle: document.getElementById("offer-title") as HTMLInputElement | null,
-      offerSlug: document.getElementById("offer-slug") as HTMLInputElement | null,
-      offerExcerpt: document.getElementById("offer-excerpt") as HTMLTextAreaElement | null,
-      offerContent: document.getElementById("offer-content") as HTMLTextAreaElement | null,
-      offerLink: document.getElementById("offer-link") as HTMLInputElement | null,
-      offerImage: document.getElementById("offer-image") as HTMLInputElement | null,
-      imagePreview: document.getElementById("image-preview") as HTMLElement | null,
-      imagePreviewImg: document.querySelector("#image-preview img") as HTMLImageElement | null,
-      offerLatitude: document.getElementById("offer-latitude") as HTMLInputElement | null,
-      offerLongitude: document.getElementById("offer-longitude") as HTMLInputElement | null,
-      mapPicker: document.getElementById("map-picker") as HTMLElement | null,
-      imageCropContainer: document.getElementById("image-crop-container") as HTMLElement | null,
-      imageCropPreview: document.getElementById("image-crop-preview") as HTMLImageElement | null,
-      cropApply: document.getElementById("crop-apply") as HTMLButtonElement | null,
-      cropCancel: document.getElementById("crop-cancel") as HTMLButtonElement | null,
-    };
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                    <!-- Left Column: Form Fields -->
+                    <div class="space-y-3 sm:space-y-4">
+                        <input
+                            type="text"
+                            id="offer-title"
+                            required
+                            class="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none font-bold break-words text-sm sm:text-base"
+                            placeholder="Názov ponuky"
+                        />
+                        <input
+                            type="text"
+                            id="offer-slug"
+                            required
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none font-mono text-sm break-all"
+                            placeholder="slug-adresy"
+                        />
+                        <div>
+                            <label
+                                class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1"
+                            >
+                                Krátky popis (markdown)
+                            </label>
+                            <MarkdownToolbar targetId="offer-excerpt" />
+                            <textarea
+                                id="offer-excerpt"
+                                rows="3"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 border-t-0 rounded-b-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-words resize-none"
+                                placeholder="Krátky popis pre karty a mapu..."
+                            ></textarea>
+                        </div>
 
-    initializeOffersPage(elements);
-  </script>
+                        <div>
+                            <label
+                                class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1"
+                            >
+                                Detailný popis (markdown)
+                            </label>
+                            <MarkdownToolbar targetId="offer-content" />
+                            <textarea
+                                id="offer-content"
+                                rows="6"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 border-t-0 rounded-b-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-words resize-none"
+                                placeholder="Detailný obsah ponuky s markdown formátovaním..."
+                            ></textarea>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1"
+                            >
+                                Externý odkaz (voliteľné)
+                            </label>
+                            <input
+                                type="url"
+                                id="offer-link"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-all"
+                                placeholder="https://example.com"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Location & Image -->
+                    <div class="space-y-3 sm:space-y-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label
+                                    class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1"
+                                >
+                                    Zem. šírka
+                                </label>
+                                <input
+                                    type="number"
+                                    step="any"
+                                    id="offer-latitude"
+                                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm"
+                                    placeholder="49.0742"
+                                />
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1"
+                                >
+                                    Zem. dĺžka
+                                </label>
+                                <input
+                                    type="number"
+                                    step="any"
+                                    id="offer-longitude"
+                                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm"
+                                    placeholder="19.3056"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2"
+                            >
+                                Vyberte polohu na mape
+                            </label>
+                            <div
+                                id="map-picker"
+                                class="h-64 rounded-xl border border-gray-200 overflow-hidden"
+                                style="z-index: 0;"
+                            >
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2 italic">
+                                Kliknite na mapu alebo zadajte súradnice
+                            </p>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1"
+                            >
+                                Obrázok (PNG/JPG)
+                            </label>
+                            <input
+                                type="file"
+                                id="offer-image"
+                                accept="image/*"
+                                class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-primary"
+                            />
+                            <div id="image-crop-container" class="mt-3 hidden">
+                                <div
+                                    class="grid grid-rows-[minmax(250px,600px)] rounded-lg border border-gray-200 bg-gray-100 overflow-hidden"
+                                >
+                                    <img
+                                        id="image-crop-preview"
+                                        src=""
+                                        alt="Obrázok na orezanie"
+                                        class="w-full h-full object-contain"
+                                    />
+                                </div>
+                                <div class="mt-2 flex justify-end gap-2">
+                                    <button
+                                        type="button"
+                                        id="crop-cancel"
+                                        class="px-3 py-1.5 text-xs font-bold text-gray-500 hover:text-gray-700 transition-colors"
+                                    >
+                                        Zrušiť
+                                    </button>
+                                    <button
+                                        type="button"
+                                        id="crop-apply"
+                                        class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:bg-blue-600 transition-colors"
+                                    >
+                                        Použiť orezanie
+                                    </button>
+                                </div>
+                            </div>
+                            <div
+                                id="image-preview"
+                                class="mt-3 hidden rounded-lg overflow-hidden border border-gray-200"
+                            >
+                                <img
+                                    src=""
+                                    class="w-full h-80 object-cover"
+                                    alt="Náhľad obrázka"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="pt-4 sm:pt-6 flex justify-end gap-2 sm:gap-3 border-t border-gray-100 mt-4 sm:mt-6"
+                >
+                    <button
+                        type="button"
+                        id="modal-cancel"
+                        class="px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-gray-700 transition-colors"
+                    >
+                        Zrušiť
+                    </button>
+                    <button
+                        type="submit"
+                        class="px-4 sm:px-6 py-2 sm:py-2.5 bg-primary text-white text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl hover:bg-[#0353e9] transition-all shadow-lg hover:shadow-xl active:scale-95"
+                    >
+                        Uložiť
+                    </button>
+                </div>
+            </form>
+        </Modal>
+    </div>
+
+    <script>
+        import { initializeOffersPage } from "../../lib/admin/offers";
+
+        const elements = {
+            container: document.getElementById(
+                "offers-container",
+            ) as HTMLElement | null,
+            loading: document.getElementById("loading") as HTMLElement | null,
+            noOffers: document.getElementById(
+                "no-offers",
+            ) as HTMLElement | null,
+            form: document.getElementById(
+                "offer-form",
+            ) as HTMLFormElement | null,
+            modal: document.getElementById(
+                "modal-overlay",
+            ) as HTMLElement | null,
+            refreshBtn: document.getElementById(
+                "refresh-btn",
+            ) as HTMLElement | null,
+            addOfferBtn: document.getElementById(
+                "add-offer-btn",
+            ) as HTMLElement | null,
+            modalClose: document.getElementById(
+                "modal-overlay-close",
+            ) as HTMLElement | null,
+            modalCancel: document.getElementById(
+                "modal-cancel",
+            ) as HTMLElement | null,
+            offerId: document.getElementById(
+                "offer-id",
+            ) as HTMLInputElement | null,
+            offerTitle: document.getElementById(
+                "offer-title",
+            ) as HTMLInputElement | null,
+            offerSlug: document.getElementById(
+                "offer-slug",
+            ) as HTMLInputElement | null,
+            offerExcerpt: document.getElementById(
+                "offer-excerpt",
+            ) as HTMLTextAreaElement | null,
+            offerContent: document.getElementById(
+                "offer-content",
+            ) as HTMLTextAreaElement | null,
+            offerLink: document.getElementById(
+                "offer-link",
+            ) as HTMLInputElement | null,
+            offerImage: document.getElementById(
+                "offer-image",
+            ) as HTMLInputElement | null,
+            imagePreview: document.getElementById(
+                "image-preview",
+            ) as HTMLElement | null,
+            imagePreviewImg: document.querySelector(
+                "#image-preview img",
+            ) as HTMLImageElement | null,
+            offerLatitude: document.getElementById(
+                "offer-latitude",
+            ) as HTMLInputElement | null,
+            offerLongitude: document.getElementById(
+                "offer-longitude",
+            ) as HTMLInputElement | null,
+            mapPicker: document.getElementById(
+                "map-picker",
+            ) as HTMLElement | null,
+            imageCropContainer: document.getElementById(
+                "image-crop-container",
+            ) as HTMLElement | null,
+            imageCropPreview: document.getElementById(
+                "image-crop-preview",
+            ) as HTMLImageElement | null,
+            cropApply: document.getElementById(
+                "crop-apply",
+            ) as HTMLButtonElement | null,
+            cropCancel: document.getElementById(
+                "crop-cancel",
+            ) as HTMLButtonElement | null,
+        };
+
+        initializeOffersPage(elements);
+    </script>
 </AdminLayout>

@@ -6,9 +6,9 @@ import markerShadow from "leaflet/dist/images/marker-shadow.png?url";
 // Fix default icon paths for Vite/Astro
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconUrl: markerIcon,
-  iconRetinaUrl: markerIcon2x,
-  shadowUrl: markerShadow,
+    iconUrl: markerIcon,
+    iconRetinaUrl: markerIcon2x,
+    shadowUrl: markerShadow,
 });
 
 /**
@@ -16,7 +16,7 @@ L.Icon.Default.mergeOptions({
  */
 export function initContactMap(): void {
     const mapContainer = document.getElementById("contact-map");
-    
+
     if (!mapContainer) return;
 
     // Company location: Papiernická 1788/8, 034 01 Ružomberok
@@ -27,8 +27,9 @@ export function initContactMap(): void {
     const map = L.map(mapContainer).setView([latitude, longitude], 15);
 
     // Add OpenStreetMap tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19,
     }).addTo(map);
 
@@ -36,12 +37,16 @@ export function initContactMap(): void {
     const marker = L.marker([latitude, longitude]).addTo(map);
 
     // Add popup with company information
-    marker.bindPopup(`
+    marker
+        .bindPopup(
+            `
         <div style="text-align: center;">
             <strong style="font-size: 14px;">MK-SBD s.r.o.</strong><br>
             <span style="font-size: 12px; color: #666;">Papiernická 1788/8<br>034 01 Ružomberok</span>
         </div>
-    `).openPopup();
+    `,
+        )
+        .openPopup();
 
     // Force map to recalculate size after a short delay
     setTimeout(() => {

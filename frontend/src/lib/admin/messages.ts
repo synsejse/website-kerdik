@@ -2,302 +2,328 @@ import { api, type Message, type ArchivedMessage } from "../../lib/api";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import {
-  escapeHtml,
-  showConfirmDialog,
-  showLoading,
-  hideLoading,
-  updatePaginationControls,
+    escapeHtml,
+    showConfirmDialog,
+    showLoading,
+    hideLoading,
+    updatePaginationControls,
 } from "./utils";
 import type { PaginationState } from "./types";
 
 // Extend window with admin actions
 declare global {
-  interface Window {
-    archiveMessage?: (id: number) => Promise<void>;
-    restoreMessage?: (id: number) => Promise<void>;
-    permanentlyDeleteArchivedMessage?: (id: number) => Promise<void>;
-  }
+    interface Window {
+        archiveMessage?: (id: number) => Promise<void>;
+        restoreMessage?: (id: number) => Promise<void>;
+        permanentlyDeleteArchivedMessage?: (id: number) => Promise<void>;
+    }
 }
 
 export interface MessagesPageElements {
-  activeTab: HTMLButtonElement | null;
-  archivedTab: HTMLButtonElement | null;
-  activeContainer: HTMLElement | null;
-  archivedContainer: HTMLElement | null;
-  loading: HTMLElement | null;
-  noActiveMessages: HTMLElement | null;
-  noArchivedMessages: HTMLElement | null;
-  paginationControls: HTMLElement | null;
-  prevPageBtn: HTMLButtonElement | null;
-  nextPageBtn: HTMLButtonElement | null;
-  currentPageNum: HTMLElement | null;
-  refreshBtn: HTMLButtonElement | null;
-  activeCount: HTMLElement | null;
-  archivedCount: HTMLElement | null;
+    activeTab: HTMLButtonElement | null;
+    archivedTab: HTMLButtonElement | null;
+    activeContainer: HTMLElement | null;
+    archivedContainer: HTMLElement | null;
+    loading: HTMLElement | null;
+    noActiveMessages: HTMLElement | null;
+    noArchivedMessages: HTMLElement | null;
+    paginationControls: HTMLElement | null;
+    prevPageBtn: HTMLButtonElement | null;
+    nextPageBtn: HTMLButtonElement | null;
+    currentPageNum: HTMLElement | null;
+    refreshBtn: HTMLButtonElement | null;
+    activeCount: HTMLElement | null;
+    archivedCount: HTMLElement | null;
 }
 
 export class MessagesPageController {
-  private currentView: "active" | "archived" = "active";
-  private currentPage = 1;
-  private activeTotal = 0;
-  private archivedTotal = 0;
-  private elements: MessagesPageElements;
+    private currentView: "active" | "archived" = "active";
+    private currentPage = 1;
+    private activeTotal = 0;
+    private archivedTotal = 0;
+    private elements: MessagesPageElements;
 
-  constructor(elements: MessagesPageElements) {
-    this.elements = elements;
-    this.initialize();
-  }
+    constructor(elements: MessagesPageElements) {
+        this.elements = elements;
+        this.initialize();
+    }
 
-  private initialize(): void {
-    this.setupEventListeners();
-    this.loadInitialData();
-  }
+    private initialize(): void {
+        this.setupEventListeners();
+        this.loadInitialData();
+    }
 
-  private setupEventListeners(): void {
-    const { activeTab, archivedTab, refreshBtn, prevPageBtn, nextPageBtn } =
-      this.elements;
+    private setupEventListeners(): void {
+        const { activeTab, archivedTab, refreshBtn, prevPageBtn, nextPageBtn } =
+            this.elements;
 
-    activeTab?.addEventListener("click", () => {
-      if (this.currentView === "archived") {
-        this.switchToActiveView();
-      }
-    });
+        activeTab?.addEventListener("click", () => {
+            if (this.currentView === "archived") {
+                this.switchToActiveView();
+            }
+        });
 
-    archivedTab?.addEventListener("click", () => {
-      if (this.currentView === "active") {
-        this.switchToArchivedView();
-      }
-    });
+        archivedTab?.addEventListener("click", () => {
+            if (this.currentView === "active") {
+                this.switchToArchivedView();
+            }
+        });
 
-    refreshBtn?.addEventListener("click", () => {
-      this.currentPage = 1;
-      this.loadCurrentView();
-    });
+        refreshBtn?.addEventListener("click", () => {
+            this.currentPage = 1;
+            this.loadCurrentView();
+        });
 
-    prevPageBtn?.addEventListener("click", () => this.handlePrevPage());
-    nextPageBtn?.addEventListener("click", () => this.handleNextPage());
+        prevPageBtn?.addEventListener("click", () => this.handlePrevPage());
+        nextPageBtn?.addEventListener("click", () => this.handleNextPage());
 
-    this.setupWindowFunctions();
-  }
+        this.setupWindowFunctions();
+    }
 
-  private setupWindowFunctions(): void {
-    window.archiveMessage = async (id: number) => {
-      showConfirmDialog("Naozaj chcete archivovať túto správu?", async () => {
+    private setupWindowFunctions(): void {
+        window.archiveMessage = async (id: number) => {
+            showConfirmDialog(
+                "Naozaj chcete archivovať túto správu?",
+                async () => {
+                    try {
+                        await api.admin.archiveMessage(id);
+                        await this.loadAllCounts();
+                        await this.loadCurrentView();
+                    } catch (error) {
+                        console.error("Failed to archive message:", error);
+                        alert("Nepodarilo sa archivovať správu.");
+                    }
+                },
+            );
+        };
+
+        window.restoreMessage = async (id: number) => {
+            showConfirmDialog(
+                "Naozaj chcete obnoviť túto správu?",
+                async () => {
+                    try {
+                        await api.admin.restoreMessage(id);
+                        await this.loadAllCounts();
+                        await this.loadCurrentView();
+                    } catch (error) {
+                        console.error("Failed to restore message:", error);
+                        alert("Nepodarilo sa obnoviť správu.");
+                    }
+                },
+            );
+        };
+
+        window.permanentlyDeleteArchivedMessage = async (id: number) => {
+            showConfirmDialog(
+                "Naozaj chcete natrvalo zmazať túto archivovanú správu? Táto akcia je nezvratná!",
+                async () => {
+                    try {
+                        await api.admin.permanentlyDeleteArchivedMessage(id);
+                        await this.loadAllCounts();
+                        await this.loadCurrentView();
+                    } catch (error) {
+                        console.error(
+                            "Failed to delete archived message:",
+                            error,
+                        );
+                        alert("Nepodarilo sa zmazať archivovanú správu.");
+                    }
+                },
+            );
+        };
+    }
+
+    private async loadInitialData(): Promise<void> {
         try {
-          await api.admin.archiveMessage(id);
-          await this.loadAllCounts();
-          await this.loadCurrentView();
-        } catch (error) {
-          console.error("Failed to archive message:", error);
-          alert("Nepodarilo sa archivovať správu.");
-        }
-      });
-    };
-
-    window.restoreMessage = async (id: number) => {
-      showConfirmDialog("Naozaj chcete obnoviť túto správu?", async () => {
-        try {
-          await api.admin.restoreMessage(id);
-          await this.loadAllCounts();
-          await this.loadCurrentView();
-        } catch (error) {
-          console.error("Failed to restore message:", error);
-          alert("Nepodarilo sa obnoviť správu.");
-        }
-      });
-    };
-
-    window.permanentlyDeleteArchivedMessage = async (id: number) => {
-      showConfirmDialog(
-        "Naozaj chcete natrvalo zmazať túto archivovanú správu? Táto akcia je nezvratná!",
-        async () => {
-          try {
-            await api.admin.permanentlyDeleteArchivedMessage(id);
             await this.loadAllCounts();
             await this.loadCurrentView();
-          } catch (error) {
-            console.error("Failed to delete archived message:", error);
-            alert("Nepodarilo sa zmazať archivovanú správu.");
-          }
-        },
-      );
-    };
-  }
-
-  private async loadInitialData(): Promise<void> {
-    try {
-      await this.loadAllCounts();
-      await this.loadCurrentView();
-    } catch (error) {
-      console.error("Initialization error:", error);
+        } catch (error) {
+            console.error("Initialization error:", error);
+        }
     }
-  }
 
-  private async loadAllCounts(): Promise<void> {
-    try {
-      const [activeResponse, archivedResponse] = await Promise.all([
-        api.admin.getMessages(1, 5),
-        api.admin.getArchivedMessages(1, 5),
-      ]);
+    private async loadAllCounts(): Promise<void> {
+        try {
+            const [activeResponse, archivedResponse] = await Promise.all([
+                api.admin.getMessages(1, 5),
+                api.admin.getArchivedMessages(1, 5),
+            ]);
 
-      this.activeTotal = activeResponse.total;
-      this.archivedTotal = archivedResponse.total;
+            this.activeTotal = activeResponse.total;
+            this.archivedTotal = archivedResponse.total;
 
-      if (this.elements.activeCount) {
-        this.elements.activeCount.textContent = String(this.activeTotal);
-      }
-      if (this.elements.archivedCount) {
-        this.elements.archivedCount.textContent = String(this.archivedTotal);
-      }
-    } catch (error) {
-      console.error("Failed to load counts:", error);
-      if (this.elements.activeCount)
-        this.elements.activeCount.textContent = "0";
-      if (this.elements.archivedCount)
-        this.elements.archivedCount.textContent = "0";
+            if (this.elements.activeCount) {
+                this.elements.activeCount.textContent = String(
+                    this.activeTotal,
+                );
+            }
+            if (this.elements.archivedCount) {
+                this.elements.archivedCount.textContent = String(
+                    this.archivedTotal,
+                );
+            }
+        } catch (error) {
+            console.error("Failed to load counts:", error);
+            if (this.elements.activeCount)
+                this.elements.activeCount.textContent = "0";
+            if (this.elements.archivedCount)
+                this.elements.archivedCount.textContent = "0";
+        }
     }
-  }
 
-  private async loadCurrentView(): Promise<void> {
-    if (this.currentView === "active") {
-      await this.loadActiveMessages();
-    } else {
-      await this.loadArchivedMessages();
+    private async loadCurrentView(): Promise<void> {
+        if (this.currentView === "active") {
+            await this.loadActiveMessages();
+        } else {
+            await this.loadArchivedMessages();
+        }
     }
-  }
 
-  private async loadActiveMessages(): Promise<void> {
-    const {
-      loading,
-      noActiveMessages,
-      activeContainer,
-      noArchivedMessages,
-      archivedContainer,
-    } = this.elements;
+    private async loadActiveMessages(): Promise<void> {
+        const {
+            loading,
+            noActiveMessages,
+            activeContainer,
+            noArchivedMessages,
+            archivedContainer,
+        } = this.elements;
 
-    showLoading(loading);
-    noActiveMessages?.classList.add("hidden");
-    noArchivedMessages?.classList.add("hidden");
-    if (activeContainer) activeContainer.innerHTML = "";
-    if (archivedContainer) archivedContainer.classList.add("hidden");
-    this.elements.paginationControls?.classList.add("hidden");
+        showLoading(loading);
+        noActiveMessages?.classList.add("hidden");
+        noArchivedMessages?.classList.add("hidden");
+        if (activeContainer) activeContainer.innerHTML = "";
+        if (archivedContainer) archivedContainer.classList.add("hidden");
+        this.elements.paginationControls?.classList.add("hidden");
 
-    try {
-      const response = await api.admin.getMessages(this.currentPage);
-      const messages = response.data;
+        try {
+            const response = await api.admin.getMessages(this.currentPage);
+            const messages = response.data;
 
-      if (messages.length === 0) {
-        noActiveMessages?.classList.remove("hidden");
-      } else {
-        this.renderActiveMessages(messages);
-        this.updatePagination(response.total, response.limit);
-        if (activeContainer) activeContainer.classList.remove("hidden");
-      }
+            if (messages.length === 0) {
+                noActiveMessages?.classList.remove("hidden");
+            } else {
+                this.renderActiveMessages(messages);
+                this.updatePagination(response.total, response.limit);
+                if (activeContainer) activeContainer.classList.remove("hidden");
+            }
 
-      this.activeTotal = response.total;
-      if (this.elements.activeCount) {
-        this.elements.activeCount.textContent = String(response.total);
-      }
-    } catch (error) {
-      console.error("Failed to load active messages:", error);
-      noActiveMessages?.classList.remove("hidden");
-    } finally {
-      hideLoading(this.elements.loading);
+            this.activeTotal = response.total;
+            if (this.elements.activeCount) {
+                this.elements.activeCount.textContent = String(response.total);
+            }
+        } catch (error) {
+            console.error("Failed to load active messages:", error);
+            noActiveMessages?.classList.remove("hidden");
+        } finally {
+            hideLoading(this.elements.loading);
+        }
     }
-  }
 
-  private async loadArchivedMessages(): Promise<void> {
-    const {
-      loading,
-      noActiveMessages,
-      noArchivedMessages,
-      archivedContainer,
-      activeContainer,
-    } = this.elements;
+    private async loadArchivedMessages(): Promise<void> {
+        const {
+            loading,
+            noActiveMessages,
+            noArchivedMessages,
+            archivedContainer,
+            activeContainer,
+        } = this.elements;
 
-    showLoading(loading);
-    noActiveMessages?.classList.add("hidden");
-    noArchivedMessages?.classList.add("hidden");
-    if (archivedContainer) archivedContainer.innerHTML = "";
-    if (activeContainer) activeContainer.classList.add("hidden");
-    this.elements.paginationControls?.classList.add("hidden");
+        showLoading(loading);
+        noActiveMessages?.classList.add("hidden");
+        noArchivedMessages?.classList.add("hidden");
+        if (archivedContainer) archivedContainer.innerHTML = "";
+        if (activeContainer) activeContainer.classList.add("hidden");
+        this.elements.paginationControls?.classList.add("hidden");
 
-    try {
-      const response = await api.admin.getArchivedMessages(this.currentPage);
-      const messages = response.data;
+        try {
+            const response = await api.admin.getArchivedMessages(
+                this.currentPage,
+            );
+            const messages = response.data;
 
-      if (messages.length === 0) {
-        noArchivedMessages?.classList.remove("hidden");
-      } else {
-        this.renderArchivedMessages(messages);
-        this.updatePagination(response.total, response.limit);
-        if (archivedContainer) archivedContainer.classList.remove("hidden");
-      }
+            if (messages.length === 0) {
+                noArchivedMessages?.classList.remove("hidden");
+            } else {
+                this.renderArchivedMessages(messages);
+                this.updatePagination(response.total, response.limit);
+                if (archivedContainer)
+                    archivedContainer.classList.remove("hidden");
+            }
 
-      this.archivedTotal = response.total;
-      if (this.elements.archivedCount) {
-        this.elements.archivedCount.textContent = String(response.total);
-      }
-    } catch (error) {
-      console.error("Failed to load archived messages:", error);
-      noArchivedMessages?.classList.remove("hidden");
-    } finally {
-      hideLoading(this.elements.loading);
+            this.archivedTotal = response.total;
+            if (this.elements.archivedCount) {
+                this.elements.archivedCount.textContent = String(
+                    response.total,
+                );
+            }
+        } catch (error) {
+            console.error("Failed to load archived messages:", error);
+            noArchivedMessages?.classList.remove("hidden");
+        } finally {
+            hideLoading(this.elements.loading);
+        }
     }
-  }
 
-  private renderActiveMessages(messages: Message[]): void {
-    if (!this.elements.activeContainer) return;
+    private renderActiveMessages(messages: Message[]): void {
+        if (!this.elements.activeContainer) return;
 
-    const html = messages
-      .map((msg) => this.createActiveMessageCard(msg))
-      .join("");
-    this.elements.activeContainer.innerHTML = html;
-    
-    // Replace icon placeholders with cloned templates
-    this.replaceIconPlaceholders(this.elements.activeContainer);
-  }
+        const html = messages
+            .map((msg) => this.createActiveMessageCard(msg))
+            .join("");
+        this.elements.activeContainer.innerHTML = html;
 
-  private renderArchivedMessages(messages: ArchivedMessage[]): void {
-    if (!this.elements.archivedContainer) return;
+        // Replace icon placeholders with cloned templates
+        this.replaceIconPlaceholders(this.elements.activeContainer);
+    }
 
-    const html = messages
-      .map((msg) => this.createArchivedMessageCard(msg))
-      .join("");
-    this.elements.archivedContainer.innerHTML = html;
-    
-    // Replace icon placeholders with cloned templates
-    this.replaceIconPlaceholders(this.elements.archivedContainer);
-  }
+    private renderArchivedMessages(messages: ArchivedMessage[]): void {
+        if (!this.elements.archivedContainer) return;
 
-  private replaceIconPlaceholders(container: HTMLElement): void {
-    const iconMap: { [key: string]: string } = {
-      'icon-calendar': 'icon-calendar',
-      'icon-calendar-small': 'icon-calendar-small',
-      'icon-user': 'icon-user',
-      'icon-envelope': 'icon-envelope',
-      'icon-phone': 'icon-phone',
-      'icon-archive': 'icon-archive',
-      'icon-trash': 'icon-trash',
-      'icon-clock': 'icon-clock',
-      'icon-undo': 'icon-undo',
-    };
+        const html = messages
+            .map((msg) => this.createArchivedMessageCard(msg))
+            .join("");
+        this.elements.archivedContainer.innerHTML = html;
 
-    Object.entries(iconMap).forEach(([className, templateId]) => {
-      const template = document.getElementById(templateId) as HTMLTemplateElement;
-      if (template) {
-        container.querySelectorAll(`.${className}`).forEach((placeholder) => {
-          placeholder.replaceWith(template.content.cloneNode(true));
+        // Replace icon placeholders with cloned templates
+        this.replaceIconPlaceholders(this.elements.archivedContainer);
+    }
+
+    private replaceIconPlaceholders(container: HTMLElement): void {
+        const iconMap: { [key: string]: string } = {
+            "icon-calendar": "icon-calendar",
+            "icon-calendar-small": "icon-calendar-small",
+            "icon-user": "icon-user",
+            "icon-envelope": "icon-envelope",
+            "icon-phone": "icon-phone",
+            "icon-archive": "icon-archive",
+            "icon-trash": "icon-trash",
+            "icon-clock": "icon-clock",
+            "icon-undo": "icon-undo",
+        };
+
+        Object.entries(iconMap).forEach(([className, templateId]) => {
+            const template = document.getElementById(
+                templateId,
+            ) as HTMLTemplateElement;
+            if (template) {
+                container
+                    .querySelectorAll(`.${className}`)
+                    .forEach((placeholder) => {
+                        placeholder.replaceWith(
+                            template.content.cloneNode(true),
+                        );
+                    });
+            }
         });
-      }
-    });
-  }
+    }
 
-  private createActiveMessageCard(msg: Message): string {
-    const date = new Date(msg.created_at);
-    const formattedDate = format(date, "d. MMMM yyyy HH:mm", { locale: sk });
+    private createActiveMessageCard(msg: Message): string {
+        const date = new Date(msg.created_at);
+        const formattedDate = format(date, "d. MMMM yyyy HH:mm", {
+            locale: sk,
+        });
 
-    return `
+        return `
       <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/20">
         <div class="flex flex-col lg:flex-row justify-between lg:items-start gap-6 mb-6">
           <div class="space-y-4 min-w-0 flex-1">
@@ -319,13 +345,13 @@ export class MessagesPageController {
                 ${escapeHtml(msg.email)}
               </a>
               ${
-                msg.phone
-                  ? `
+                  msg.phone
+                      ? `
                 <a href="tel:${escapeHtml(msg.phone)}" class="text-gray-600 font-bold hover:text-gray-900 transition-colors flex items-center gap-2">
                   <span class="icon-phone"></span>
                   ${escapeHtml(msg.phone)}
                 </a>`
-                  : ""
+                      : ""
               }
             </div>
           </div>
@@ -345,19 +371,19 @@ export class MessagesPageController {
         </div>
       </div>
     `;
-  }
+    }
 
-  private createArchivedMessageCard(msg: ArchivedMessage): string {
-    const createdDate = new Date(msg.created_at);
-    const archivedDate = new Date(msg.archived_at);
-    const formattedCreated = format(createdDate, "d. MMMM yyyy HH:mm", {
-      locale: sk,
-    });
-    const formattedArchived = format(archivedDate, "d. MMMM yyyy HH:mm", {
-      locale: sk,
-    });
+    private createArchivedMessageCard(msg: ArchivedMessage): string {
+        const createdDate = new Date(msg.created_at);
+        const archivedDate = new Date(msg.archived_at);
+        const formattedCreated = format(createdDate, "d. MMMM yyyy HH:mm", {
+            locale: sk,
+        });
+        const formattedArchived = format(archivedDate, "d. MMMM yyyy HH:mm", {
+            locale: sk,
+        });
 
-    return `
+        return `
       <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-gray-300">
         <div class="flex flex-col lg:flex-row justify-between lg:items-start gap-6 mb-6">
           <div class="space-y-4 min-w-0 flex-1">
@@ -379,13 +405,13 @@ export class MessagesPageController {
                 ${escapeHtml(msg.email)}
               </a>
               ${
-                msg.phone
-                  ? `
+                  msg.phone
+                      ? `
                 <a href="tel:${escapeHtml(msg.phone)}" class="text-gray-600 font-bold hover:text-gray-900 transition-colors flex items-center gap-2">
                   <span class="icon-phone"></span>
                   ${escapeHtml(msg.phone)}
                 </a>`
-                  : ""
+                      : ""
               }
             </div>
             <div class="flex items-center gap-4 text-xs text-gray-500">
@@ -419,108 +445,114 @@ export class MessagesPageController {
         </div>
       </div>
     `;
-  }
-
-  private updatePagination(total: number, limit: number): void {
-    const pagination: PaginationState = {
-      currentPage: this.currentPage,
-      totalPages: Math.ceil(total / limit),
-      totalItems: total,
-      itemsPerPage: limit,
-    };
-
-    updatePaginationControls(
-      pagination,
-      this.elements.currentPageNum,
-      this.elements.prevPageBtn,
-      this.elements.nextPageBtn,
-      this.elements.paginationControls,
-    );
-  }
-
-  private switchToActiveView(): void {
-    this.currentView = "active";
-    this.currentPage = 1;
-
-    // Update tab styling
-    if (this.elements.activeTab) {
-      this.elements.activeTab.classList.add("text-primary", "border-primary");
-      this.elements.activeTab.classList.remove(
-        "text-gray-400",
-        "border-transparent",
-      );
-    }
-    if (this.elements.archivedTab) {
-      this.elements.archivedTab.classList.add(
-        "text-gray-400",
-        "border-transparent",
-      );
-      this.elements.archivedTab.classList.remove(
-        "text-primary",
-        "border-primary",
-      );
     }
 
-    // Hide archived container and its empty state
-    this.elements.archivedContainer?.classList.add("hidden");
-    this.elements.noArchivedMessages?.classList.add("hidden");
+    private updatePagination(total: number, limit: number): void {
+        const pagination: PaginationState = {
+            currentPage: this.currentPage,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            itemsPerPage: limit,
+        };
 
-    // Show active container
-    this.elements.activeContainer?.classList.remove("hidden");
-
-    this.loadActiveMessages();
-  }
-
-  private switchToArchivedView(): void {
-    this.currentView = "archived";
-    this.currentPage = 1;
-
-    // Update tab styling
-    if (this.elements.archivedTab) {
-      this.elements.archivedTab.classList.add("text-primary", "border-primary");
-      this.elements.archivedTab.classList.remove(
-        "text-gray-400",
-        "border-transparent",
-      );
-    }
-    if (this.elements.activeTab) {
-      this.elements.activeTab.classList.add(
-        "text-gray-400",
-        "border-transparent",
-      );
-      this.elements.activeTab.classList.remove(
-        "text-primary",
-        "border-primary",
-      );
+        updatePaginationControls(
+            pagination,
+            this.elements.currentPageNum,
+            this.elements.prevPageBtn,
+            this.elements.nextPageBtn,
+            this.elements.paginationControls,
+        );
     }
 
-    // Hide active container and its empty state
-    this.elements.activeContainer?.classList.add("hidden");
-    this.elements.noActiveMessages?.classList.add("hidden");
+    private switchToActiveView(): void {
+        this.currentView = "active";
+        this.currentPage = 1;
 
-    // Show archived container
-    this.elements.archivedContainer?.classList.remove("hidden");
+        // Update tab styling
+        if (this.elements.activeTab) {
+            this.elements.activeTab.classList.add(
+                "text-primary",
+                "border-primary",
+            );
+            this.elements.activeTab.classList.remove(
+                "text-gray-400",
+                "border-transparent",
+            );
+        }
+        if (this.elements.archivedTab) {
+            this.elements.archivedTab.classList.add(
+                "text-gray-400",
+                "border-transparent",
+            );
+            this.elements.archivedTab.classList.remove(
+                "text-primary",
+                "border-primary",
+            );
+        }
 
-    this.loadArchivedMessages();
-  }
+        // Hide archived container and its empty state
+        this.elements.archivedContainer?.classList.add("hidden");
+        this.elements.noArchivedMessages?.classList.add("hidden");
 
-  private handlePrevPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.loadCurrentView();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+        // Show active container
+        this.elements.activeContainer?.classList.remove("hidden");
+
+        this.loadActiveMessages();
     }
-  }
 
-  private handleNextPage(): void {
-    this.currentPage++;
-    this.loadCurrentView();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
+    private switchToArchivedView(): void {
+        this.currentView = "archived";
+        this.currentPage = 1;
+
+        // Update tab styling
+        if (this.elements.archivedTab) {
+            this.elements.archivedTab.classList.add(
+                "text-primary",
+                "border-primary",
+            );
+            this.elements.archivedTab.classList.remove(
+                "text-gray-400",
+                "border-transparent",
+            );
+        }
+        if (this.elements.activeTab) {
+            this.elements.activeTab.classList.add(
+                "text-gray-400",
+                "border-transparent",
+            );
+            this.elements.activeTab.classList.remove(
+                "text-primary",
+                "border-primary",
+            );
+        }
+
+        // Hide active container and its empty state
+        this.elements.activeContainer?.classList.add("hidden");
+        this.elements.noActiveMessages?.classList.add("hidden");
+
+        // Show archived container
+        this.elements.archivedContainer?.classList.remove("hidden");
+
+        this.loadArchivedMessages();
+    }
+
+    private handlePrevPage(): void {
+        if (this.currentPage > 1) {
+            this.currentPage--;
+            this.loadCurrentView();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    }
+
+    private handleNextPage(): void {
+        this.currentPage++;
+        this.loadCurrentView();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 }
 
 export function initializeMessagesPage(
-  elements: MessagesPageElements,
+    elements: MessagesPageElements,
 ): MessagesPageController {
-  return new MessagesPageController(elements);
+    return new MessagesPageController(elements);
 }

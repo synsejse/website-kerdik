@@ -1,6 +1,6 @@
 ---
 interface Props {
-  targetId: string;
+    targetId: string;
 }
 
 import "easymde/dist/easymde.min.css";
@@ -9,9 +9,10 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 const { targetId } = Astro.props;
 ---
 
-<div data-markdown-editor-target={targetId} class="hidden" aria-hidden="true"></div>
+<div data-markdown-editor-target={targetId} class="hidden" aria-hidden="true">
+</div>
 
 <script>
-  import { initMarkdownEditors } from "../../../lib/admin/markdown-editor";
-  initMarkdownEditors();
+    import { initMarkdownEditors } from "../../../lib/admin/markdown-editor";
+    initMarkdownEditors();
 </script>

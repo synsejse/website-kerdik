@@ -52,6 +52,7 @@ Notes:
 
 - Install frontend deps: `cd frontend && npm ci`
 - Frontend build: `cd frontend && npm run build`
+- Frontend format check: `cd frontend && npm run format:check`
 - Frontend type/content checks: `cd frontend && npm run check`
 - Backend format check: `cd backend && cargo fmt --check`
 - Backend compile check: `cd backend && cargo check`

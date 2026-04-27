@@ -1,175 +1,188 @@
 import { api, type BlogPost } from "../../lib/api";
 import { escapeHtml, showConfirmDialog } from "./utils";
 import Cropper from "cropperjs";
-import { refreshMarkdownEditors, setMarkdownEditorValue } from "./markdown-editor";
+import {
+    refreshMarkdownEditors,
+    setMarkdownEditorValue,
+} from "./markdown-editor";
 
 // Extend window with admin actions
 declare global {
-  interface Window {
-    editBlogPost?: (id: number) => void;
-    deleteBlogPost?: (id: number) => Promise<void>;
-  }
+    interface Window {
+        editBlogPost?: (id: number) => void;
+        deleteBlogPost?: (id: number) => Promise<void>;
+    }
 }
 
 export interface BlogPageElements {
-  container: HTMLElement | null;
-  loading: HTMLElement | null;
-  noPosts: HTMLElement | null;
-  form: HTMLFormElement | null;
-  modal: HTMLElement | null;
-  refreshBtn: HTMLElement | null;
-  addPostBtn: HTMLElement | null;
-  modalClose: HTMLElement | null;
-  modalCancel: HTMLElement | null;
-  postId: HTMLInputElement | null;
-  postTitle: HTMLInputElement | null;
-  postSlug: HTMLInputElement | null;
-  postExcerpt: HTMLTextAreaElement | null;
-  postContent: HTMLTextAreaElement | null;
-  postPublished: HTMLInputElement | null;
-  postImage: HTMLInputElement | null;
-  imagePreview: HTMLElement | null;
-  imagePreviewImg: HTMLImageElement | null;
-  blogImageCropContainer: HTMLElement | null;
-  blogImageCropPreview: HTMLImageElement | null;
-  blogCropApply: HTMLButtonElement | null;
-  blogCropCancel: HTMLButtonElement | null;
+    container: HTMLElement | null;
+    loading: HTMLElement | null;
+    noPosts: HTMLElement | null;
+    form: HTMLFormElement | null;
+    modal: HTMLElement | null;
+    refreshBtn: HTMLElement | null;
+    addPostBtn: HTMLElement | null;
+    modalClose: HTMLElement | null;
+    modalCancel: HTMLElement | null;
+    postId: HTMLInputElement | null;
+    postTitle: HTMLInputElement | null;
+    postSlug: HTMLInputElement | null;
+    postExcerpt: HTMLTextAreaElement | null;
+    postContent: HTMLTextAreaElement | null;
+    postPublished: HTMLInputElement | null;
+    postImage: HTMLInputElement | null;
+    imagePreview: HTMLElement | null;
+    imagePreviewImg: HTMLImageElement | null;
+    blogImageCropContainer: HTMLElement | null;
+    blogImageCropPreview: HTMLImageElement | null;
+    blogCropApply: HTMLButtonElement | null;
+    blogCropCancel: HTMLButtonElement | null;
 }
 
 export interface BlogFormData {
-  id?: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  published: boolean;
-  imageFile?: File;
+    id?: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    content: string;
+    published: boolean;
+    imageFile?: File;
 }
 
 export class BlogPageController {
-  private elements: BlogPageElements;
-  private postsData: BlogPost[] = [];
-  private cropper: any = null;
-  private croppedImageBlob: Blob | null = null;
+    private elements: BlogPageElements;
+    private postsData: BlogPost[] = [];
+    private cropper: any = null;
+    private croppedImageBlob: Blob | null = null;
 
-  constructor(elements: BlogPageElements) {
-    this.elements = elements;
-    this.initialize();
-  }
+    constructor(elements: BlogPageElements) {
+        this.elements = elements;
+        this.initialize();
+    }
 
-  private initialize(): void {
-    this.setupEventListeners();
-    this.loadPosts();
-  }
+    private initialize(): void {
+        this.setupEventListeners();
+        this.loadPosts();
+    }
 
-  private setupEventListeners(): void {
-    const {
-      form,
-      refreshBtn,
-      addPostBtn,
-      modalClose,
-      modalCancel,
-      postImage,
-      blogCropApply,
-      blogCropCancel,
-    } = this.elements;
+    private setupEventListeners(): void {
+        const {
+            form,
+            refreshBtn,
+            addPostBtn,
+            modalClose,
+            modalCancel,
+            postImage,
+            blogCropApply,
+            blogCropCancel,
+        } = this.elements;
 
-    form?.addEventListener("submit", (e) => this.handleFormSubmit(e));
-    refreshBtn?.addEventListener("click", () => this.loadPosts());
-    addPostBtn?.addEventListener("click", () => this.openModal());
-    modalClose?.addEventListener("click", () => this.closeModal());
-    modalCancel?.addEventListener("click", () => this.closeModal());
-    postImage?.addEventListener("change", () => this.handleImageChange());
-    blogCropApply?.addEventListener("click", () => this.applyCrop());
-    blogCropCancel?.addEventListener("click", () => this.cancelCrop());
+        form?.addEventListener("submit", (e) => this.handleFormSubmit(e));
+        refreshBtn?.addEventListener("click", () => this.loadPosts());
+        addPostBtn?.addEventListener("click", () => this.openModal());
+        modalClose?.addEventListener("click", () => this.closeModal());
+        modalCancel?.addEventListener("click", () => this.closeModal());
+        postImage?.addEventListener("change", () => this.handleImageChange());
+        blogCropApply?.addEventListener("click", () => this.applyCrop());
+        blogCropCancel?.addEventListener("click", () => this.cancelCrop());
 
-    this.setupWindowFunctions();
-  }
+        this.setupWindowFunctions();
+    }
 
-  private setupWindowFunctions(): void {
-    window.editBlogPost = (id: number) => {
-      this.editPost(id);
-    };
+    private setupWindowFunctions(): void {
+        window.editBlogPost = (id: number) => {
+            this.editPost(id);
+        };
 
-    window.deleteBlogPost = async (id: number) => {
-      showConfirmDialog("Zmazať príspevok?", async () => {
+        window.deleteBlogPost = async (id: number) => {
+            showConfirmDialog("Zmazať príspevok?", async () => {
+                try {
+                    await api.admin.deleteBlogPost(id);
+                    await this.loadPosts();
+                } catch (error) {
+                    console.error("Failed to delete blog post:", error);
+                    alert("Chyba pri mazaní.");
+                }
+            });
+        };
+    }
+
+    async loadPosts(): Promise<void> {
+        const { container, loading, noPosts } = this.elements;
+
+        if (loading) loading.classList.remove("hidden");
+        if (container) container.innerHTML = "";
+        if (noPosts) noPosts.classList.add("hidden");
+
         try {
-          await api.admin.deleteBlogPost(id);
-          await this.loadPosts();
+            this.postsData = await api.admin.getAllBlogPosts();
+
+            if (this.postsData.length === 0) {
+                if (noPosts) noPosts.classList.remove("hidden");
+            } else {
+                this.renderPosts();
+            }
         } catch (error) {
-          console.error("Failed to delete blog post:", error);
-          alert("Chyba pri mazaní.");
+            console.error("Failed to load blog posts:", error);
+            alert("Chyba pri načítavaní príspevkov.");
+        } finally {
+            if (loading) loading.classList.add("hidden");
         }
-      });
-    };
-  }
-
-  async loadPosts(): Promise<void> {
-    const { container, loading, noPosts } = this.elements;
-
-    if (loading) loading.classList.remove("hidden");
-    if (container) container.innerHTML = "";
-    if (noPosts) noPosts.classList.add("hidden");
-
-    try {
-      this.postsData = await api.admin.getAllBlogPosts();
-
-      if (this.postsData.length === 0) {
-        if (noPosts) noPosts.classList.remove("hidden");
-      } else {
-        this.renderPosts();
-      }
-    } catch (error) {
-      console.error("Failed to load blog posts:", error);
-      alert("Chyba pri načítavaní príspevkov.");
-    } finally {
-      if (loading) loading.classList.add("hidden");
     }
-  }
 
-  private renderPosts(): void {
-    const { container } = this.elements;
-    if (!container) return;
+    private renderPosts(): void {
+        const { container } = this.elements;
+        if (!container) return;
 
-    container.innerHTML = this.postsData.map((post) => this.renderPostCard(post)).join("");
-    
-    // Clone icon templates
-    const editTemplate = document.getElementById('icon-edit') as HTMLTemplateElement;
-    const trashTemplate = document.getElementById('icon-trash') as HTMLTemplateElement;
-    
-    if (editTemplate) {
-      container.querySelectorAll('.icon-edit').forEach((placeholder) => {
-        placeholder.replaceWith(editTemplate.content.cloneNode(true));
-      });
+        container.innerHTML = this.postsData
+            .map((post) => this.renderPostCard(post))
+            .join("");
+
+        // Clone icon templates
+        const editTemplate = document.getElementById(
+            "icon-edit",
+        ) as HTMLTemplateElement;
+        const trashTemplate = document.getElementById(
+            "icon-trash",
+        ) as HTMLTemplateElement;
+
+        if (editTemplate) {
+            container.querySelectorAll(".icon-edit").forEach((placeholder) => {
+                placeholder.replaceWith(editTemplate.content.cloneNode(true));
+            });
+        }
+
+        if (trashTemplate) {
+            container.querySelectorAll(".icon-trash").forEach((placeholder) => {
+                placeholder.replaceWith(trashTemplate.content.cloneNode(true));
+            });
+        }
     }
-    
-    if (trashTemplate) {
-      container.querySelectorAll('.icon-trash').forEach((placeholder) => {
-        placeholder.replaceWith(trashTemplate.content.cloneNode(true));
-      });
-    }
-  }
 
-  private renderPostCard(post: BlogPost): string {
-    const createdAt = new Date(post.created_at).toLocaleDateString("sk-SK");
-    const statusBadge = post.published
-      ? '<span class="absolute top-3 right-3 z-10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] bg-green-600 text-white rounded-full shadow-lg">Publikované</span>'
-      : '<span class="px-2 py-1 text-xs font-bold uppercase tracking-wider bg-yellow-100 text-yellow-700 rounded">Koncept</span>';
+    private renderPostCard(post: BlogPost): string {
+        const createdAt = new Date(post.created_at).toLocaleDateString("sk-SK");
+        const statusBadge = post.published
+            ? '<span class="absolute top-3 right-3 z-10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] bg-green-600 text-white rounded-full shadow-lg">Publikované</span>'
+            : '<span class="px-2 py-1 text-xs font-bold uppercase tracking-wider bg-yellow-100 text-yellow-700 rounded">Koncept</span>';
 
-    return `
+        return `
       <div class="h-full bg-white border border-gray-200 rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/20 hover:-translate-y-1 flex flex-col">
-        ${post.image_mime ? `
+        ${
+            post.image_mime
+                ? `
           <div class="relative mb-4 overflow-hidden rounded-lg">
             <img src="${api.blog.getBlogPostImageUrl(post.id)}" alt="${escapeHtml(post.title)}" class="w-full h-48 object-cover">
             ${post.published ? statusBadge : ""}
           </div>
-        ` : ''}
+        `
+                : ""
+        }
         <div class="flex items-start justify-between gap-4 mb-3">
           <h3 class="m-0 text-lg font-bold text-gray-900 leading-tight break-words">${escapeHtml(post.title)}</h3>
           ${post.image_mime && post.published ? "" : statusBadge}
         </div>
         <p class="text-sm text-gray-500 mb-2"><strong>Slug:</strong> <code class="bg-gray-100 px-2 py-1 rounded text-xs break-all">${escapeHtml(post.slug)}</code></p>
-        ${post.excerpt ? `<p class="text-sm text-gray-600 mb-4 line-clamp-2 break-words">${escapeHtml(post.excerpt)}</p>` : ''}
+        ${post.excerpt ? `<p class="text-sm text-gray-600 mb-4 line-clamp-2 break-words">${escapeHtml(post.excerpt)}</p>` : ""}
         <div class="text-xs text-gray-400 mb-4">Vytvorené: ${createdAt}</div>
         <div class="mt-auto pt-4 flex gap-2">
           <button onclick="window.editBlogPost && window.editBlogPost(${post.id})" class="flex-1 px-3 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center justify-center gap-2">
@@ -182,235 +195,273 @@ export class BlogPageController {
         </div>
       </div>
     `;
-  }
-
-  private handleFormSubmit(e: Event): void {
-    e.preventDefault();
-
-    const formData = this.getFormData();
-    this.savePost(formData);
-  }
-
-  private getFormData(): BlogFormData {
-    const { postId, postTitle, postSlug, postExcerpt, postContent, postPublished, postImage } =
-      this.elements;
-
-    return {
-      id: postId?.value,
-      title: postTitle?.value || "",
-      slug: postSlug?.value || "",
-      excerpt: postExcerpt?.value || "",
-      content: postContent?.value || "",
-      published: postPublished?.checked || false,
-      imageFile: postImage?.files?.[0],
-    };
-  }
-
-  private async savePost(formData: BlogFormData): Promise<void> {
-    try {
-      const data = new FormData();
-      data.append("title", formData.title);
-      data.append("slug", formData.slug);
-      if (formData.excerpt) data.append("excerpt", formData.excerpt);
-      data.append("content", formData.content);
-      data.append("published", formData.published ? "true" : "false");
-
-      if (formData.id) {
-        // Update existing post
-        if (this.croppedImageBlob) {
-          data.append("image", this.croppedImageBlob, "image.jpg");
-        } else if (formData.imageFile) {
-          data.append("image", formData.imageFile);
-        }
-        await api.admin.updateBlogPost(parseInt(formData.id, 10), data);
-      } else {
-        // Create new post
-        if (this.croppedImageBlob) {
-          data.append("image", this.croppedImageBlob, "image.jpg");
-        } else if (formData.imageFile) {
-          data.append("image", formData.imageFile);
-        }
-        await api.admin.createBlogPost(data);
-      }
-
-      this.closeModal();
-      await this.loadPosts();
-    } catch (error) {
-      console.error("Failed to save blog post:", error);
-      alert("Chyba pri ukladaní.");
     }
-  }
 
-  private editPost(id: number): void {
-    const post = this.postsData.find((x) => x.id === id);
-    if (!post) return;
+    private handleFormSubmit(e: Event): void {
+        e.preventDefault();
 
-    const {
-      postId,
-      postTitle,
-      postSlug,
-      postExcerpt,
-      postContent,
-      postPublished,
-      imagePreview,
-      imagePreviewImg,
-      modal,
-    } = this.elements;
-
-    if (postId) postId.value = String(post.id);
-    if (postTitle) postTitle.value = post.title;
-    if (postSlug) postSlug.value = post.slug;
-    if (postExcerpt) setMarkdownEditorValue(postExcerpt.id, post.excerpt || "");
-    if (postContent) setMarkdownEditorValue(postContent.id, post.content);
-    if (postPublished) postPublished.checked = post.published;
-    if (imagePreview && imagePreviewImg && post.image_mime) {
-      imagePreview.classList.remove("hidden");
-      imagePreviewImg.src = api.blog.getBlogPostImageUrl(post.id);
+        const formData = this.getFormData();
+        this.savePost(formData);
     }
-    if (modal) modal.classList.remove("hidden");
-    requestAnimationFrame(() => refreshMarkdownEditors([postExcerpt?.id || "", postContent?.id || ""].filter(Boolean)));
-  }
 
-  private handleImageChange(): void {
-    const { postImage, blogImageCropContainer, blogImageCropPreview, imagePreview } = this.elements;
-    const file = postImage?.files?.[0];
+    private getFormData(): BlogFormData {
+        const {
+            postId,
+            postTitle,
+            postSlug,
+            postExcerpt,
+            postContent,
+            postPublished,
+            postImage,
+        } = this.elements;
 
-    if (file && blogImageCropContainer && blogImageCropPreview) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result && blogImageCropPreview) {
-          // Destroy existing cropper if any
-          if (this.cropper) {
-            this.cropper.destroy();
-          }
+        return {
+            id: postId?.value,
+            title: postTitle?.value || "",
+            slug: postSlug?.value || "",
+            excerpt: postExcerpt?.value || "",
+            content: postContent?.value || "",
+            published: postPublished?.checked || false,
+            imageFile: postImage?.files?.[0],
+        };
+    }
 
-          // Hide final preview and show crop container
-          if (imagePreview) imagePreview.classList.add("hidden");
-          blogImageCropContainer.classList.remove("hidden");
+    private async savePost(formData: BlogFormData): Promise<void> {
+        try {
+            const data = new FormData();
+            data.append("title", formData.title);
+            data.append("slug", formData.slug);
+            if (formData.excerpt) data.append("excerpt", formData.excerpt);
+            data.append("content", formData.content);
+            data.append("published", formData.published ? "true" : "false");
 
-          // Set image source and initialize cropper
-          blogImageCropPreview.src = e.target.result as string;
-
-          // Wait for image to load before initializing cropper
-          blogImageCropPreview.onload = () => {
-            if (blogImageCropPreview) {
-              this.cropper = new Cropper(blogImageCropPreview);
-              
-              // Set canvas to fill 100% of grid container
-              const canvas = this.cropper.getCropperCanvas();
-              if (canvas) {
-                canvas.style.width = '100%';
-                canvas.style.height = '100%';
-              }
-              
-              // Set aspect ratio on the selection element (v2.x API)
-              const selection = this.cropper.getCropperSelection();
-              if (selection) {
-                selection.aspectRatio = 16 / 9;
-                selection.initialCoverage = 0.8;
-              }
+            if (formData.id) {
+                // Update existing post
+                if (this.croppedImageBlob) {
+                    data.append("image", this.croppedImageBlob, "image.jpg");
+                } else if (formData.imageFile) {
+                    data.append("image", formData.imageFile);
+                }
+                await api.admin.updateBlogPost(parseInt(formData.id, 10), data);
+            } else {
+                // Create new post
+                if (this.croppedImageBlob) {
+                    data.append("image", this.croppedImageBlob, "image.jpg");
+                } else if (formData.imageFile) {
+                    data.append("image", formData.imageFile);
+                }
+                await api.admin.createBlogPost(data);
             }
-          };
+
+            this.closeModal();
+            await this.loadPosts();
+        } catch (error) {
+            console.error("Failed to save blog post:", error);
+            alert("Chyba pri ukladaní.");
         }
-      };
-      reader.readAsDataURL(file);
     }
-  }
 
-  private async applyCrop(): Promise<void> {
-    if (!this.cropper) return;
+    private editPost(id: number): void {
+        const post = this.postsData.find((x) => x.id === id);
+        if (!post) return;
 
-    const { blogImageCropContainer, imagePreview, imagePreviewImg } = this.elements;
+        const {
+            postId,
+            postTitle,
+            postSlug,
+            postExcerpt,
+            postContent,
+            postPublished,
+            imagePreview,
+            imagePreviewImg,
+            modal,
+        } = this.elements;
 
-    // Get cropped canvas using Cropper 2.x API
-    const selection = this.cropper.getCropperSelection();
-    if (!selection) return;
-
-    try {
-      const croppedCanvas = await selection.$toCanvas({
-        width: 1920,
-        height: 1080,
-      });
-
-      if (croppedCanvas && imagePreview && imagePreviewImg) {
-        // Convert canvas to blob
-        croppedCanvas.toBlob((blob: Blob | null) => {
-          if (blob) {
-            this.croppedImageBlob = blob;
-
-            // Show preview
-            imagePreviewImg.src = croppedCanvas.toDataURL();
+        if (postId) postId.value = String(post.id);
+        if (postTitle) postTitle.value = post.title;
+        if (postSlug) postSlug.value = post.slug;
+        if (postExcerpt)
+            setMarkdownEditorValue(postExcerpt.id, post.excerpt || "");
+        if (postContent) setMarkdownEditorValue(postContent.id, post.content);
+        if (postPublished) postPublished.checked = post.published;
+        if (imagePreview && imagePreviewImg && post.image_mime) {
             imagePreview.classList.remove("hidden");
+            imagePreviewImg.src = api.blog.getBlogPostImageUrl(post.id);
+        }
+        if (modal) modal.classList.remove("hidden");
+        requestAnimationFrame(() =>
+            refreshMarkdownEditors(
+                [postExcerpt?.id || "", postContent?.id || ""].filter(Boolean),
+            ),
+        );
+    }
 
-            // Hide crop container
-            if (blogImageCropContainer) blogImageCropContainer.classList.add("hidden");
+    private handleImageChange(): void {
+        const {
+            postImage,
+            blogImageCropContainer,
+            blogImageCropPreview,
+            imagePreview,
+        } = this.elements;
+        const file = postImage?.files?.[0];
 
-            // Destroy cropper
-            if (this.cropper) {
-              this.cropper.destroy();
-              this.cropper = null;
+        if (file && blogImageCropContainer && blogImageCropPreview) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                if (e.target?.result && blogImageCropPreview) {
+                    // Destroy existing cropper if any
+                    if (this.cropper) {
+                        this.cropper.destroy();
+                    }
+
+                    // Hide final preview and show crop container
+                    if (imagePreview) imagePreview.classList.add("hidden");
+                    blogImageCropContainer.classList.remove("hidden");
+
+                    // Set image source and initialize cropper
+                    blogImageCropPreview.src = e.target.result as string;
+
+                    // Wait for image to load before initializing cropper
+                    blogImageCropPreview.onload = () => {
+                        if (blogImageCropPreview) {
+                            this.cropper = new Cropper(blogImageCropPreview);
+
+                            // Set canvas to fill 100% of grid container
+                            const canvas = this.cropper.getCropperCanvas();
+                            if (canvas) {
+                                canvas.style.width = "100%";
+                                canvas.style.height = "100%";
+                            }
+
+                            // Set aspect ratio on the selection element (v2.x API)
+                            const selection =
+                                this.cropper.getCropperSelection();
+                            if (selection) {
+                                selection.aspectRatio = 16 / 9;
+                                selection.initialCoverage = 0.8;
+                            }
+                        }
+                    };
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    private async applyCrop(): Promise<void> {
+        if (!this.cropper) return;
+
+        const { blogImageCropContainer, imagePreview, imagePreviewImg } =
+            this.elements;
+
+        // Get cropped canvas using Cropper 2.x API
+        const selection = this.cropper.getCropperSelection();
+        if (!selection) return;
+
+        try {
+            const croppedCanvas = await selection.$toCanvas({
+                width: 1920,
+                height: 1080,
+            });
+
+            if (croppedCanvas && imagePreview && imagePreviewImg) {
+                // Convert canvas to blob
+                croppedCanvas.toBlob(
+                    (blob: Blob | null) => {
+                        if (blob) {
+                            this.croppedImageBlob = blob;
+
+                            // Show preview
+                            imagePreviewImg.src = croppedCanvas.toDataURL();
+                            imagePreview.classList.remove("hidden");
+
+                            // Hide crop container
+                            if (blogImageCropContainer)
+                                blogImageCropContainer.classList.add("hidden");
+
+                            // Destroy cropper
+                            if (this.cropper) {
+                                this.cropper.destroy();
+                                this.cropper = null;
+                            }
+                        }
+                    },
+                    "image/jpeg",
+                    0.95,
+                );
             }
-          }
-        }, 'image/jpeg', 0.95);
-      }
-    } catch (error) {
-      console.error('Error cropping image:', error);
-    }
-  }
-
-  private cancelCrop(): void {
-    const { postImage, blogImageCropContainer } = this.elements;
-
-    // Destroy cropper
-    if (this.cropper) {
-      this.cropper.destroy();
-      this.cropper = null;
+        } catch (error) {
+            console.error("Error cropping image:", error);
+        }
     }
 
-    // Hide crop container
-    if (blogImageCropContainer) blogImageCropContainer.classList.add("hidden");
+    private cancelCrop(): void {
+        const { postImage, blogImageCropContainer } = this.elements;
 
-    // Clear file input
-    if (postImage) postImage.value = "";
+        // Destroy cropper
+        if (this.cropper) {
+            this.cropper.destroy();
+            this.cropper = null;
+        }
 
-    // Clear cropped blob
-    this.croppedImageBlob = null;
-  }
+        // Hide crop container
+        if (blogImageCropContainer)
+            blogImageCropContainer.classList.add("hidden");
 
-  private openModal(): void {
-    const { modal, postId, form, postPublished, postExcerpt, postContent } = this.elements;
-    if (postId) postId.value = "";
-    if (postPublished) postPublished.checked = false;
-    if (form) form.reset();
-    if (modal) modal.classList.remove("hidden");
-    if (postExcerpt) setMarkdownEditorValue(postExcerpt.id, "");
-    if (postContent) setMarkdownEditorValue(postContent.id, "");
-    requestAnimationFrame(() => refreshMarkdownEditors([postExcerpt?.id || "", postContent?.id || ""].filter(Boolean)));
-  }
+        // Clear file input
+        if (postImage) postImage.value = "";
 
-  private closeModal(): void {
-    const { modal, form, imagePreview, blogImageCropContainer, postExcerpt, postContent } = this.elements;
-    
-    // Destroy cropper if exists
-    if (this.cropper) {
-      this.cropper.destroy();
-      this.cropper = null;
+        // Clear cropped blob
+        this.croppedImageBlob = null;
     }
-    
-    // Reset cropped blob
-    this.croppedImageBlob = null;
-    
-    if (modal) modal.classList.add("hidden");
-    if (form) form.reset();
-    if (postExcerpt) setMarkdownEditorValue(postExcerpt.id, "");
-    if (postContent) setMarkdownEditorValue(postContent.id, "");
-    if (imagePreview) imagePreview.classList.add("hidden");
-    if (blogImageCropContainer) blogImageCropContainer.classList.add("hidden");
-  }
+
+    private openModal(): void {
+        const { modal, postId, form, postPublished, postExcerpt, postContent } =
+            this.elements;
+        if (postId) postId.value = "";
+        if (postPublished) postPublished.checked = false;
+        if (form) form.reset();
+        if (modal) modal.classList.remove("hidden");
+        if (postExcerpt) setMarkdownEditorValue(postExcerpt.id, "");
+        if (postContent) setMarkdownEditorValue(postContent.id, "");
+        requestAnimationFrame(() =>
+            refreshMarkdownEditors(
+                [postExcerpt?.id || "", postContent?.id || ""].filter(Boolean),
+            ),
+        );
+    }
+
+    private closeModal(): void {
+        const {
+            modal,
+            form,
+            imagePreview,
+            blogImageCropContainer,
+            postExcerpt,
+            postContent,
+        } = this.elements;
+
+        // Destroy cropper if exists
+        if (this.cropper) {
+            this.cropper.destroy();
+            this.cropper = null;
+        }
+
+        // Reset cropped blob
+        this.croppedImageBlob = null;
+
+        if (modal) modal.classList.add("hidden");
+        if (form) form.reset();
+        if (postExcerpt) setMarkdownEditorValue(postExcerpt.id, "");
+        if (postContent) setMarkdownEditorValue(postContent.id, "");
+        if (imagePreview) imagePreview.classList.add("hidden");
+        if (blogImageCropContainer)
+            blogImageCropContainer.classList.add("hidden");
+    }
 }
 
 export function initializeBlogPage(
-  elements: BlogPageElements,
+    elements: BlogPageElements,
 ): BlogPageController {
-  return new BlogPageController(elements);
+    return new BlogPageController(elements);
 }

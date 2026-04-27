@@ -6,30 +6,33 @@ import ChevronLeft from "../../components/icons/ChevronLeft.astro";
 ---
 
 <Layout title="Blog príspevok">
-  <article class="bg-gray-50 py-12 md:py-16">
-    <Container>
-      <div id="loading-post">
-        <Loading text="Načítavam príspevok..." />
-      </div>
+    <article class="bg-gray-50 py-12 md:py-16">
+        <Container>
+            <div id="loading-post">
+                <Loading text="Načítavam príspevok..." />
+            </div>
 
-      <div id="error-post" class="hidden text-center py-12">
-        <p class="text-gray-600">Príspevok sa nenašiel.</p>
-        <a href="/blog" class="inline-flex items-center gap-2 mt-4 text-primary hover:text-blue-600 font-bold transition-colors no-underline">
-          <ChevronLeft class="h-5 w-5" />
-          Späť na blog
-        </a>
-      </div>
+            <div id="error-post" class="hidden text-center py-12">
+                <p class="text-gray-600">Príspevok sa nenašiel.</p>
+                <a
+                    href="/blog"
+                    class="inline-flex items-center gap-2 mt-4 text-primary hover:text-blue-600 font-bold transition-colors no-underline"
+                >
+                    <ChevronLeft class="h-5 w-5" />
+                    Späť na blog
+                </a>
+            </div>
 
-      <div id="post-content" class="hidden max-w-4xl mx-auto"></div>
-    </Container>
-  </article>
+            <div id="post-content" class="hidden max-w-4xl mx-auto"></div>
+        </Container>
+    </article>
 
-  <template id="icon-chevron-left">
-    <ChevronLeft class="h-5 w-5" />
-  </template>
+    <template id="icon-chevron-left">
+        <ChevronLeft class="h-5 w-5" />
+    </template>
 
-  <script>
-    import { initBlogPostPage } from "../../lib/pages/blog-post";
-    initBlogPostPage();
-  </script>
+    <script>
+        import { initBlogPostPage } from "../../lib/pages/blog-post";
+        initBlogPostPage();
+    </script>
 </Layout>

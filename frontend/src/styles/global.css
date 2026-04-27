@@ -23,12 +23,21 @@
 }
 
 /* Allow breaking on hyphens and preserve proper wrapping */
-p, h1, h2, h3, h4, h5, h6, div, span {
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+div,
+span {
     hyphens: auto;
 }
 
 /* Prevent code blocks from overflowing */
-code, pre {
+code,
+pre {
     word-break: break-all;
     white-space: pre-wrap;
 }

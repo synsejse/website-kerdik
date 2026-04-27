@@ -5,25 +5,28 @@ import "leaflet/dist/leaflet.css";
 ---
 
 <Layout title="Detail ponuky">
-  <section class="bg-gray-50 py-12 md:py-16">
-    <div class="max-w-275 mx-auto px-4">
-      <div id="offer-loading">
-        <Loading text="Načítavam detail ponuky..." />
-      </div>
+    <section class="bg-gray-50 py-12 md:py-16">
+        <div class="max-w-275 mx-auto px-4">
+            <div id="offer-loading">
+                <Loading text="Načítavam detail ponuky..." />
+            </div>
 
-      <div id="offer-error" class="hidden text-center py-12">
-        <p class="text-gray-600">Ponuka sa nenašla.</p>
-        <a href="/offer" class="inline-flex items-center gap-2 mt-4 text-primary hover:text-blue-600 font-bold transition-colors no-underline">
-          Späť na ponuku
-        </a>
-      </div>
+            <div id="offer-error" class="hidden text-center py-12">
+                <p class="text-gray-600">Ponuka sa nenašla.</p>
+                <a
+                    href="/offer"
+                    class="inline-flex items-center gap-2 mt-4 text-primary hover:text-blue-600 font-bold transition-colors no-underline"
+                >
+                    Späť na ponuku
+                </a>
+            </div>
 
-      <div id="offer-content" class="hidden"></div>
-    </div>
-  </section>
+            <div id="offer-content" class="hidden"></div>
+        </div>
+    </section>
 
-  <script>
-    import { initOfferDetailPage } from "../lib/pages/offer-detail";
-    initOfferDetailPage();
-  </script>
+    <script>
+        import { initOfferDetailPage } from "../lib/pages/offer-detail";
+        initOfferDetailPage();
+    </script>
 </Layout>

@@ -12,10 +12,11 @@
 - Running the frontend by itself only gives you the static shells; admin and data-driven pages use same-origin `fetch` calls to the backend (`frontend/src/lib/api.ts`, `frontend/src/lib/admin/auth-check.ts`).
 - Frontend pages are mostly Astro shells; page behavior lives in `frontend/src/lib/**`. Check the matching `src/lib/...` module before editing a page that looks static.
 - Offer/blog image uploads are normalized server-side: accepted uploads are resized to max 1920px and re-encoded to JPEG (`backend/src/utils.rs`). Preserve that behavior when touching upload flows.
-- There is no checked-in frontend test runner, lint config, or pre-commit config. CI currently runs `cargo fmt --check`, `cargo check`, and the frontend Astro check.
+- There is no checked-in frontend test runner, lint config, or pre-commit config. CI currently runs frontend Prettier/Astro checks plus `cargo fmt --check` and `cargo check`.
 - Useful verification commands:
 - `frontend/`: `npm run build`
 - `frontend/`: `npm run check`
+- `frontend/`: `npm run format:check`
 - `backend/`: `cargo fmt --check`
 - `backend/`: `cargo check`
 - Full-stack/auth/DB changes: `docker compose up --build`

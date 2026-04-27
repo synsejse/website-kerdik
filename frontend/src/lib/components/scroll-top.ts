@@ -5,11 +5,15 @@ export function initScrollTop(): void {
     if (typeof window === "undefined") return;
 
     const btn = document.getElementById("scrollTop");
-    const progressCircle = document.getElementById("scrollProgress") as SVGCircleElement | null;
+    const progressCircle = document.getElementById(
+        "scrollProgress",
+    ) as SVGCircleElement | null;
     if (!btn) return;
 
     const scrollThreshold = parseInt(btn?.dataset.threshold || "300", 10);
-    const radius = progressCircle ? parseFloat(progressCircle.getAttribute("r") || "0") : 0;
+    const radius = progressCircle
+        ? parseFloat(progressCircle.getAttribute("r") || "0")
+        : 0;
     const circumference = 2 * Math.PI * radius;
 
     function onScroll() {
@@ -17,7 +21,8 @@ export function initScrollTop(): void {
 
         // Calculate scroll percentage
         const scrollTop = window.scrollY;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const docHeight =
+            document.documentElement.scrollHeight - window.innerHeight;
         const scrollPercent = docHeight > 0 ? scrollTop / docHeight : 0;
 
         // Update progress circle
