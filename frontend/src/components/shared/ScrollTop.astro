@@ -1,4 +1,5 @@
 ---
+import { Icon } from "astro-icon/components";
 export interface Props {
     /**
      * Y-scroll threshold (in px) before the button appears.
@@ -29,7 +30,6 @@ const {
     right = "1.25rem",
     size = 48,
 } = Astro.props;
-import ArrowUpIcon from "../icons/ArrowUp.astro";
 ---
 
 <button
@@ -65,10 +65,10 @@ import ArrowUpIcon from "../icons/ArrowUp.astro";
             class="transition-[stroke-dashoffset] duration-100 ease-out"
         ></circle>
     </svg>
-    <ArrowUpIcon
+    <Icon
+        name="fa6-solid:arrow-up"
         width={Math.round(size * 0.6)}
         height={Math.round(size * 0.6)}
-        fill="currentColor"
     />
 </button>
 

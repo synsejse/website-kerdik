@@ -3,10 +3,11 @@
     "version": "0.0.1",
     "dependencies": {
         "@astrojs/check": "^0.9.6",
-        "@fortawesome/fontawesome-free": "^7.2.0",
+        "@iconify-json/fa6-solid": "^1.2.4",
         "@tailwindcss/typography": "^0.5.19",
         "@tailwindcss/vite": "^4.1.18",
         "astro": "^5.17.1",
+        "astro-icon": "^1.1.5",
         "cropperjs": "^2.1.0",
         "date-fns": "^4.1.0",
         "easymde": "^2.20.0",

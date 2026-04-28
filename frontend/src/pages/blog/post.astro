@@ -1,8 +1,8 @@
 ---
+import { Icon } from "astro-icon/components";
 import Layout from "../../layouts/Layout.astro";
 import Container from "../../components/layout/Container.astro";
 import Loading from "../../components/admin/common/Loading.astro";
-import ChevronLeft from "../../components/icons/ChevronLeft.astro";
 ---
 
 <Layout title="Blog príspevok">
@@ -18,7 +18,7 @@ import ChevronLeft from "../../components/icons/ChevronLeft.astro";
                     href="/blog"
                     class="inline-flex items-center gap-2 mt-4 text-primary hover:text-blue-600 font-bold transition-colors no-underline"
                 >
-                    <ChevronLeft class="h-5 w-5" />
+                    <Icon name="fa6-solid:chevron-left" class="h-5 w-5" />
                     Späť na blog
                 </a>
             </div>
@@ -28,7 +28,7 @@ import ChevronLeft from "../../components/icons/ChevronLeft.astro";
     </article>
 
     <template id="icon-chevron-left">
-        <ChevronLeft class="h-5 w-5" />
+        <Icon name="fa6-solid:chevron-left" class="h-5 w-5" />
     </template>
 
     <script>

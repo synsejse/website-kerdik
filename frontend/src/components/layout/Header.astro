@@ -1,10 +1,8 @@
 ---
 // Header component with logo and contact information
+import { Icon } from "astro-icon/components";
 import { Image } from "astro:assets";
 import logo from "../../assets/brand/logo.png";
-import PhoneIcon from "../icons/Phone.astro";
-import EmailIcon from "../icons/Envelope.astro";
-import LocationIcon from "../icons/LocationDot.astro";
 ---
 
 <header class="bg-white border-b border-gray-200 py-3 lg:py-5">
@@ -29,7 +27,7 @@ import LocationIcon from "../icons/LocationDot.astro";
             <div
                 class="flex items-center gap-2.5 text-[0.8125rem] text-gray-600 leading-tight contact-item"
             >
-                <PhoneIcon width={20} height={20} fill="currentColor" />
+                <Icon name="fa6-solid:phone" width={20} height={20} />
                 <div class="flex flex-col gap-0.5">
                     <div
                         class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider"
@@ -47,7 +45,7 @@ import LocationIcon from "../icons/LocationDot.astro";
             <div
                 class="flex items-center gap-2.5 text-[0.8125rem] text-gray-600 leading-tight contact-item"
             >
-                <EmailIcon width={20} height={20} fill="currentColor" />
+                <Icon name="fa6-solid:envelope" width={20} height={20} />
                 <div class="flex flex-col gap-0.5">
                     <div
                         class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider"
@@ -65,7 +63,7 @@ import LocationIcon from "../icons/LocationDot.astro";
             <div
                 class="flex items-center gap-2.5 text-[0.8125rem] text-gray-600 leading-tight contact-item"
             >
-                <LocationIcon width={20} height={20} fill="currentColor" />
+                <Icon name="fa6-solid:location-dot" width={20} height={20} />
                 <div class="flex flex-col gap-0.5">
                     <div
                         class="text-[0.65rem] font-semibold text-gray-500 uppercase tracking-wider"

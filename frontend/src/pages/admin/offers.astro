@@ -1,8 +1,6 @@
 ---
+import { Icon } from "astro-icon/components";
 import AdminLayout from "../../layouts/admin/Layout.astro";
-import Trash from "../../components/icons/Trash.astro";
-import Edit from "../../components/icons/Edit.astro";
-import ArrowsRotate from "../../components/icons/ArrowsRotate.astro";
 import Loading from "../../components/admin/common/Loading.astro";
 import EmptyState from "../../components/admin/common/EmptyState.astro";
 import Modal from "../../components/admin/common/Modal.astro";
@@ -34,7 +32,8 @@ import "leaflet/dist/leaflet.css";
                             id="refresh-btn"
                             class="px-6 py-3 bg-primary hover:bg-[#0353e9] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 flex items-center gap-2 group"
                         >
-                            <ArrowsRotate
+                            <Icon
+                                name="fa6-solid:arrows-rotate"
                                 class="h-4 w-4 transition-transform duration-500 group-hover:rotate-180"
                             />
                             Obnoviť zoznam
@@ -66,10 +65,10 @@ import "leaflet/dist/leaflet.css";
 
         <!-- Icon Templates -->
         <template id="icon-edit">
-            <Edit class="h-4 w-4" />
+            <Icon name="fa6-solid:pen-to-square" class="h-4 w-4" />
         </template>
         <template id="icon-trash">
-            <Trash class="h-4 w-4" />
+            <Icon name="fa6-solid:trash" class="h-4 w-4" />
         </template>
 
         <Modal id="modal-overlay" title="Nová Ponuka">
@@ -99,13 +98,13 @@ import "leaflet/dist/leaflet.css";
                             >
                                 Krátky popis (markdown)
                             </label>
-                            <MarkdownToolbar targetId="offer-excerpt" />
-                            <textarea
-                                id="offer-excerpt"
-                                rows="3"
-                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 border-t-0 rounded-b-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-words resize-none"
-                                placeholder="Krátky popis pre karty a mapu..."
-                            ></textarea>
+                            <MarkdownToolbar>
+                                <textarea
+                                    id="offer-excerpt"
+                                    rows="3"
+                                    placeholder="Krátky popis pre karty a mapu..."
+                                ></textarea>
+                            </MarkdownToolbar>
                         </div>
 
                         <div>
@@ -114,13 +113,13 @@ import "leaflet/dist/leaflet.css";
                             >
                                 Detailný popis (markdown)
                             </label>
-                            <MarkdownToolbar targetId="offer-content" />
-                            <textarea
-                                id="offer-content"
-                                rows="6"
-                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 border-t-0 rounded-b-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-words resize-none"
-                                placeholder="Detailný obsah ponuky s markdown formátovaním..."
-                            ></textarea>
+                            <MarkdownToolbar>
+                                <textarea
+                                    id="offer-content"
+                                    rows="6"
+                                    placeholder="Detailný obsah ponuky s markdown formátovaním..."
+                                ></textarea>
+                            </MarkdownToolbar>
                         </div>
 
                         <div>

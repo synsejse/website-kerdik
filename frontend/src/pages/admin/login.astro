@@ -1,9 +1,8 @@
 ---
+import { Icon } from "astro-icon/components";
 import { Image } from "astro:assets";
 import logo from "../../assets/brand/logo.png";
 import AdminLayout from "../../layouts/admin/Layout.astro";
-import ArrowRight from "../../components/icons/ArrowRight.astro";
-import ArrowLeft from "../../components/icons/ArrowLeft.astro";
 ---
 
 <AdminLayout title="Admin prihlásenie" showFooter={false} showScrollTop={false}>
@@ -85,7 +84,8 @@ import ArrowLeft from "../../components/icons/ArrowLeft.astro";
                     >
                         <span class="inline-flex items-center gap-2">
                             Prihlásiť sa
-                            <ArrowRight
+                            <Icon
+                                name="fa6-solid:arrow-right"
                                 class="h-4 w-4 transition-transform group-hover:translate-x-1"
                             />
                         </span>
@@ -97,7 +97,7 @@ import ArrowLeft from "../../components/icons/ArrowLeft.astro";
                         href="/"
                         class="inline-flex items-center text-gray-400 font-bold text-xs uppercase tracking-widest hover:text-primary transition-colors gap-2 justify-center"
                     >
-                        <ArrowLeft class="h-3 w-3" />
+                        <Icon name="fa6-solid:arrow-left" class="h-3 w-3" />
                         Späť na webovú stránku
                     </a>
                 </div>

@@ -1,9 +1,9 @@
 ---
+import { Icon } from "astro-icon/components";
 import Layout from "../layouts/Layout.astro";
 import PageHero from "../components/shared/PageHero.astro";
 import Container from "../components/layout/Container.astro";
 import Loading from "../components/admin/common/Loading.astro";
-import ChevronRight from "../components/icons/ChevronRight.astro";
 ---
 
 <Layout title="Blog">
@@ -41,7 +41,7 @@ import ChevronRight from "../components/icons/ChevronRight.astro";
     </section>
 
     <template id="icon-chevron-right">
-        <ChevronRight class="h-4 w-4" />
+        <Icon name="fa6-solid:chevron-right" class="h-4 w-4" />
     </template>
 
     <script>

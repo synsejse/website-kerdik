@@ -1,14 +1,6 @@
 ---
+import { Icon } from "astro-icon/components";
 import AdminLayout from "../../layouts/admin/Layout.astro";
-import Trash from "../../components/icons/Trash.astro";
-import Calendar from "../../components/icons/Calendar.astro";
-import Phone from "../../components/icons/Phone.astro";
-import Envelope from "../../components/icons/Envelope.astro";
-import ArrowsRotate from "../../components/icons/ArrowsRotate.astro";
-import ArchiveBox from "../../components/icons/ArchiveBox.astro";
-import Clock from "../../components/icons/Clock.astro";
-import User from "../../components/icons/User.astro";
-import Undo from "../../components/icons/Undo.astro";
 import Loading from "../../components/admin/common/Loading.astro";
 import EmptyState from "../../components/admin/common/EmptyState.astro";
 import Pagination from "../../components/admin/common/Pagination.astro";
@@ -38,7 +30,8 @@ import Pagination from "../../components/admin/common/Pagination.astro";
                             id="refresh-btn"
                             class="px-6 py-3 bg-primary hover:bg-[#0353e9] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 flex items-center gap-2 group"
                         >
-                            <ArrowsRotate
+                            <Icon
+                                name="fa6-solid:arrows-rotate"
                                 class="h-4 w-4 transition-transform duration-500 group-hover:rotate-180"
                             />
                             Obnoviť zoznam
@@ -64,7 +57,10 @@ import Pagination from "../../components/admin/common/Pagination.astro";
                             id="archived-tab"
                             class="pb-4 px-1 text-sm font-black uppercase tracking-widest text-gray-400 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 transition-colors relative group flex items-center gap-2"
                         >
-                            <ArchiveBox class="h-4 w-4" />
+                            <Icon
+                                name="fa6-solid:box-archive"
+                                class="h-4 w-4"
+                            />
                             Archív správ
                             <span
                                 id="archived-count"
@@ -102,7 +98,11 @@ import Pagination from "../../components/admin/common/Pagination.astro";
                         title="Momentálne nemáte žiadne aktívne správy."
                         subtitle="Nové správy sa zobrazia tu."
                     >
-                        <Envelope slot="icon" class="h-20 w-20" />
+                        <Icon
+                            name="fa6-solid:envelope"
+                            slot="icon"
+                            class="h-20 w-20"
+                        />
                     </EmptyState>
                 </div>
 
@@ -111,7 +111,11 @@ import Pagination from "../../components/admin/common/Pagination.astro";
                         title="Archív správ je prázdny."
                         subtitle="Archivované správy sa zobrazia tu."
                     >
-                        <ArchiveBox slot="icon" class="h-20 w-20" />
+                        <Icon
+                            name="fa6-solid:box-archive"
+                            slot="icon"
+                            class="h-20 w-20"
+                        />
                     </EmptyState>
                 </div>
             </div>
@@ -119,33 +123,37 @@ import Pagination from "../../components/admin/common/Pagination.astro";
 
         <!-- Icon Templates -->
         <template id="icon-calendar">
-            <Calendar class="h-4 w-4" />
+            <Icon name="fa6-solid:calendar-days" class="h-4 w-4" />
         </template>
         <template id="icon-calendar-small">
-            <Calendar class="h-3 w-3" />
+            <Icon name="fa6-solid:calendar-days" class="h-3 w-3" />
         </template>
         <template id="icon-user">
-            <User class="h-3 w-3" />
+            <Icon name="fa6-solid:user" class="h-3 w-3" />
         </template>
         <template id="icon-envelope">
-            <Envelope class="h-4 w-4" />
+            <Icon name="fa6-solid:envelope" class="h-4 w-4" />
         </template>
         <template id="icon-phone">
-            <Phone class="h-4 w-4" />
+            <Icon name="fa6-solid:phone" class="h-4 w-4" />
         </template>
         <template id="icon-archive">
-            <ArchiveBox
+            <Icon
+                name="fa6-solid:box-archive"
                 class="h-4 w-4 group-hover:scale-110 transition-transform"
             />
         </template>
         <template id="icon-trash">
-            <Trash class="h-4 w-4" />
+            <Icon name="fa6-solid:trash" class="h-4 w-4" />
         </template>
         <template id="icon-clock">
-            <Clock class="h-4 w-4" />
+            <Icon name="fa6-solid:clock" class="h-4 w-4" />
         </template>
         <template id="icon-undo">
-            <Undo class="h-4 w-4 group-hover:scale-110 transition-transform" />
+            <Icon
+                name="fa6-solid:trash-arrow-up"
+                class="h-4 w-4 group-hover:scale-110 transition-transform"
+            />
         </template>
 
         <footer class="bg-white border-t border-gray-100 py-10">

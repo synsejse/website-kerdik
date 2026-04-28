@@ -1,15 +1,10 @@
 ---
-interface Props {
-    targetId: string;
-}
-
-import "easymde/dist/easymde.min.css";
-import "@fortawesome/fontawesome-free/css/all.min.css";
-
-const { targetId } = Astro.props;
+import "codemirror/lib/codemirror.css";
+import "easymde/src/css/easymde.css";
 ---
 
-<div data-markdown-editor-target={targetId} class="hidden" aria-hidden="true">
+<div data-markdown-editor>
+    <slot />
 </div>
 
 <script>

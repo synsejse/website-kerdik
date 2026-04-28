@@ -1,6 +1,5 @@
 ---
-import ChevronLeft from "../../icons/ChevronLeft.astro";
-import ChevronRight from "../../icons/ChevronRight.astro";
+import { Icon } from "astro-icon/components";
 
 interface Props {
     show: boolean;
@@ -21,7 +20,8 @@ const { show, currentPage } = Astro.props;
         id="prev-page"
         class="flex items-center gap-2 px-4 md:px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-black uppercase tracking-widest text-gray-700 hover:bg-gray-50 hover:border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 group transition-all"
     >
-        <ChevronLeft
+        <Icon
+            name="fa6-solid:chevron-left"
             class="h-3 w-3 transition-transform group-hover:-translate-x-0.5 group-disabled:translate-x-0"
         />
         <span class="hidden sm:inline">Predchádzajúca</span>
@@ -41,7 +41,8 @@ const { show, currentPage } = Astro.props;
     >
         <span class="hidden sm:inline">Nasledujúca</span>
         <span class="sm:hidden">Ďalej</span>
-        <ChevronRight
+        <Icon
+            name="fa6-solid:chevron-right"
             class="h-3 w-3 transition-transform group-hover:translate-x-0.5 group-disabled:translate-x-0"
         />
     </button>

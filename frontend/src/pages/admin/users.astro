@@ -1,7 +1,6 @@
 ---
+import { Icon } from "astro-icon/components";
 import AdminLayout from "../../layouts/admin/Layout.astro";
-import Edit from "../../components/icons/Edit.astro";
-import Trash from "../../components/icons/Trash.astro";
 import Loading from "../../components/admin/common/Loading.astro";
 import EmptyState from "../../components/admin/common/EmptyState.astro";
 import Modal from "../../components/admin/common/Modal.astro";
@@ -91,10 +90,10 @@ import Modal from "../../components/admin/common/Modal.astro";
         </main>
 
         <template id="icon-edit">
-            <Edit class="h-4 w-4" />
+            <Icon name="fa6-solid:pen-to-square" class="h-4 w-4" />
         </template>
         <template id="icon-trash">
-            <Trash class="h-4 w-4" />
+            <Icon name="fa6-solid:trash" class="h-4 w-4" />
         </template>
 
         <Modal id="user-modal-overlay" title="Používateľ">

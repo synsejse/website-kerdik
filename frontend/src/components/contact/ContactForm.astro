@@ -1,10 +1,6 @@
 ---
+import { Icon } from "astro-icon/components";
 import Container from "../layout/Container.astro";
-import UserGroupIcon from "../icons/UserGroup.astro";
-import EnvelopeIcon from "../icons/Envelope.astro";
-import PhoneIcon from "../icons/Phone.astro";
-import SquareCheckIcon from "../icons/SquareCheck.astro";
-import ArrowsRotateIcon from "../icons/ArrowsRotate.astro";
 ---
 
 <section class="bg-gray-50 py-12" aria-labelledby="contact-form-title">
@@ -52,7 +48,7 @@ import ArrowsRotateIcon from "../icons/ArrowsRotate.astro";
                         <div
                             class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
                         >
-                            <UserGroupIcon class="w-5 h-5" />
+                            <Icon name="fa6-solid:user-group" class="w-5 h-5" />
                         </div>
                         <input
                             id="name"
@@ -73,7 +69,7 @@ import ArrowsRotateIcon from "../icons/ArrowsRotate.astro";
                         <div
                             class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
                         >
-                            <EnvelopeIcon class="w-5 h-5" />
+                            <Icon name="fa6-solid:envelope" class="w-5 h-5" />
                         </div>
                         <input
                             id="email"
@@ -95,7 +91,7 @@ import ArrowsRotateIcon from "../icons/ArrowsRotate.astro";
                         <div
                             class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
                         >
-                            <PhoneIcon class="w-5 h-5" />
+                            <Icon name="fa6-solid:phone" class="w-5 h-5" />
                         </div>
                         <input
                             id="phone"
@@ -116,7 +112,10 @@ import ArrowsRotateIcon from "../icons/ArrowsRotate.astro";
                         <div
                             class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
                         >
-                            <SquareCheckIcon class="w-5 h-5" />
+                            <Icon
+                                name="fa6-solid:square-check"
+                                class="w-5 h-5"
+                            />
                         </div>
                         <input
                             id="subject"
@@ -149,9 +148,17 @@ import ArrowsRotateIcon from "../icons/ArrowsRotate.astro";
                     id="submit-btn"
                     class="w-full sm:w-auto px-8 py-3 bg-primary text-white border-none rounded-lg text-base font-bold cursor-pointer transition-all hover:bg-[#0353e9] hover:shadow-lg active:scale-[0.98] inline-flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                    <span id="btn-icon"><EnvelopeIcon class="w-5 h-5" /></span>
+                    <span id="btn-icon"
+                        ><Icon
+                            name="fa6-solid:envelope"
+                            class="w-5 h-5"
+                        /></span
+                    >
                     <span id="btn-spinner" class="hidden animate-spin"
-                        ><ArrowsRotateIcon class="w-5 h-5" /></span
+                        ><Icon
+                            name="fa6-solid:arrows-rotate"
+                            class="w-5 h-5"
+                        /></span
                     >
                     <span id="btn-text">Odoslať správu</span>
                 </button>

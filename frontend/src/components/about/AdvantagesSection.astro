@@ -1,11 +1,6 @@
 ---
+import { Icon } from "astro-icon/components";
 import Container from "../layout/Container.astro";
-import UserGroup from "../icons/UserGroup.astro";
-import Computer from "../icons/Computer.astro";
-import Shield from "../icons/Shield.astro";
-import Video from "../icons/Video.astro";
-import Building from "../icons/Building.astro";
-import LocationDot from "../icons/LocationDot.astro";
 ---
 
 <section class="py-12 md:py-16 lg:py-20 bg-gray-50">
@@ -19,7 +14,10 @@ import LocationDot from "../icons/LocationDot.astro";
                     <div
                         class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors"
                     >
-                        <UserGroup class="w-10 h-10 text-primary" />
+                        <Icon
+                            name="fa6-solid:user-group"
+                            class="w-10 h-10 text-primary"
+                        />
                     </div>
                     <h3 class="text-lg font-bold text-gray-900">
                         Flexibilita ku klientom
@@ -39,7 +37,10 @@ import LocationDot from "../icons/LocationDot.astro";
                     <div
                         class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors"
                     >
-                        <Computer class="w-10 h-10 text-primary" />
+                        <Icon
+                            name="fa6-solid:computer"
+                            class="w-10 h-10 text-primary"
+                        />
                     </div>
                     <h3 class="text-lg font-bold text-gray-900">
                         Digitalizácia procesov
@@ -58,7 +59,10 @@ import LocationDot from "../icons/LocationDot.astro";
                     <div
                         class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors"
                     >
-                        <Shield class="w-10 h-10 text-primary" />
+                        <Icon
+                            name="fa6-solid:shield"
+                            class="w-10 h-10 text-primary"
+                        />
                     </div>
                     <h3 class="text-lg font-bold text-gray-900">
                         Odbornosť zamestnancov
@@ -77,7 +81,10 @@ import LocationDot from "../icons/LocationDot.astro";
                     <div
                         class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors"
                     >
-                        <Video class="w-10 h-10 text-primary" />
+                        <Icon
+                            name="fa6-solid:video"
+                            class="w-10 h-10 text-primary"
+                        />
                     </div>
                     <h3 class="text-lg font-bold text-gray-900">
                         Možnosť účasti na schôdzi online
@@ -96,7 +103,10 @@ import LocationDot from "../icons/LocationDot.astro";
                     <div
                         class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors"
                     >
-                        <Building class="w-10 h-10 text-primary" />
+                        <Icon
+                            name="fa6-solid:building"
+                            class="w-10 h-10 text-primary"
+                        />
                     </div>
                     <h3 class="text-lg font-bold text-gray-900">
                         Zastrešenie všetkých služieb
@@ -115,7 +125,10 @@ import LocationDot from "../icons/LocationDot.astro";
                     <div
                         class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors"
                     >
-                        <LocationDot class="w-10 h-10 text-primary" />
+                        <Icon
+                            name="fa6-solid:location-dot"
+                            class="w-10 h-10 text-primary"
+                        />
                     </div>
                     <h3 class="text-lg font-bold text-gray-900">
                         Dostupnosť v Ružomberku

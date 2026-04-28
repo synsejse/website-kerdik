@@ -1,8 +1,6 @@
 ---
+import { Icon } from "astro-icon/components";
 import AdminLayout from "../../layouts/admin/Layout.astro";
-import ArrowsRotate from "../../components/icons/ArrowsRotate.astro";
-import Edit from "../../components/icons/Edit.astro";
-import Trash from "../../components/icons/Trash.astro";
 import Loading from "../../components/admin/common/Loading.astro";
 import EmptyState from "../../components/admin/common/EmptyState.astro";
 import Modal from "../../components/admin/common/Modal.astro";
@@ -33,7 +31,8 @@ import MarkdownToolbar from "../../components/admin/common/MarkdownToolbar.astro
                             id="refresh-btn"
                             class="px-6 py-3 bg-primary hover:bg-[#0353e9] text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 flex items-center gap-2 group"
                         >
-                            <ArrowsRotate
+                            <Icon
+                                name="fa6-solid:arrows-rotate"
                                 class="h-4 w-4 transition-transform duration-500 group-hover:rotate-180"
                             />
                             Obnoviť
@@ -68,10 +67,10 @@ import MarkdownToolbar from "../../components/admin/common/MarkdownToolbar.astro
 
         <!-- Icon Templates -->
         <template id="icon-edit">
-            <Edit class="h-4 w-4" />
+            <Icon name="fa6-solid:pen-to-square" class="h-4 w-4" />
         </template>
         <template id="icon-trash">
-            <Trash class="h-4 w-4" />
+            <Icon name="fa6-solid:trash" class="h-4 w-4" />
         </template>
 
         <Modal id="modal-overlay" title="Blog príspevok">
@@ -103,13 +102,13 @@ import MarkdownToolbar from "../../components/admin/common/MarkdownToolbar.astro
                             >
                                 Krátky popis (markdown)
                             </label>
-                            <MarkdownToolbar targetId="post-excerpt" />
-                            <textarea
-                                id="post-excerpt"
-                                rows="3"
-                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 border-t-0 rounded-b-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-words resize-none"
-                                placeholder="Krátky popis s markdown formátovaním..."
-                            ></textarea>
+                            <MarkdownToolbar>
+                                <textarea
+                                    id="post-excerpt"
+                                    rows="3"
+                                    placeholder="Krátky popis s markdown formátovaním..."
+                                ></textarea>
+                            </MarkdownToolbar>
                         </div>
 
                         <div>
@@ -118,14 +117,14 @@ import MarkdownToolbar from "../../components/admin/common/MarkdownToolbar.astro
                             >
                                 Obsah (markdown)
                             </label>
-                            <MarkdownToolbar targetId="post-content" />
-                            <textarea
-                                id="post-content"
-                                rows="12"
-                                required
-                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 border-t-0 rounded-b-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-sm break-words resize-y"
-                                placeholder="Obsah príspevku s markdown formátovaním..."
-                            ></textarea>
+                            <MarkdownToolbar>
+                                <textarea
+                                    id="post-content"
+                                    rows="12"
+                                    required
+                                    placeholder="Obsah príspevku s markdown formátovaním..."
+                                ></textarea>
+                            </MarkdownToolbar>
                         </div>
 
                         <div>

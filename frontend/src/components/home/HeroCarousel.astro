@@ -1,8 +1,7 @@
 ---
 // Hero Carousel component with image backgrounds and content slides
+import { Icon } from "astro-icon/components";
 import { Image } from "astro:assets";
-import ArrowLeftIcon from "../icons/ArrowLeft.astro";
-import ArrowRightIcon from "../icons/ArrowRight.astro";
 import carousel01 from "../../assets/carousel/carousel-01.png";
 import carousel02 from "../../assets/carousel/carousel-02.png";
 import carousel03 from "../../assets/carousel/carousel-03.png";
@@ -78,10 +77,10 @@ const slides: Slide[] = [
                                     class="inline-flex items-center justify-center gap-2 px-6 md:px-8 py-3 md:py-4 rounded-full bg-primary text-white no-underline font-bold text-sm md:text-base tracking-wide transition-all duration-300 shadow-[0_6px_20px_rgba(15,98,254,0.35)] hover:bg-[#0b53d6] hover:shadow-[0_8px_25px_rgba(15,98,254,0.45)] hover:-translate-y-1 active:scale-95"
                                 >
                                     <span>Dozvedieť sa viac</span>
-                                    <ArrowRightIcon
+                                    <Icon
+                                        name="fa6-solid:arrow-right"
                                         width={16}
                                         height={16}
-                                        fill="currentColor"
                                     />
                                 </a>
                             </div>
@@ -98,13 +97,13 @@ const slides: Slide[] = [
                 class="carousel-btn pointer-events-auto bg-black/45 text-white border-none w-11 h-11 rounded-full inline-flex items-center justify-center cursor-pointer transition-colors duration-200 hover:bg-black/60 prev"
                 aria-label="Predchádzajúci slide"
             >
-                <ArrowLeftIcon width={20} height={20} fill="currentColor" />
+                <Icon name="fa6-solid:arrow-left" width={20} height={20} />
             </button>
             <button
                 class="carousel-btn pointer-events-auto bg-black/45 text-white border-none w-11 h-11 rounded-full inline-flex items-center justify-center cursor-pointer transition-colors duration-200 hover:bg-black/60 next"
                 aria-label="Nasledujúci slide"
             >
-                <ArrowRightIcon width={20} height={20} fill="currentColor" />
+                <Icon name="fa6-solid:arrow-right" width={20} height={20} />
             </button>
         </div>
 
