@@ -1,10 +1,7 @@
 import { api, type BlogPost } from "../../lib/api";
 import { escapeHtml, showConfirmDialog } from "./utils";
 import Cropper from "cropperjs";
-import {
-    refreshMarkdownEditors,
-    setMarkdownEditorValue,
-} from "./markdown-editor";
+import { setMarkdownEditorValue } from "./markdown-editor";
 
 // Extend window with admin actions
 declare global {
@@ -289,11 +286,6 @@ export class BlogPageController {
             imagePreviewImg.src = api.blog.getBlogPostImageUrl(post.id);
         }
         if (modal) modal.classList.remove("hidden");
-        requestAnimationFrame(() =>
-            refreshMarkdownEditors(
-                [postExcerpt?.id || "", postContent?.id || ""].filter(Boolean),
-            ),
-        );
     }
 
     private handleImageChange(): void {
@@ -424,11 +416,6 @@ export class BlogPageController {
         if (modal) modal.classList.remove("hidden");
         if (postExcerpt) setMarkdownEditorValue(postExcerpt.id, "");
         if (postContent) setMarkdownEditorValue(postContent.id, "");
-        requestAnimationFrame(() =>
-            refreshMarkdownEditors(
-                [postExcerpt?.id || "", postContent?.id || ""].filter(Boolean),
-            ),
-        );
     }
 
     private closeModal(): void {

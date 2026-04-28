@@ -2,10 +2,7 @@ import { api, type OfferSummary } from "../../lib/api";
 import { escapeHtml, showConfirmDialog } from "./utils";
 import L from "leaflet";
 import Cropper from "cropperjs";
-import {
-    refreshMarkdownEditors,
-    setMarkdownEditorValue,
-} from "./markdown-editor";
+import { setMarkdownEditorValue } from "./markdown-editor";
 import markerIcon from "leaflet/dist/images/marker-icon.png?url";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png?url";
 import markerShadow from "leaflet/dist/images/marker-shadow.png?url";
@@ -330,15 +327,8 @@ export class OffersPageController {
         }
         if (modal) modal.classList.remove("hidden");
 
-        // Initialize map after modal is visible
-        setTimeout(() => {
-            this.initializeMap();
-            refreshMarkdownEditors(
-                [offerExcerpt?.id || "", offerContent?.id || ""].filter(
-                    Boolean,
-                ),
-            );
-        }, 100);
+        // Leaflet needs the container visible to compute size.
+        setTimeout(() => this.initializeMap(), 100);
     }
 
     private handleImageChange(): void {
@@ -468,15 +458,8 @@ export class OffersPageController {
         if (offerExcerpt) setMarkdownEditorValue(offerExcerpt.id, "");
         if (offerContent) setMarkdownEditorValue(offerContent.id, "");
 
-        // Initialize map after modal is visible
-        setTimeout(() => {
-            this.initializeMap();
-            refreshMarkdownEditors(
-                [offerExcerpt?.id || "", offerContent?.id || ""].filter(
-                    Boolean,
-                ),
-            );
-        }, 100);
+        // Leaflet needs the container visible to compute size.
+        setTimeout(() => this.initializeMap(), 100);
     }
 
     private closeModal(): void {

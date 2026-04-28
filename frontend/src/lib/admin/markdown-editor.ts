@@ -1,178 +1,184 @@
-import EasyMDE from "easymde";
+import { Editor } from "@tiptap/core";
+import StarterKit from "@tiptap/starter-kit";
+import Placeholder from "@tiptap/extension-placeholder";
+import { Markdown, type MarkdownStorage } from "tiptap-markdown";
 
-const editors = new Map<string, EasyMDE>();
+declare module "@tiptap/core" {
+    interface Storage {
+        markdown: MarkdownStorage;
+    }
+}
 
-const TOOLBAR: NonNullable<EasyMDE.Options["toolbar"]> = [
-    "bold",
-    "italic",
-    "heading",
-    "|",
-    "quote",
-    "unordered-list",
-    "ordered-list",
-    "|",
-    "link",
-    "code",
-    "table",
-    "horizontal-rule",
-    "|",
-    "preview",
-    "side-by-side",
-    "fullscreen",
-    "|",
-    "guide",
-];
+interface Bound {
+    editor: Editor;
+    textarea: HTMLTextAreaElement;
+}
 
-const PREVIEW_CLASS = [
-    "editor-preview",
-    "prose",
-    "prose-sm",
-    "sm:prose-base",
-    "max-w-none",
-    "p-4",
-    "bg-white",
-];
+const editors = new Map<string, Bound>();
 
-const WRAPPER_CLASSES = [
-    "rounded-b-xl",
-    "border",
-    "border-gray-200",
-    "border-t-0",
-    "bg-gray-50",
-];
-
-const TOOLBAR_CLASS_NAME =
-    "editor-toolbar border border-gray-200 rounded-t-xl bg-gray-100 p-2 flex flex-wrap gap-1 sm:gap-2";
-
-const STATUS_BAR_CLASSES = [
-    "px-3",
-    "py-2",
-    "text-xs",
-    "text-gray-500",
-    "bg-gray-50",
-    "border",
-    "border-gray-200",
-    "border-t-0",
-    "rounded-b-xl",
-];
+const EDITOR_CLASS =
+    "tiptap prose prose-sm sm:prose-base max-w-none p-4 min-h-full focus:outline-none";
 
 function getMinHeight(textarea: HTMLTextAreaElement): string {
     const rows = Number(textarea.getAttribute("rows") || "6");
     return `${Math.max(rows * 24 + 48, 180)}px`;
 }
 
-function applyStyling(editor: EasyMDE, textarea: HTMLTextAreaElement): void {
-    const wrapper = editor.codemirror.getWrapperElement();
-    const container = wrapper.parentElement;
-    if (!container) return;
+function runCommand(editor: Editor, btn: HTMLButtonElement): void {
+    const cmd = btn.dataset.cmd;
+    if (!cmd) return;
+    const chain = editor.chain().focus();
 
-    const minHeight = getMinHeight(textarea);
-    wrapper.classList.add(...WRAPPER_CLASSES);
-    wrapper.style.minHeight = minHeight;
-
-    const scroller = wrapper.querySelector<HTMLElement>(".CodeMirror-scroll");
-    if (scroller) scroller.style.minHeight = minHeight;
-
-    const toolbar = container.querySelector<HTMLElement>(".editor-toolbar");
-    if (toolbar) toolbar.className = TOOLBAR_CLASS_NAME;
-
-    const statusBar = container.querySelector<HTMLElement>(".editor-statusbar");
-    if (statusBar) statusBar.classList.add(...STATUS_BAR_CLASSES);
-}
-
-// EasyMDE's preview mode leaves the underlying CodeMirror visible behind the
-// preview overlay; hide its scroll/gutters/status while preview-only is active.
-function syncPreviewVisibility(editor: EasyMDE): void {
-    const wrapper = editor.codemirror.getWrapperElement();
-    const container = wrapper.parentElement;
-    if (!container) return;
-
-    const preview = container.querySelector<HTMLElement>(
-        ".editor-preview-full",
-    );
-    if (!preview) return;
-
-    const previewSide = container.querySelector<HTMLElement>(
-        ".editor-preview-side",
-    );
-    const isSideBySide =
-        previewSide?.classList.contains("editor-preview-active-side") ?? false;
-    const isPreviewOnly =
-        preview.classList.contains("editor-preview-active") && !isSideBySide;
-
-    const scroll = wrapper.querySelector<HTMLElement>(".CodeMirror-scroll");
-    const gutters = wrapper.querySelector<HTMLElement>(".CodeMirror-gutters");
-    const statusBar = container.querySelector<HTMLElement>(".editor-statusbar");
-
-    if (scroll) {
-        scroll.style.visibility = isPreviewOnly ? "hidden" : "";
-        scroll.style.pointerEvents = isPreviewOnly ? "none" : "";
+    switch (cmd) {
+        case "bold":
+            chain.toggleBold().run();
+            return;
+        case "italic":
+            chain.toggleItalic().run();
+            return;
+        case "strike":
+            chain.toggleStrike().run();
+            return;
+        case "heading": {
+            const level = Number(btn.dataset.level || "2") as 1 | 2 | 3;
+            chain.toggleHeading({ level }).run();
+            return;
+        }
+        case "bulletList":
+            chain.toggleBulletList().run();
+            return;
+        case "orderedList":
+            chain.toggleOrderedList().run();
+            return;
+        case "blockquote":
+            chain.toggleBlockquote().run();
+            return;
+        case "codeBlock":
+            chain.toggleCodeBlock().run();
+            return;
+        case "horizontalRule":
+            chain.setHorizontalRule().run();
+            return;
+        case "undo":
+            chain.undo().run();
+            return;
+        case "redo":
+            chain.redo().run();
+            return;
+        case "link": {
+            const previous = editor.getAttributes("link").href as
+                | string
+                | undefined;
+            const url = window.prompt("URL:", previous ?? "");
+            if (url === null) return;
+            if (url === "") chain.unsetLink().run();
+            else chain.extendMarkRange("link").setLink({ href: url }).run();
+            return;
+        }
     }
-    if (gutters) gutters.style.visibility = isPreviewOnly ? "hidden" : "";
-    if (statusBar) statusBar.style.display = isPreviewOnly ? "none" : "";
-
-    if (!isPreviewOnly) editor.codemirror.refresh();
 }
 
-function observePreviewMode(editor: EasyMDE): void {
-    const container = editor.codemirror.getWrapperElement().parentElement;
-    if (!container) return;
+function isActive(editor: Editor, btn: HTMLButtonElement): boolean {
+    const cmd = btn.dataset.cmd;
+    switch (cmd) {
+        case "bold":
+        case "italic":
+        case "strike":
+        case "bulletList":
+        case "orderedList":
+        case "blockquote":
+        case "codeBlock":
+        case "link":
+            return editor.isActive(cmd);
+        case "heading":
+            return editor.isActive("heading", {
+                level: Number(btn.dataset.level || "2"),
+            });
+        default:
+            return false;
+    }
+}
 
-    const preview = container.querySelector(".editor-preview-full");
-    if (!preview) return;
+function syncToolbar(toolbar: HTMLElement, editor: Editor): void {
+    toolbar
+        .querySelectorAll<HTMLButtonElement>("button[data-cmd]")
+        .forEach((btn) => {
+            if (isActive(editor, btn)) btn.dataset.active = "true";
+            else delete btn.dataset.active;
 
-    const observer = new MutationObserver(() => syncPreviewVisibility(editor));
-    observer.observe(preview, { attributes: true, attributeFilter: ["class"] });
-
-    const previewSide = container.querySelector(".editor-preview-side");
-    if (previewSide) {
-        observer.observe(previewSide, {
-            attributes: true,
-            attributeFilter: ["class"],
+            if (btn.dataset.cmd === "undo") btn.disabled = !editor.can().undo();
+            else if (btn.dataset.cmd === "redo")
+                btn.disabled = !editor.can().redo();
         });
-    }
-
-    syncPreviewVisibility(editor);
 }
 
-function initializeEditor(textarea: HTMLTextAreaElement): void {
-    if (!textarea.id || editors.has(textarea.id)) return;
+function bindToolbar(host: HTMLElement, editor: Editor): void {
+    const toolbar = host.querySelector<HTMLElement>("[data-markdown-toolbar]");
+    if (!toolbar) return;
 
-    const editor = new EasyMDE({
-        element: textarea,
-        autoDownloadFontAwesome: false,
-        forceSync: true,
-        spellChecker: false,
-        nativeSpellcheck: false,
-        inputStyle: "contenteditable",
-        sideBySideFullscreen: false,
-        promptURLs: true,
-        status: ["lines", "words"],
-        toolbar: TOOLBAR,
-        previewClass: PREVIEW_CLASS,
-        placeholder: textarea.placeholder,
+    toolbar
+        .querySelectorAll<HTMLButtonElement>("button[data-cmd]")
+        .forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+                e.preventDefault();
+                runCommand(editor, btn);
+            });
+        });
+
+    const update = () => syncToolbar(toolbar, editor);
+    editor.on("selectionUpdate", update);
+    editor.on("transaction", update);
+    update();
+}
+
+function initializeEditor(host: HTMLElement): void {
+    const textarea = host.querySelector<HTMLTextAreaElement>("textarea");
+    const mount = host.querySelector<HTMLElement>("[data-markdown-mount]");
+    if (!textarea?.id || !mount || editors.has(textarea.id)) return;
+
+    textarea.style.display = "none";
+    mount.style.minHeight = getMinHeight(textarea);
+
+    const editor = new Editor({
+        element: mount,
+        extensions: [
+            StarterKit.configure({
+                link: { openOnClick: false },
+            }),
+            Markdown.configure({
+                html: false,
+                tightLists: true,
+                linkify: true,
+                breaks: false,
+            }),
+            Placeholder.configure({
+                placeholder: textarea.placeholder || "",
+            }),
+        ],
+        content: textarea.value || "",
+        editorProps: {
+            attributes: { class: EDITOR_CLASS },
+        },
+        onUpdate: ({ editor }) => {
+            textarea.value = editor.storage.markdown.getMarkdown();
+        },
     });
 
-    applyStyling(editor, textarea);
-    observePreviewMode(editor);
-    editors.set(textarea.id, editor);
+    bindToolbar(host, editor);
+    editors.set(textarea.id, { editor, textarea });
 }
 
 export function initMarkdownEditors(): void {
     document
         .querySelectorAll<HTMLElement>("[data-markdown-editor]")
-        .forEach((host) => {
-            const textarea =
-                host.querySelector<HTMLTextAreaElement>("textarea");
-            if (textarea) initializeEditor(textarea);
-        });
+        .forEach((host) => initializeEditor(host));
 }
 
 export function setMarkdownEditorValue(targetId: string, value: string): void {
-    const editor = editors.get(targetId);
-    if (editor) {
-        editor.value(value);
-        editor.codemirror.refresh();
+    const bound = editors.get(targetId);
+    if (bound) {
+        bound.editor.commands.setContent(value);
+        bound.textarea.value = value;
         return;
     }
 
@@ -180,9 +186,4 @@ export function setMarkdownEditorValue(targetId: string, value: string): void {
         targetId,
     ) as HTMLTextAreaElement | null;
     if (textarea) textarea.value = value;
-}
-
-export function refreshMarkdownEditors(targetIds?: string[]): void {
-    const ids = targetIds?.length ? targetIds : Array.from(editors.keys());
-    ids.forEach((id) => editors.get(id)?.codemirror.refresh());
 }

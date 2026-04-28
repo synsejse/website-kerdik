@@ -1,9 +1,98 @@
 ---
-import "codemirror/lib/codemirror.css";
-import "easymde/src/css/easymde.css";
+import { Icon } from "astro-icon/components";
+
+const btn =
+    "inline-flex items-center justify-center min-w-8 h-8 px-1.5 rounded text-xs font-bold text-gray-600 transition-colors hover:bg-gray-200 hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed data-[active=true]:bg-primary data-[active=true]:text-white data-[active=true]:hover:bg-primary";
+const sep = "self-stretch w-px bg-gray-300 mx-1";
 ---
 
-<div data-markdown-editor>
+<div
+    data-markdown-editor
+    class="rounded-xl border border-gray-200 overflow-hidden bg-white"
+>
+    <div
+        data-markdown-toolbar
+        class="bg-gray-100 p-2 flex flex-wrap items-center gap-1 sm:gap-1.5 border-b border-gray-200"
+    >
+        <button type="button" data-cmd="bold" title="Tučné" class={btn}>
+            <Icon name="fa6-solid:bold" class="h-4 w-4" />
+        </button>
+        <button type="button" data-cmd="italic" title="Kurzíva" class={btn}>
+            <Icon name="fa6-solid:italic" class="h-4 w-4" />
+        </button>
+        <button
+            type="button"
+            data-cmd="strike"
+            title="Prečiarknuté"
+            class={btn}
+        >
+            <Icon name="fa6-solid:strikethrough" class="h-4 w-4" />
+        </button>
+        <span class={sep}></span>
+        <button
+            type="button"
+            data-cmd="heading"
+            data-level="1"
+            title="Nadpis 1"
+            class={btn}>H1</button
+        >
+        <button
+            type="button"
+            data-cmd="heading"
+            data-level="2"
+            title="Nadpis 2"
+            class={btn}>H2</button
+        >
+        <button
+            type="button"
+            data-cmd="heading"
+            data-level="3"
+            title="Nadpis 3"
+            class={btn}>H3</button
+        >
+        <span class={sep}></span>
+        <button type="button" data-cmd="bulletList" title="Zoznam" class={btn}>
+            <Icon name="fa6-solid:list-ul" class="h-4 w-4" />
+        </button>
+        <button
+            type="button"
+            data-cmd="orderedList"
+            title="Číslovaný zoznam"
+            class={btn}
+        >
+            <Icon name="fa6-solid:list-ol" class="h-4 w-4" />
+        </button>
+        <button type="button" data-cmd="blockquote" title="Citácia" class={btn}>
+            <Icon name="fa6-solid:quote-left" class="h-4 w-4" />
+        </button>
+        <button
+            type="button"
+            data-cmd="codeBlock"
+            title="Blok kódu"
+            class={btn}
+        >
+            <Icon name="fa6-solid:code" class="h-4 w-4" />
+        </button>
+        <button type="button" data-cmd="link" title="Odkaz" class={btn}>
+            <Icon name="fa6-solid:link" class="h-4 w-4" />
+        </button>
+        <button
+            type="button"
+            data-cmd="horizontalRule"
+            title="Oddeľovač"
+            class={btn}
+        >
+            <Icon name="fa6-solid:minus" class="h-4 w-4" />
+        </button>
+        <span class={sep}></span>
+        <button type="button" data-cmd="undo" title="Späť" class={btn}>
+            <Icon name="fa6-solid:rotate-left" class="h-4 w-4" />
+        </button>
+        <button type="button" data-cmd="redo" title="Vpred" class={btn}>
+            <Icon name="fa6-solid:rotate-right" class="h-4 w-4" />
+        </button>
+    </div>
+    <div data-markdown-mount></div>
     <slot />
 </div>
 
